@@ -1,0 +1,320 @@
+#summary Traceur Language Features
+#labels Featured
+
+= Language Features =
+
+  * [LanguageFeatures#Classes Classes] - _Strawman_
+  * [LanguageFeatures#Traits Traits] - _Strawman_
+  * [LanguageFeatures#Modules Modules] (in progress)
+  * [LanguageFeatures#Iterators_and_For_Each Iterators and For Each]
+  * [LanguageFeatures#Generators Generators]
+  * [LanguageFeatures#Deferred_Functions Deferred Functions] - _Strawman_
+  * [LanguageFeatures#Block_Scoped_Bindings Block Scoped Bindings]
+  * [LanguageFeatures#Destructuring_Assignment Destructuring Assignment]
+  * [LanguageFeatures#Default_Parameters Default Parameters]
+  * [LanguageFeatures#Rest_Parameters Rest Parameters]
+  * [LanguageFeatures#Spread_Operator Spread Operator]
+  * [LanguageFeatures#Object_Initialiser_Shorthand Object Initialiser Shorthand] - _Strawman_
+
+These features are [http://wiki.ecmascript.org/doku.php?id=harmony:proposals proposals] for ECMAScript Harmony unless otherwise noted.
+
+== Classes ==
+
+[http://en.wikipedia.org/wiki/Class_(computer_programming) Classes] are a great way to reuse code. Several JS libraries provide classes and inheritance, but they aren't mutually compatible. Our implementation is inspired by Allen Wirfs-Brock's [http://wiki.ecmascript.org/doku.php?id=strawman:obj_initialiser_class_abstraction class initializers proposal]. Here's an example:
+{{{
+class Monster : Character {
+  new(x, y, name) {
+    super(x, y);
+    this.name = name;
+  }
+
+  function attack(character) {
+    class.totalAttacks++;
+    super.attack(character);
+  }
+
+  var health_ = 100;
+
+  get isAlive() { return this.health > 0; }
+  get health() { return this.health_; }
+  set health(value) {
+    if (value < 0) throw new Error('Health must be non-negative.');
+    this.health_ = value;
+  }
+
+  class var totalAttacks = 0;
+}
+}}}
+
+Here's an example of subclassing an HTML button:
+{{{
+class CustomButton : HTMLButtonElement {
+  new() {
+    this.value = 'Custom Button';
+  }
+  // ... other methods ...
+}
+var button = new CustomButton();
+document.body.appendChild(button);
+}}}
+
+== Traits ==
+
+Sometimes you want to create a reusable chunk of code that you can use in your classes. Traits make it easy to group methods together as a unit, and mix this unit into one or more classes, merging the features of the trait into the class. Traits are similar to multiple inheritance and mixins from other languages, but they're more robust because name clashes must be resolved explicitly by composers.
+
+Our implementation is inspired by http://traitsjs.org/ and  [http://wiki.ecmascript.org/doku.php?id=strawman:classes_with_trait_composition classes with trait composition].
+
+The syntax is still evolving but right now it looks like this:
+{{{
+trait ComparableTrait {
+  requires lessThan;
+  requires equals;
+
+  function lessThanOrEquals(other) {
+    return this.lessThan(other) || this.equals(other);
+  }
+  function greaterThan(other) {
+    return other.lessThan(this);
+  }
+  function greaterThanOrEquals(other) {
+    return other.lessThan(this) || this.equals(other);
+  }
+  function notEquals(other) {
+    return !(this.equals(other));
+  }
+}
+
+class Interval {
+  mixin ComparableTrait;
+
+  new(min, max) {
+    this.start = min;
+    this.end = max;
+    this.size = max - min - 1;
+  }
+  function lessThan(ival) {
+    return this.end <= ival.start;
+  }
+  function equals(ival) {
+    return this.start == ival.start && this.end == ival.end;
+  }
+}
+
+var i1 = new Interval(0, 5);
+var i2 = new Interval(7, 12);
+alert(i1 + ' == ' + i2 + ': ' + i1.notEquals(i2)); // true
+alert(i1 + ' < ' + i2 + ': ' + i1.greaterThan(i2)); // false
+}}}
+
+== Modules ==
+
+[http://wiki.ecmascript.org/doku.php?id=harmony:modules Modules] are not ready to use yet in Traceur, but they are partially implemented. Modules try to solve many issues in dependencies and deployment, allowing users to name external modules, import specific exported names from those modules, and keep these names separate.
+
+{{{
+module Profile {
+  // module code
+  export var firstName = 'David';
+  export var lastName = 'Belle';
+  export var year = 1973;
+}
+
+module ProfileView {
+  import Profile.{firstName, lastName, year};
+
+  function setHeader(element) {
+    element.textContent = firstName + ' ' + lastName;
+  }
+  // rest of module
+}
+}}}
+
+== Iterators and For Each ==
+
+[http://en.wikipedia.org/wiki/Iterator Iterators] are objects that can traverse a container. It's a useful way to make a class work inside a for each loop. The interface is similar to the [http://wiki.ecmascript.org/doku.php?id=harmony:iterators iterators] proposal. Iterating with a for each loop looks like:
+{{{
+for (let element : [1, 2, 3]) {
+  console.log(element);
+}
+}}}
+
+Note: The for-colon loop syntax is not yet agreed upon by TC39.
+
+You can also create your own iterable objects. Normally this is done via the `yield` keyword (discussed below in [LanguageFeatures#Generators Generators]) but it could be done explicitly by returning an object that has `__iterator__`:
+{{{
+function iterateElements(array) {
+  return {
+    __iterator__: function() {
+      var index = 0;
+      var current;
+      return {
+        get current() {
+          return current;
+        },
+        moveNext: function() {
+          if (index < array.length) {
+            current = array[index++];
+            return true;
+          }
+          return false;
+        }
+      };
+    }
+  };
+}
+}}}
+
+== Generators ==
+
+[http://wiki.ecmascript.org/doku.php?id=harmony:generators Generators] make it easy to create iterators. Instead of tracking state yourself and implementing `__iterator__`, you just use `yield` (or `yield for` to yield each element in a list):
+
+{{{
+// A binary tree class.
+function Tree(left, label, right) {
+  this.left = left;
+  this.label = label;
+  this.right = right;
+}
+// A recursive generator that iterates the Tree labels in-order.
+function inorder(t) {
+  if (t) {
+    yield for inorder(t.left);
+    yield t.label;
+    yield for inorder(t.right);
+  }
+}
+
+// Make a tree
+function make(array) {
+  // Leaf node:
+  if (array.length == 1) return new Tree(null, array[0], null);
+  return new Tree(make(array[0]), array[1], make(array[2]));
+}
+let tree = make([[['a'], 'b', ['c']], 'd', [['e'], 'f', ['g']]]);
+
+// Iterate over it
+for (let node : inorder(tree)) {
+  console.log(node); // a, b, c, d, ...
+}
+}}}
+
+== Deferred Functions ==
+
+[http://wiki.ecmascript.org/doku.php?id=strawman:deferred_functions Deferred functions] allow you to write asynchronous non-blocking code without writing callback functions, which don't compose well. With deferred functions, you can use !JavaScript control flow constructs that you're used to, inline with the rest of your code.
+
+{{{
+function deferredAnimate(element) {
+    for (var i = 0; i < 100; ++i) {
+        element.style.left = i;
+        await deferredTimeout(20);
+    }
+};
+
+deferredAnimate(document.getElementById('box'));
+}}}
+
+Deferred functions use await expressions to suspend execution and return an object that represents the continuation of the function.
+
+== Block Scoped Bindings ==
+
+[http://wiki.ecmascript.org/doku.php?id=harmony:block_scoped_bindings Block scoped bindings] provide scopes other than the function and top level scope. This ensures your variables don't leak out of the scope they're defined:
+{{{
+{
+  const tmp = a;
+  a = b;
+  b = tmp;
+}
+alert(tmp); // error: 'tmp' is not defined.
+}}}
+It's also useful for capturing variables in a loop:
+{{{
+let funcs = [];
+for (let i : [4,5,6]) {
+  funcs.push(function() { return i; });
+}
+for (var func : funcs) {
+  console.log(func()); // 4, 5, 6
+}
+}}}
+
+== Destructuring Assignment ==
+
+[http://wiki.ecmascript.org/doku.php?id=harmony:destructuring Destructuring assignment] is a nice way to assign or initialize several variables at once:
+{{{
+var [a, [b], c, d] = ['hello', [', ', 'junk'], ['world']];
+alert(a + b + c); // hello, world
+}}}
+It can also destructure objects:
+{{{
+var pt = { x: 123, y: 444 };
+var rect = { topLeft: { x: 1, y: 2 }, bottomRight: {x: 3, y: 4} };
+// ... other code ...
+var {x, y} = pt; // unpack the point
+var {topLeft: {x: x1, y: y1}, bottomRight: {x: x2, y: y2}} = rect;
+
+alert(x + y); // 567
+alert([x1, y1, x2, y2].join(',')) // 1,2,3,4
+}}}
+
+== Default Parameters ==
+
+[http://wiki.ecmascript.org/doku.php?id=harmony:parameter_default_values default parameters] allow your functions to have optional arguments without needing to check `arguments.length` or check for `undefined`.
+
+{{{
+function slice(list, indexA = 0, indexB = list.length) {
+  // ... 
+}
+}}}
+
+== Rest Parameters ==
+
+[http://wiki.ecmascript.org/doku.php?id=harmony:rest_parameters Rest parameters] allows your functions to have variable number of arguments without using the `arguments` object.
+
+{{{
+function push(array, ...items) {
+  items.forEach(function(item) {
+    array.push(item);
+  });
+}
+}}}
+
+The rest parameter is an instance of `Array` so all the array methods just works.
+
+== Spread Operator ==
+
+The [http://wiki.ecmascript.org/doku.php?id=harmony:spread spread operator] is like the reverse of [LanguageFeatures#Rest_Parameters rest parameters]. It allows you to expand an array into multiple formal parameters.
+
+{{{
+function push(array, ...items) {
+  array.push(...items);
+}
+
+function add(x, y) {
+  return x + y;
+}
+
+var numbers = [4, 38];
+add(...numbers);  // 42
+}}}
+
+The spread operator also works in array literals which allows you to combine multiple arrays more easily.
+
+{{{
+var a = [1];
+var b = [2, 3, 4];
+var c = [6, 7];
+var d = [0, ...a, ...b, 5, ...c];
+}}}
+
+
+== Object Initialiser Shorthand ==
+
+This [http://wiki.ecmascript.org/doku.php?id=strawman:object_initialiser_shorthand strawman] allows you to skip repeating yourself when the property name and property value are the same in an object literal.
+
+{{{
+function getPoint() {
+  var x = ...;
+  var y = ...;
+  ...
+  return {x, y};
+}
+}}}

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<!--
+
+// Copyright 2011 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+-->
+<html>
+<head>
+<title></title>
+<script src="../../../third_party/closure-library/closure/goog/base.js"></script>
+<script>
+goog.require('goog.testing.jsunit');
+</script>
+<script src="../../../src/traceur.js"></script>
+</head>
+<body>
+<script type="text/traceur">
+
+module a {
+  export var i = 0;
+  export function inc() {
+    i++;
+  }
+}
+
+function testExports() {
+  assertEquals(0, a.i);
+  a.inc();
+  assertEquals(1, a.i);
+
+  assertThrows(function() {
+    a.i = 2;
+  });
+}
+
+module b {
+  export module c {
+    export var d = 42;
+    export module c2 {
+      export var d2 = 43;
+    }
+  }
+}
+
+function testNestedExports() {
+  assertEquals(42, b.c.d);
+}
+
+module b2 = b;
+
+function testDeclarationAlias() {
+  assertEquals(42, b2.c.d);
+}
+
+module c = b.c;
+
+function testNestedDeclarations() {
+  assertEquals(42, c.d);
+}
+
+module d = c;
+
+function testNestedDeclarationorts() {
+  assertEquals(42, d.d);
+}
+
+module d2 = c.c2;
+
+function testNestedDeclarationorts() {
+  assertEquals(43, d2.d2);
+}
+
+module e {
+  module n {
+    export var val = 44;
+  }
+  export module o = n, o2 = n;
+}
+
+function testExportModuleDeclaration() {
+  assertEquals(44, e.o.val);
+  assertEquals(44, e.o2.val);
+}
+
+module m2 {
+  module n {
+    export var name = 'n';
+  }
+  export module n2 {
+    export module o2 = n;
+  }
+}
+
+function testExportLexicalModule() {
+  assertEquals('n', m2.n2.o2.name);
+}
+
+module p2 {
+  module q {
+    export var name = 'q';
+  }
+  export module q2 {
+    export {name: q.name};
+  }
+}
+
+function testExportLexicalModule2() {
+  assertEquals('q', p2.q2.name);
+}
+
+</script>
+<script type="text/traceur">
+
+module f {
+  var g = 'g';
+  export g;
+}
+
+function testExportIdentifier() {
+  assertEquals('g', f.g);
+}
+
+module h {
+  module i {
+    export var j = 'j';
+    export var l = 'l';
+  }
+  export i.j, i.{k: j, l};
+}
+
+function testExportModuleExpression() {
+  assertEquals('j', h.j);
+  assertEquals('j', h.k);
+  assertEquals('l', h.l);
+}
+
+module m {
+  var n = 'n';
+
+  module o {
+    export var q = 'q';
+  }
+
+  export {n, o: n, p: o.q};
+}
+
+function testExportPathSpecifierSet() {
+  assertEquals('n', m.n);
+  assertEquals('n', m.o);
+  assertEquals('q', m.p);
+}
+
+</script>
+<script>
+
+function compileAndReturnErrors(contents, name) {
+  var sourceFile = new traceur.syntax.SourceFile(name, contents);
+  var reporter = new traceur.util.ErrorReporter();
+  var errors = [];
+  reporter.reportMessageInternal = function() {
+    errors.push(arguments);
+  };
+
+  var project = new traceur.semantics.symbols.Project();
+  project.addFile(sourceFile)
+  traceur.codegeneration.Compiler.compile(reporter, project);
+  return errors;
+}
+
+function assertErrorMessage(errors, moduleName, opt_expectedError) {
+  var expectedError = opt_expectedError || '\'%s\' is not a module';
+  assertTrue(errors.length > 0);
+  assertEquals(expectedError, errors[0][2]);
+  assertEquals(moduleName, errors[0][3][0]);
+}
+
+function testInvalidModuleDeclaration() {
+  var contents = 'module a {}\n' +
+      'module b = c;\n';
+  var name = 'testInvalidModuleDeclaration';
+  var errors = compileAndReturnErrors(contents, name);
+
+  assertErrorMessage(errors, 'c');
+}
+
+function testInvalidModuleDeclaration2() {
+  var contents = 'module a {}\n' +
+      'module b = a.c;\n';
+  var name = 'testInvalidModuleDeclaration2';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c');
+}
+
+function testInvalidModuleDeclaration3() {
+  var contents = 'module a {\n' +
+      '  module b = c;\n' +
+      '}\n';
+  var name = 'testInvalidModuleDeclaration3';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c');
+}
+
+function testInvalidModuleDeclaration4() {
+  var contents = 'module a {\n' +
+      '  module b {}\n' +
+      '  module c = b.d;\n' +
+      '}\n';
+  var name = 'testInvalidModuleDeclaration4';
+  var errors = compileAndReturnErrors(contents, name);
+assertErrorMessage(errors, 'd');
+}
+
+function testInvalidModuleDeclaration5() {
+  var contents = 'module a {\n' +
+      '  export module b = c;\n' +
+      '}\n';
+  var name = 'testInvalidModuleDeclaration5';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c');
+}
+
+function testInvalidModuleDeclaration6() {
+  var contents = 'module a {\n' +
+      '  export module b {\n' +
+      '    module c = d;\n' +
+      '  }\n' +
+      '}\n';
+  var name = 'testInvalidModuleDeclaration6';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'd');
+}
+
+function testInvalidExport() {
+  var contents = 'module a {\n' +
+      '  module b {\n' +
+      '    module c {};\n' +
+      '  }\n' +
+      '  export b.c;\n' +
+      '}\n';
+  var name = 'testInvalidExport';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
+}
+
+function testInvalidExport2() {
+  var contents = 'module a {\n' +
+      '  module b {\n' +
+      '    module c {};\n' +
+      '  }\n' +
+      '  export b.{c};\n' +
+      '}\n';
+  var name = 'testInvalidExport2';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
+}
+
+function testInvalidExport3() {
+  var contents = 'module a {\n' +
+      '  module b {\n' +
+      '    module c {};\n' +
+      '  }\n' +
+      '  export {d: b.c};\n' +
+      '}\n';
+  var name = 'testInvalidExport3';
+  var errors = compileAndReturnErrors(contents, name);
+  assertErrorMessage(errors, 'c', '\'%s\' is not exported');
+}
+
+function evalScript(scriptElement) {
+  var contents;
+  var name;
+  if (scriptElement.src) {
+    name = scriptElement.src;
+    var xhr = new XMLHttpRequest();
+    // Synchronous load but these are already loaded when we get here so it
+    // should be fast.
+    xhr.open('GET', scriptElement.src, false);
+    xhr.send();
+    contents = xhr.responseText;
+  } else {
+    name = 'inline-script';
+    contents = scriptElement.textContent;
+  }
+
+  var sourceFile = new traceur.syntax.SourceFile(name, contents);
+  var reporter = new traceur.util.ErrorReporter();
+  var project = new traceur.semantics.symbols.Project();
+  project.addFile(sourceFile)
+  var trees = traceur.codegeneration.Compiler.compile(reporter, project);
+  assertFalse(reporter.hadError());
+  var result = traceur.codegeneration.ProjectWriter.write(trees);
+  ('global', eval)(result);
+  assertFalse(reporter.hadError());
+}
+
+function evalAllScripts() {
+  var scripts = document.querySelectorAll('script[type="text/traceur"]');
+  Array.prototype.forEach.call(scripts, evalScript);
+}
+
+evalAllScripts();
+
+</script>
+</body>
+</html>

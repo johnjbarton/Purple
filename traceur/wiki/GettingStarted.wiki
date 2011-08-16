@@ -1,0 +1,92 @@
+#summary How to try out Traceur
+
+Traceur is a compiler that takes Javascript including some new enhancements like classes and generators, and compiles it down to regular Javascript that runs in your browser. Traceur itself is written in Javascript, which means you can host the compiler directly in your pages and compile Traceur code on the fly.
+
+= Hello, World! =
+
+To demonstrate, we'll build a little web page that includes a chunk of embedded Traceur code. When the page loads, it will execute that code and stick "Hello, World" onto the page. You can see the final result [http://code.google.com/p/traceur-compiler/source/browse/trunk/example/hello.html here].
+
+First, let's build the skeleton of a page:
+
+{{{
+<html> 
+  <head>
+    <title>Hello, World!</title>
+  </head> 
+  <body>
+    <h1 id="message"></h1>
+  </body> 
+</html>
+}}}
+
+== A Touch of Class ==
+
+The goal is to have that `<h1>` include our generated message when the page loads. To do that, let's add a script tag with our Traceur code:
+
+{{{
+<html>
+  ...
+  <body>
+    <script type="text/traceur">
+      class Greeter {
+        new(message) {
+          this.message = message;
+        }
+
+        greet() {
+          let element = document.querySelector('#message');
+          element.innerHTML = this.message;
+        }
+      };
+
+      let greeter = new Greeter('Hello, world!');
+      greeter.greet();
+    </script>
+    ...
+  </body>
+</html>
+}}}
+
+As you can see, we're using a couple of features that vanilla ECMAscript doesn't support: classes, and `let` for block scoped variables. Also notice that the script tag is using `"text/traceur"` as its type instead of the usual `"text/javascript"`.
+
+== Let's Get Compiling ==
+
+Open this page in your browser and you'll get nothing. The problem is it has no idea what to do with that `<script>` tag. To fix that, we need to include the compiler:
+
+{{{
+<html> 
+  <head>
+    ...
+    <script src="http://traceur-compiler.googlecode.com/svn/branches/v0.10/src/traceur.js" 
+        type="text/javascript"></script> 
+  </head>
+  ...
+</html>
+}}}
+
+== Pulling Yourself Up By Your Bootstraps ==
+
+The `traceur.js` script is the main entrypoint for the Traceur-to-Javascript compiler. So with this, we *can* compile Traceur code, but the compiler by itself doesn't do anything. We need one more piece:
+
+{{{
+<html> 
+  <head>
+    ...
+    <script src="http://traceur-compiler.googlecode.com/svn/branches/v0.10/src/traceur.js"
+        type="text/javascript"></script> 
+    <script src="http://traceur-compiler.googlecode.com/svn/branches/v0.10/src/bootstrap.js"
+        type="text/javascript"></script> 
+  </head>
+  ...
+</html>
+}}}
+
+The `bootstrap.js` script is a little bit of glue. When the page loads, it finds all of the `<script type="text/traceur">` tags, compiles their contents down to vanilla Javascript and then has the browser evaluate it.
+
+Now refresh the page and you should see a greeting.
+
+= Using It On Your Own Pages =
+
+The example here is pointing directly to `traceur.js` and `bootstrap.js` on the code repo here. That works, but you may want to pull those down and host them yourself. A single-file minified version is forthcoming.
+
+If you run into any problems, please [http://groups.google.com/group/traceur-compiler-discuss let us know].

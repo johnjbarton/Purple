@@ -1,0 +1,68 @@
+#summary How to get started engineering.
+
+= Getting Traceur =
+
+You can pull the code down using Subversion or git (though git-svn). To get it using git-svn, do:
+
+{{{
+$ mkdir traceur # it won't create a dir for you
+$ cd traceur
+$ git svn clone -s https://traceur-compiler.googlecode.com/svn
+}}}
+
+You'll know it's working when computer gets nice and warm and you see a bunch of text spew by. Once it's done, you've got it!
+
+To see if everything works, try running the tests...
+
+= Running the Tests =
+
+Traceur has three kinds of tests: *unit tests* validate that various classes within Traceur do what they're supposed to do. *Feature tests* are small standalone chunks of Traceur code. The tests compile and run them, and validate that they do what they're supposed to. Finally, the *baseline tests* push a big pile of Javascript through Traceur (currently the Closure libraries) and validate that nothing gets broken in the process.
+
+The feature tests are likely the most interesting. They show what kinds of extensions to Javascript we're prototyping, both what they look like and how they behave. If you want a quick introduction to what kinds of stuff we're trying, hunt through the `feature/` directory and see.
+
+== From a Browser ==
+
+=== Allowing File Access ===
+
+Since the test scripts access other local files, you'll need to tweak your browser a bit to tell it you want to allow that before you can run the tests in a browser:
+
+==== Configuring Chrome ====
+
+You'll need to launch Chrome with an argument to let scripts load other scripts from disk: `--allow-file-access-from-files`. On Mac OS X, you can do this from the Terminal using:
+
+{{{
+$ /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --allow-file-access-from-files &> /dev/null &
+}}}
+
+==== Configuring Firefox ====
+
+To run this in Firefox you need to change a preference so that the scripts can load other files outside of their directory ([http://kb.mozillazine.org/Security.fileuri.strict_origin_policy strict_origin_policy]). To do that:
+
+  # Navigate to `about:config`. (Accept the warning if shown.)
+  # In the "Filter" box, enter: `security.fileuri.strict_origin_policy` and hit enter.
+  # If it's value is currently `true`, double-click the result line to toggle it to `false`.
+
+=== Running the Tests ===
+
+Now that you've got your browser loosened up, open a test page. To run the unit tests and feature tests, open:
+
+{{{
+test/alltests.html
+}}}
+
+Click "Start" and hope for the delicious green bars of success. To run just the feature tests:
+
+{{{
+test/feature/feature_test.html
+}}}
+
+You can run specific unit tests by opening any `_test.html` file under `unit/`.
+
+== From the Command Line ==
+
+We're working on supporting running the tests on [http://nodejs.org/ Node]. If you have Node installed, you can run the feature tests like this:
+
+{{{
+$ cd test/ # Need to run from within test/ dir.
+$ node testfeatures.js
+}}}
