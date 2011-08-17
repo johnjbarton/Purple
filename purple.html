@@ -119,7 +119,7 @@ body {
     output.hidden = !outputCheckbox.checked;
   }, false);
 
-  function compile(src) {
+  function compile(name, src) {
     hasError = false;
     output.textContent = errorElement.textContent = '';
 
@@ -135,7 +135,6 @@ body {
     };
 
     var project = new traceur.semantics.symbols.Project();
-    var name = 'repl';
     var contents = src;
     var sourceFile = new traceur.syntax.SourceFile(name, contents);
     project.addFile(sourceFile);
@@ -160,6 +159,9 @@ body {
   }
 
   input.addEventListener('input', compile, false);
+  window.purple.editorIntegration.onSourceChange = function(name, src, startDamage, endDamage) {
+    if (src) compile(name, src);
+  }
 })();
 
 </script>

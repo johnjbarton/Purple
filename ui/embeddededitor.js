@@ -124,16 +124,39 @@ dojo.addOnLoad(function(){
 	});
 	
 	editor.installTextView();
+	//--------------------------------------------------------------------------------------------------------
+	// Orion Editor API
 	var editorAPI = {
+	  initialize: function(editor, syntaxHighlighter) {
+	    editor.getTextView();
+	    editor.getTextView().addEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
+		window.purple.editorIntegration.onEditorReady(this);
+	  },
 	  setContent: function(name, src) {
+	    this.sourceName = name;  // TODO multiple editors
 	    // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
 		editor.onInputChange(name, null, src);
 		syntaxHighlighter.highlight(name, editor.getTextView());
 		// end of code to run when content changes.
+	  },
+	  // name: a key given to setContent,
+	  // src: new buffer contents, 
+	  // startDamage: first pos of change (both old and new)
+	  // endDamage: last pos of change in *old* buffer 
+	  sourceChange: function(name, src, startDamage, endDamage) {
+	    window.purple.editorIntegration.onSourceChange(name, src, startDamage, endDamage);
+	  },
+	  //----------------------------
+	  // Event handlers
+	  onModelChanged: function(event) {
+	    console.log("editor textView onModelChanged", arguments);
+	    var model = editor.getTextView().getModel();
+	    editorAPI.sourceChange(this.sourceName, model.getText(), event.start, event.removedCharCount); 
 	  }
 	};
 	
-	window.purple.editorIntegration.onEditorReady(editorAPI);
+	editorAPI.initialize(editor, syntaxHighlighter);
+	
 	
 	window.onbeforeunload = function() {
 		if (editor.isDirty()) {
