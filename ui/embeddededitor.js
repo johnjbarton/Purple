@@ -124,7 +124,16 @@ dojo.addOnLoad(function(){
 	});
 	
 	editor.installTextView();
-	window.purple.onEditorReady(editor, syntaxHighlighter);
+	var editorAPI = {
+	  setContent: function(name, src) {
+	    // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
+		editor.onInputChange(name, null, src);
+		syntaxHighlighter.highlight(name, editor.getTextView());
+		// end of code to run when content changes.
+	  }
+	};
+	
+	window.purple.editorIntegration.onEditorReady(editorAPI);
 	
 	window.onbeforeunload = function() {
 		if (editor.isDirty()) {
