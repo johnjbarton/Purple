@@ -8,27 +8,26 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-/*global define */
+/*global dojo eclipse:true */
 /*jslint devel:true*/
 
 define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil) {
 
-	/**
-	 * This class contains static utility methods for dealing with sites.
-	 * @name orion.siteUtils
-	 */
+var eclipse = {};
+eclipse.sites = {};
 
-
+/**
+ * @namespace Holds stateless utility methods for dealing with sites.
+ */
+eclipse.sites.util = {
 	/**
 	 * Returns a relative URL pointing to the editing page for the given site configuration. 
-	 * @param {orion.siteService.SiteConfiguration} site The site configuration
+	 * @param {eclipse.sites.SiteConfiguration} site
 	 * @return {String} The URL.
-	 * @name orion.siteUtils#generateEditSiteHref
-	 * @function
 	 */
-	function generateEditSiteHref(site) {
+	generateEditSiteHref: function(site) {
 		return "site.html#" + mUtil.makeRelative(site.Location);
-	}
+	},
 	
 	/**
 	 * Parses the state of the site page from a hash value.
@@ -38,10 +37,8 @@ define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil
 	 * <li>{@link String} <code>action</code> Optional, currently unused</li>
 	 * <li>{@link String} <code>actionDetails</code> Optional, currently unused</li>
 	 * </ul>
-	 * @name orion.siteUtils#parseStateFromHash
-	 * @function
 	 */
-	function parseStateFromHash(hash) {
+	parseStateFromHash: function(hash) {
 		var obj = dojo.queryToObject(hash);
 		var state = dojo.mixin({}, obj);
 		// Find the property name that represents the site
@@ -54,7 +51,7 @@ define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil
 			}
 		}
 		return state;
-	}
+	},
 	
 	/**
 	 * Converts the state of the site page into a hash string.
@@ -62,10 +59,8 @@ define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil
 	 * @param [String] action Currently unused
 	 * @param [String] actionDetails Currently unused
 	 * @returns {String} Hash string representing the new state.
-	 * @name orion.siteUtils#stateToHash
-	 * @function
 	 */
-	function stateToHash(siteLocation, action, actionDetails) {
+	stateToHash: function(siteLocation, action, actionDetails) {
 		var obj = {};
 		if (siteLocation) {
 			obj[siteLocation] = "";
@@ -77,7 +72,7 @@ define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil
 			obj.actionDetails = actionDetails;
 		}
 		return dojo.objectToQuery(obj);
-	}
+	},
 	
 	/**
 	 * Creates & adds commands that act on an individual site configuration.
@@ -89,10 +84,8 @@ define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil
 	 * @param {Function} stopCallback
 	 * @param {Function} deleteCallback
 	 * @param {Function} errorCallback Called when a server request fails.
-	 * @name orion.siteUtils#createSiteCommands
-	 * @function
 	 */
-	function createSiteCommands(commandService, siteService, statusService, dialogService,
+	createSiteCommands: function(commandService, siteService, statusService, dialogService,
 			startCallback, stopCallback, deleteCallback, errorCallback) {
 		var editCommand = new mCommands.Command({
 			name: "Edit",
@@ -101,7 +94,7 @@ define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil
 			visibleWhen: function(item) {
 				return item.HostingStatus && item.HostingStatus.Status === "stopped";
 			},
-			hrefCallback: generateEditSiteHref});
+			hrefCallback: eclipse.sites.util.generateEditSiteHref});
 		commandService.addCommand(editCommand, "object");
 		
 		var startCommand = new mCommands.Command({
@@ -140,7 +133,7 @@ define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil
 		
 		var deleteCommand = new mCommands.Command({
 			name: "Delete",
-			image: "/images/delete.gif",
+			image: "/images/remove.gif",
 			id: "eclipse.site.delete",
 			visibleWhen: function(item) {
 				return item.HostingStatus && item.HostingStatus.Status === "stopped";
@@ -154,48 +147,40 @@ define(['dojo', 'orion/commands', 'orion/util'], function(dojo, mCommands, mUtil
 					});
 			}});
 		commandService.addCommand(deleteCommand, "object");
-	}
-
-	function _removeEmptyElements(array) {
-		return dojo.filter(array, function(s){return s !== "";});
-	}
+	},
 	
 	/**
-	 * @param location The absolute URL of a file resource.
+	 * @requires eclipse.util
+	 * @param projectLocation The absolute URL of a file resource.
 	 * @returns {String} The path of the URL, relative to this server, with no /file/ prefix.<br/>
 	 * <b>FIXME:</b> this is URL manipulation; it should be done by the server
-	 * @name orion.siteUtils#makeRelativeFilePath
-	 * @function
 	 */
-	function makeRelativeFilePath(location) {
+	makeRelativeFilePath: function(location) {
 		var path = mUtil.makeRelative(location);
 		var segments = path.split("/");
-		var filteredSegments = _removeEmptyElements(segments);
+		var filteredSegments = eclipse.sites.util._removeEmptyElements(segments);
 		return "/" + filteredSegments.slice(1).join("/");
-	}
+	},
+	
+	_removeEmptyElements: function(array) {
+		return dojo.filter(array, function(s){return s !== "";});
+	},
 	
 	/**
+	 * @requires eclipse.util
 	 * @param target The "Target" field from a site configuration
 	 * @returns {String} The URL that the target points to.<br/>
 	 * <b>FIXME:</b> this is URL manipulation; it should be done by the server
-	 * @name orion.siteUtils#makeFullFilePath
-	 * @function
 	 */
-	function makeFullFilePath(target) {
+	makeFullFilePath: function(target) {
 		var relativePath = "/file" + target;
 		var segments = target.split("/");
-		if (_removeEmptyElements(segments).length === 1) {
+		if (eclipse.sites.util._removeEmptyElements(segments).length === 1) {
 			relativePath += "/";
 		}
 		return mUtil.makeFullPath(relativePath);
 	}
-	//return the module exports
-	return {
-		generateEditSiteHref: generateEditSiteHref,
-		parseStateFromHash: parseStateFromHash,
-		stateToHash: stateToHash,
-		createSiteCommands: createSiteCommands,
-		makeRelativeFilePath: makeRelativeFilePath,
-		makeFullFilePath: makeFullFilePath
-	};
+};
+
+return eclipse.sites.util;
 });

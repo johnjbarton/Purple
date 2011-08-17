@@ -8,7 +8,7 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
  
-/*global define window document Image */
+/*global dijit dojo window document eclipse:true setTimeout */
 /*jslint forin:true*/
 
 define(['dojo', 'orion/commands'], function(dojo, mCommands) {
@@ -22,17 +22,16 @@ exports.CommitDetails = (function() {
 			parent = dojo.byId(parent);
 		}
 		if (!parent) { throw "no parent"; }
-		if (!options.commandService) {throw "no command service"; }
-		this.commandService = options.commandService;
-		this.linkService = options.linkService;
+		if (!options.serviceRegistry) {throw "no service registry"; }
 		this._parent = parent;
+		this._registry = options.serviceRegistry;
 		this._detailsPane = options.detailsPane;
 		var commitDetails = this;
 
 		var showDiffCommand = new mCommands.Command({
 			name: "Show diff",
 			tooltip: "Show the diff",
-			image: "images/open_compare.gif",
+			image: "images/compare-sbs.gif",
 			id: "eclipse.showDiff",
 			hrefCallback: function(item) {
 				return "/compare/compare.html?readonly#" + item.DiffLocation;
@@ -42,12 +41,14 @@ exports.CommitDetails = (function() {
 			}
 		});		
 
-		// register commands with object scope
-		this.commandService.addCommand(showDiffCommand, "object");	
-		//commandService.addCommand(doSomething1, "dom");		
-		// declare the contribution to the ui
-		this.commandService.registerCommandContribution("eclipse.showDiff", 1);	
-		//commandService.registerCommandContribution("eclipse.doSomething1", 1, "commitMetaCommands");		
+		this._registry.getService("orion.page.command").then(function(commandService) {
+			// register commands with object scope
+			commandService.addCommand(showDiffCommand, "object");	
+			//commandService.addCommand(doSomething1, "dom");		
+			// declare the contribution to the ui
+			commandService.registerCommandContribution("eclipse.showDiff", 1);	
+			//commandService.registerCommandContribution("eclipse.doSomething1", 1, "commitMetaCommands");		
+		});
 	}
 	CommitDetails.prototype = {
 		loadCommitDetails: function(commitDetails){
@@ -78,36 +79,21 @@ exports.CommitDetails = (function() {
 			dojo.addClass(commandCol, "paneHeadingContainer");
 			dojo.place("<span id='commitMetaCommands' class='paneHeadingToolbar'></span>", commandCol, "only");
 			
-			var tr, col1, col2, col3;
 			if (commitDetails != null){
-
+				
 				// commit details
+				var tr, col1, col2;
 				var tbody = dojo.create("tbody", null, commitMetaTable);
 				
-				tr = dojo.create("tr");
-				col1 = dojo.create("td", {style: "padding-left: 5px; padding-right: 5px"}, tr, "last");
-				dojo.place(document.createTextNode("Author"), col1, "only");	
+				var tr = dojo.create("tr");
+				var col1 = dojo.create("td", {style: "padding-left: 5px; padding-right: 5px"}, tr, "last");
+				dojo.place(document.createTextNode("Author"), col1, "only");		
+				var col2 = dojo.create("td", null, tr, "last");
+				dojo.place(document.createTextNode(commitDetails.AuthorName + " (" + commitDetails.AuthorEmail + ")"), col2, "only");
 				dojo.place(tr, tbody, "last");
-				
-				tr = dojo.create("tr");
-				if (commitDetails.AuthorImage) {
-					col1 = dojo.create("td", {style: "padding: 2px; text-align: right"}, tr, "last");
-					var image = new Image();
-					image.src = commitDetails.AuthorImage;
-					image.name = commitDetails.AuthorName;
-					image.width = 40;
-					image.height = 40;
-					dojo.addClass(image, "gitAuthorImage");
-					dojo.place(image, col1, "first");
-				}
-				
-				col2 = dojo.create("td", {style: "padding-left: 5px"}, tr, "last");
-				var span = dojo.create("span", null, col2, "last");
-				dojo.place(document.createTextNode(commitDetails.AuthorName), span, "only");
-				dojo.create("br", null, col2, "last");
-				span = dojo.create("span", null, col2, "last");
-				dojo.place(document.createTextNode(commitDetails.AuthorEmail), span, "only");
-				dojo.place(tr, tbody, "last");
+				var col3 = dojo.create("td", {id: tr.id+"actions"}, tr, "last");
+				dojo.style(col3, "whiteSpace", "nowrap");
+				dojo.style(col3, "textAlign", "right");
 				
 				tr = dojo.create("tr");
 				col1 = dojo.create("td", {style: "padding-left: 5px; padding-right: 5px"}, tr, "last");
@@ -115,19 +101,19 @@ exports.CommitDetails = (function() {
 				col2 = dojo.create("td", null, tr, "last");
 				dojo.place(document.createTextNode(commitDetails.CommitterName + " (" + commitDetails.CommitterEmail + ")"), col2, "only");
 				dojo.place(tr, tbody, "last");
+				col3 = dojo.create("td", {id: tr.id+"actions"}, tr, "last");
+				dojo.style(col3, "whiteSpace", "nowrap");
+				dojo.style(col3, "textAlign", "right");
 				
 				tr = dojo.create("tr");
 				col1 = dojo.create("td", {style: "padding-left: 5px; padding-right: 5px"}, tr, "last");
 				dojo.place(document.createTextNode("Message"), col1, "only");		
 				col2 = dojo.create("td", null, tr, "last");
-				var messageNode;
-				if (this.linkService) {
-					messageNode = this.linkService.addLinks(commitDetails.Message);
-				} else {
-					messageNode = document.createTextNode(commitDetails.Message);
-				}
-				dojo.place(messageNode, col2, "only");
+				dojo.place(document.createTextNode(commitDetails.Message), col2, "only");
 				dojo.place(tr, tbody, "last");
+				col3 = dojo.create("td", {id: tr.id+"actions"}, tr, "last");
+				dojo.style(col3, "whiteSpace", "nowrap");
+				dojo.style(col3, "textAlign", "right");
 				
 				tr = dojo.create("tr");
 				col1 = dojo.create("td", {style: "padding-left: 5px; padding-right: 5px"}, tr, "last");
@@ -135,12 +121,17 @@ exports.CommitDetails = (function() {
 				col2 = dojo.create("td", null, tr, "last");
 				dojo.place(document.createTextNode(commitDetails.Name), col2, "only");
 				dojo.place(tr, tbody, "last");
+				col3 = dojo.create("td", {id: tr.id+"actions"}, tr, "last");
+				dojo.style(col3, "whiteSpace", "nowrap");
+				dojo.style(col3, "textAlign", "right");
 			
 //			var actionsWrapper = dojo.create("span", {id: tr.id+"actionsWrapper"}, col3, "only");
 //			// we must hide/show the span rather than the column.  IE and Chrome will not consider
 //			// the mouse as being over the table row if it's in a hidden column
 //			dojo.style(actionsWrapper, "visibility", "hidden");
-//			commandService.renderCommands(actionsWrapper, "object", commitDetails, this, "image", null, 0);
+//			this._registry.getService("orion.page.command").then(function(service) {
+//				service.renderCommands(actionsWrapper, "object", commitDetails, this, "image", null, 0);
+//			});
 //			
 //			dojo.connect(tr, "onmouseover", tr, function() {
 //				var wrapper = dojo.byId(this.id+"actionsWrapper");
@@ -160,7 +151,9 @@ exports.CommitDetails = (function() {
 			
 			// Now that the table is added to the dom, generate commands
 			var commands = dojo.byId("commitMetaCommands");
-			this.commandService.renderCommands(commands, "dom", this, this, "image");
+			this._registry.getService("orion.page.command").then(function(service) {
+				service.renderCommands(commands, "dom", this, this, "image");
+			});
 			
 			// commit diffs table
 			var commitDiffsTable = dojo.create("table", {id: "commitDiffsTable"});
@@ -192,11 +185,11 @@ exports.CommitDetails = (function() {
 					col1 = dojo.create("td", {style: "padding-left: 5px; padding-right: 5px"}, tr, "last");
 					
 					if (diff.ChangeType === "ADD")
-						img = dojo.create("img", {src: "/git/images/addition.gif"}, col1);
+						img = dojo.create("img", {src: "/git/images/git-added.gif"}, col1);
 					else if (diff.ChangeType === "DELETE")
-						img = dojo.create("img", {src: "/git/images/removal.gif"}, col1);
+						img = dojo.create("img", {src: "/git/images/git-removed.gif"}, col1);
 					else if (diff.ChangeType === "MODIFY")
-						img = dojo.create("img", {src: "/git/images/modification.gif"}, col1);
+						img = dojo.create("img", {src: "/git/images/git-modify.gif"}, col1);
 					
 					col2 = dojo.create("td", null, tr, "last");
 					dojo.place(document.createTextNode(diff.ChangeType === "DELETE" ? diff.OldPath : diff.NewPath), col2, "only");		
@@ -209,7 +202,9 @@ exports.CommitDetails = (function() {
 					// we must hide/show the span rather than the column.  IE and Chrome will not consider
 					// the mouse as being over the table row if it's in a hidden column
 					dojo.style(actionsWrapper, "visibility", "hidden");
-					this.commandService.renderCommands(actionsWrapper, "object", commitDetails.Diffs[j], this, "image", null, j);
+					this._registry.getService("orion.page.command").then(function(service) {
+						service.renderCommands(actionsWrapper, "object", commitDetails.Diffs[j], this, "image", null, j);
+					});
 					
 					dojo.connect(tr, "onmouseover", tr, function() {
 						var wrapper = dojo.byId(this.id+"actionsWrapper");
@@ -227,11 +222,13 @@ exports.CommitDetails = (function() {
 			dojo.place(commitDiffsTable, this._parent);
 			
 			// Now that the table is added to the dom, generate commands
-			commands = dojo.byId("commitDiffsCommands");
-			this.commandService.renderCommands(commands, "dom", this, this, "image");
+			var commands = dojo.byId("commitDiffsCommands");
+			this._registry.getService("orion.page.command").then(function(service) {
+				service.renderCommands(commands, "dom", this, this, "image");
+			});
 		}
 	};
 	return CommitDetails;
-}());
+})();
 return exports;
 });

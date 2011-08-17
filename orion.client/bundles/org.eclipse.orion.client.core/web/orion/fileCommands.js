@@ -218,7 +218,7 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 				for (i=0; i<favorites.length; i++) {
 					var stripped = stripPath(favorites[i].path);
 					if (!contains(sourceLocations, stripped)) {
-						choices.push({name: favorites[i].name, image: "/images/makeFavorite.gif", path: stripped, callback: callback});
+						choices.push({name: favorites[i].name, image: "/images/silk/star.gif", path: stripped, callback: callback});
 					}
 				}
 			}
@@ -278,7 +278,7 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 	
 		var favoriteCommand = new mCommands.Command({
 			name: "Make Favorite",
-			image: "/images/makeFavorite.gif",
+			image: "/images/silk/star.gif",
 			id: "eclipse.makeFavorite",
 			visibleWhen: function(item) {
 				var items = dojo.isArray(item) ? item : [item];
@@ -297,7 +297,7 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		
 		var renameCommand = new mCommands.Command({
 				name: "Rename",
-				image: "/images/rename.gif",
+				image: "/images/editing_16.gif",
 				id: "eclipse.renameResource",
 				visibleWhen: function(item) {
 					item = forceSingleItem(item);
@@ -324,7 +324,7 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		
 		var deleteCommand = new mCommands.Command({
 			name: "Delete",
-			image: "/images/delete.gif",
+			image: "/images/remove.gif",
 			id: "eclipse.deleteFile",
 			visibleWhen: oneOrMoreFilesOrFolders,
 			callback: function(item) {
@@ -366,8 +366,8 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		commandService.addCommand(deleteCommand, "dom");
 	
 		var downloadCommand = new mCommands.Command({
-			name: "Export as zip",
-			image: "/images/exportzip.gif",
+			name: "Download as Zip",
+			image: "/images/down.gif",
 			id: "eclipse.downloadFile",
 			visibleWhen: function(item) {
 				item = forceSingleItem(item);
@@ -410,20 +410,14 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		
 		var newFileCommand =  new mCommands.Command({
 			name: "New File",
-			image: "/images/new_file.gif",
+			image: "/images/newfile_wiz.gif",
 			id: "eclipse.newFile",
 			callback: function(item, commandId, domId) {
 				item = forceSingleItem(item);
 				getNewItemName(item, domId, "New File", function(name) {
 					if (name) {
 						fileClient.createFile(item.Location, name).then(
-							dojo.hitch(explorer, function() {this.changedItem(item);}),
-								function(error) {
-									serviceRegistry.getService("orion.page.message").then(function(statusService) {
-										statusService.setErrorMessage(error);
-									});
-								}
-							);
+							dojo.hitch(explorer, function() {this.changedItem(item);}));
 					}
 				});
 			},
@@ -435,19 +429,14 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		
 		var newFolderCommand = new mCommands.Command({
 			name: "New Folder",
-			image: "/images/new_folder.gif",
+			image: "/images/newfolder_wiz.gif",
 			id: "eclipse.newFolder",
 			callback: function(item, commandId, domId) {
 				item = forceSingleItem(item);
 				getNewItemName(item, domId, "New Folder", function(name) {
 					if (name) {
 						fileClient.createFolder(item.Location, name).then(
-							dojo.hitch(explorer, function() {this.changedItem(item);}),
-								function(error) {
-									serviceRegistry.getService("orion.page.message").then(function(statusService) {
-										statusService.setErrorMessage(error);
-									});
-								});
+							dojo.hitch(explorer, function() {this.changedItem(item);}));
 					}
 				});
 			},
@@ -460,7 +449,7 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		
 		var newProjectCommand = new mCommands.Command({
 			name: "New Folder",
-			image: "/images/new_folder.gif",
+			image: "/images/newfolder_wiz.gif",
 			id: "eclipse.newProject",
 			callback: function(item, commandId, domId) {
 				getNewItemName(item, domId, "New Folder", function(name) {
@@ -478,7 +467,7 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		
 		var linkProjectCommand = new mCommands.Command({
 			name: "Link Folder",
-			image: "/images/link.gif",
+			image: "/images/link_obj.gif",
 			id: "eclipse.linkProject",
 			callback: function(item) {
 				var dialog = new orion.widgets.NewItemDialog({
@@ -499,8 +488,8 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		commandService.addCommand(linkProjectCommand, "dom");
 					
 		var importCommand = new mCommands.Command({
-			name : "Import from zip...",
-			image : "/images/importzip.gif",
+			name : "Zip Import",
+			image : "/images/zip_import.gif",
 			id: "eclipse.importCommand",
 			callback : function(item) {
 				item = forceSingleItem(item);
@@ -518,8 +507,8 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		commandService.addCommand(importCommand, "dom");
 	
 		var importSFTPCommand = new mCommands.Command({
-			name : "SFTP from...",
-			image : "/images/transferin.gif",
+			name : "SFTP Import",
+			image : "/images/zip_import.gif",
 			id: "eclipse.importSFTPCommand",
 			callback : function(item) {
 				item = forceSingleItem(item);
@@ -544,8 +533,8 @@ define(["dojo", "orion/util", "orion/commands", "orion/widgets/NewItemDialog", "
 		commandService.addCommand(importSFTPCommand, "dom");
 	
 		var exportSFTPCommand = new mCommands.Command({
-			name : "SFTP to...",
-			image : "/images/transferout.gif",
+			name : "SFTP Export",
+			image : "/images/down.gif",
 			id: "eclipse.exportSFTPCommand",
 			callback : function(item) {
 				item = forceSingleItem(item);

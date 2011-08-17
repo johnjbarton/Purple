@@ -15,11 +15,6 @@ var exports = {};
 
 exports.GitClonesExplorer = (function() {
 	
-	/**
-	 * Creates a new git clone explorer.
-	 * @name orion.git.GitClonesExplorer
-	 * @class A Git clone explorer view
-	 */
 	function GitClonesExplorer(registry, selection, cloneDetails, parentId, toolbarId, selectionToolsId){
 		this.parentId = parentId;
 		this.registry = registry;
@@ -91,18 +86,18 @@ exports.GitClonesExplorer = (function() {
 
 exports.GitClonesModel = (function() {
 	/**
-	 * Creates a new git clone model.
-	 * @name orion.git.GitClonesModel
-	 * @class Tree model used by orion.git.GitClonesExplorer.
+	 * @name eclipse.Model
+	 * @class Tree model used by eclipse.FileExplorer.
+	 * TODO: Consolidate with eclipse.TreeModel.
 	 */
 	function GitClonesModel(gitClient, rootPath, fetchItems, root) {
-		//TODO: Consolidate with eclipse.TreeModel
 		this.gitClient = gitClient;
 		this.rootPath = rootPath;
 		this.fetchItems = fetchItems;
 		this.root = root ? root : null;
 	}
 	GitClonesModel.prototype = mExplorer.ExplorerModel.prototype; 
+	
 	
 	GitClonesModel.prototype.getRoot = function(onItem){
 		if(this.root){
@@ -155,7 +150,7 @@ exports.GitClonesModel = (function() {
 				onComplete(parentItem.Children);
 			}
 			else if (parentItem.BranchLocation && parentItem.RemoteLocation){
-				parentItem.children = [{GroupNode : "true", Location : parentItem.BranchLocation, Name : "Branches", parent : parentItem}, {GroupNode : "true", Location : parentItem.RemoteLocation, BranchLocation: parentItem.BranchLocation, Name : "Remotes", parent : parentItem}]; 
+				parentItem.children = [{GroupNode : "true", Location : parentItem.BranchLocation, Name : "Branch", parent : parentItem}, {GroupNode : "true", Location : parentItem.RemoteLocation, Name : "Remote", parent : parentItem}]; 
 				onComplete(parentItem.children);
 			}
 			else if (parentItem.GroupNode){
@@ -216,7 +211,7 @@ exports.GitClonesRenderer = (function(){
 				var nameId =  tableRow.id + "__expand";
 				div = dojo.create("div", null, col, "only");
 				// defined in ExplorerRenderer.  Sets up the expand/collapse behavior
-				this.getExpandImage(tableRow, div, "/git/images/repository.gif");
+				this.getExpandImage(tableRow, div, "/git/images/git-repository.gif");
 				
 				//link = dojo.create("a", {innerHTML: item.Name, className: "navlinkonpage", href: "/navigate/table.html#" + item.ContentLocation+"?depth=1"}, div, "last");
 				link = dojo.create("a", {className: "navlinkonpage"}, div, "last");
@@ -235,7 +230,7 @@ exports.GitClonesRenderer = (function(){
 				var nameId =  tableRow.id + "__expand";
 				div = dojo.create("div", null, col, "only");
 				// defined in ExplorerRenderer.  Sets up the expand/collapse behavior
-				this.getExpandImage(tableRow, div, item.Name==="Branches" ? "/git/images/branches.gif" : "/git/images/remotes.gif");
+				this.getExpandImage(tableRow, div, item.Name==="Branch" ? "/git/images/git-branches.gif" : "/git/images/git-remotes.gif");
 				
 				link = dojo.create("a", {innerHTML: item.Name, className: "navlinkonpage"}, div, "last");
 				dojo.place(document.createTextNode(item.Name), link, "only");
@@ -247,22 +242,17 @@ exports.GitClonesRenderer = (function(){
 				if (item.Current)
 					link.style.fontWeight = "bold";
 				dojo.place(document.createTextNode(item.Name), link, "only");
-				dojo.create("img", {src: "/git/images/branch.gif", style: "vertical-align: middle; margin-right: 4px"}, link, "first");
+				dojo.create("img", {src: "/git/images/git-branch.gif"}, link, "first");
 				
 			} else if (item.Type === "Remote"){
 				col = document.createElement('td');
 				var nameId =  tableRow.id + "__expand";
 				div = dojo.create("div", null, col, "only");
 				// defined in ExplorerRenderer.  Sets up the expand/collapse behavior
-				this.getExpandImage(tableRow, div, "/git/images/remote.gif");
-
+				this.getExpandImage(tableRow, div, "/git/images/git-remote.gif");
+				
 				link = dojo.create("a", {innerHTML: item.Name, className: "navlinkonpage"}, div, "last");
-				if (!item.PushUrl || item.PushUrl === item.GitUrl) {
-					dojo.place(document.createTextNode(item.Name + " (" + item.GitUrl + ")"), link, "only");
-				} else {
-					// TODO it should be a link that expands the repo conf section
-					dojo.place(document.createTextNode(item.Name + " (See the configuration for fetch/push urls)"), link, "only");
-				}
+				dojo.place(document.createTextNode(item.Name), link, "only");
 			} else if (item.Type === "RemoteTrackingBranch"){
 				col = document.createElement('td');
 				div = dojo.create("div", {style: "margin-left: 10px"}, col, "only");
@@ -270,7 +260,7 @@ exports.GitClonesRenderer = (function(){
 				link = dojo.create("a", {innerHTML: item.Name, className: "navlinkonpage"}, div, "last");
 								
 				dojo.place(document.createTextNode(item.Name), link, "only");
-				dojo.create("img", {src: "/git/images/branch.gif", style: "vertical-align: middle; margin-right: 4px"}, link, "first");
+				dojo.create("img", {src: "/git/images/git-branch.gif"}, link, "first");
 			}	
 			return col;
 		case 1:

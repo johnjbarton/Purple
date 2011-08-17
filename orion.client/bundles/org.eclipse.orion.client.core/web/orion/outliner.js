@@ -74,7 +74,7 @@ define(['dojo', 'orion/util'], function(dojo, mUtil) {
 		// this is closely tied to the jslint format right now
 		render: function(resource) {
 			var items, name, nonHash, href;
-			if (resource.data && resource.title && resource.title.indexOf(".js") === resource.title.length - 3) {
+			if (resource.title && resource.title.indexOf(".js") === resource.title.length - 3) {
 				items = dojo.create("div");
 				var functions = resource.data.functions;
 				for (var k in functions) {
@@ -109,8 +109,7 @@ define(['dojo', 'orion/util'], function(dojo, mUtil) {
 					this._createLink(name, href, items);
 				}
 				dojo.place(items, this._parent, "only");
-			} else if (resource.title.indexOf(".html") === resource.title.length - 5 ||
-				resource.title.indexOf(".htm") === resource.title.length - 4) {
+			} else if (resource.title.indexOf(".html") === resource.title.length - 5) {
 				items = dojo.create("div");
 				var pattern = /id=['"]\S*["']/gi; // experimental: |<head[^>]*|<body[^>]*|<script[^>]*/gi;
 				var result;

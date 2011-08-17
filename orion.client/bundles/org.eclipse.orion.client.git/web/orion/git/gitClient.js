@@ -8,19 +8,20 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-/*global define console */
+/*global dojo console handleGetAuthenticationError */
 
 /** @namespace The global container for eclipse APIs. */
 
 define(['dojo', 'orion/auth'], function(dojo, mAuth) {
 
+
+
 var eclipse = eclipse || {};
 
 eclipse.GitService = (function() {
 	/**
-	 * Creates a new Git service.
-	 * @class Provides operations for browsing and manipulating Git repositories.
-	 * @name orion.git.GitService
+	 * @class Provides operations on Git.
+	 * @name eclipse.GitService
 	 */
 	function GitService(serviceRegistry) {
 		if (serviceRegistry) {
@@ -77,7 +78,6 @@ eclipse.GitService = (function() {
 					error : function(error, ioArgs) {
 						mAuth.handleGetAuthenticationError(this, ioArgs);
 						console.error("HTTP status code: ", ioArgs.xhr.status);
-						return error;
 					}
 				});
 			
@@ -101,7 +101,6 @@ eclipse.GitService = (function() {
 				error : function(error, ioArgs) {
 					mAuth.handleGetAuthenticationError(this, ioArgs);
 					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return error;
 				}
 			});
 		},
@@ -420,7 +419,6 @@ eclipse.GitService = (function() {
 				error : function(error, ioArgs) {
 					mAuth.handleGetAuthenticationError(this, ioArgs);
 					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return error;
 				}
 			});
 		},
@@ -467,7 +465,6 @@ eclipse.GitService = (function() {
 				error : function(error, ioArgs) {
 					mAuth.handleGetAuthenticationError(this, ioArgs);
 					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return error;
 				}
 			});
 		},
@@ -486,7 +483,6 @@ eclipse.GitService = (function() {
 				error : function(error, ioArgs) {
 					mAuth.handleGetAuthenticationError(this, ioArgs);
 					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return error;
 				}
 			});
 		},
@@ -509,7 +505,6 @@ eclipse.GitService = (function() {
 				error : function(error, ioArgs) {
 					mAuth.handleGetAuthenticationError(this, ioArgs);
 					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return error;
 				}
 			});
 		},
@@ -528,7 +523,6 @@ eclipse.GitService = (function() {
 				error : function(error, ioArgs) {
 					mAuth.handleGetAuthenticationError(this, ioArgs);
 					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return error;
 				}
 			});
 		},
@@ -587,7 +581,7 @@ eclipse.GitService = (function() {
 				}
 			});
 		},
-		doFetch : function(gitRemoteBranchURI, force, onLoad, gitSshUsername, gitSshPassword, gitSshKnownHost, gitPrivateKey, gitPassphrase) {
+		doFetch : function(gitRemoteBranchURI, onLoad, gitSshUsername, gitSshPassword, gitSshKnownHost, gitPrivateKey, gitPassphrase) {
 			var service = this;
 			
 			return dojo.xhrPost({
@@ -597,7 +591,6 @@ eclipse.GitService = (function() {
 				},
 				postData : dojo.toJson({
 					"Fetch" : "true",
-					"Force" : force,
 					"GitSshUsername" : gitSshUsername,
 					"GitSshPassword" : gitSshPassword,
 					"GitSshKnownHost" : gitSshKnownHost,
@@ -644,72 +637,7 @@ eclipse.GitService = (function() {
 				}
 			});
 		},
-		doCherryPick : function(gitHeadURI, commitName, onLoad, onError) {
-			var service = this;
-			
-			return dojo.xhrPost({
-				url : gitHeadURI,
-				headers : {
-					"Orion-Version" : "1"
-				},
-				postData : dojo.toJson({
-					"Cherry-Pick" : commitName
-				}),
-				handleAs : "json",
-				timeout : 5000,
-				load : function(jsonData, secondArg) {
-					if (onLoad) {
-						if (typeof onLoad === "function")
-							onLoad(jsonData, secondArg);
-						else
-							service._serviceRegistration.dispatchEvent(onLoad,
-									jsonData);
-					}
-					return {jsonData: jsonData, secondArg: secondArg};
-				},
-				error : function(error, ioArgs) {
-					if(onError)
-						onError(error, ioArgs);
-					mAuth.handleGetAuthenticationError(this, ioArgs);
-					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return {error: error, ioArgs: ioArgs};
-				}
-			});
-		},
-		doRebase : function(gitHeadURI, commitName, operation, onLoad, onError) {
-			var service = this;
-			var postData = {};
-			postData.Rebase = commitName;
-			if (operation) postData.Operation = operation;
-			
-			return dojo.xhrPost({
-				url : gitHeadURI,
-				headers : {
-					"Orion-Version" : "1"
-				},
-				postData : dojo.toJson(postData),
-				handleAs : "json",
-				timeout : 5000,
-				load : function(jsonData, secondArg) {
-					if (onLoad) {
-						if (typeof onLoad === "function")
-							onLoad(jsonData, secondArg);
-						else
-							service._serviceRegistration.dispatchEvent(onLoad,
-									jsonData);
-					}
-					return {jsonData: jsonData, secondArg: secondArg};
-				},
-				error : function(error, ioArgs) {
-					if(onError)
-						onError(error, ioArgs);
-					mAuth.handleGetAuthenticationError(this, ioArgs);
-					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return {error: error, ioArgs: ioArgs};
-				}
-			});
-		},
-		doPush : function(gitBranchURI, srcRef, tags, force, onLoad, gitSshUsername, gitSshPassword, gitSshKnownHost, gitPrivateKey, gitPassphrase) {
+		doPush : function(gitBranchURI, srcRef, onLoad, gitSshUsername, gitSshPassword, gitSshKnownHost, gitPrivateKey, gitPassphrase) {
 			var service = this;
 			
 			return dojo.xhrPost({
@@ -719,8 +647,7 @@ eclipse.GitService = (function() {
 				},
 				postData : dojo.toJson({
 					"PushSrcRef" : srcRef,
-					"PushTags" : tags,
-					"Force" : force,
+					"PushTags" : true,
 					"GitSshUsername" : gitSshUsername,
 					"GitSshPassword" : gitSshPassword,
 					"GitSshKnownHost" : gitSshKnownHost,
@@ -741,7 +668,6 @@ eclipse.GitService = (function() {
 				error : function(error, ioArgs) {
 					mAuth.handleGetAuthenticationError(this, ioArgs);
 					console.error("HTTP status code: ", ioArgs.xhr.status);
-					return error;
 				}
 			});
 		},

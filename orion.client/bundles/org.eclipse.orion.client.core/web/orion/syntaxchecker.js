@@ -24,16 +24,8 @@ eclipse.SyntaxChecker = (function () {
 			if (!message) {
 				var t = title;
 				var c = contents;
-				var validator;
-				var validators = this.registry.getServiceReferences("orion.edit.validator");
-				for (var i=0; i<validators.length; i++) {
-					var serviceReference = validators[i];
-					var pattern = serviceReference.getProperty("pattern");
-					if (pattern && new RegExp(pattern).test(title)) {
-						validator = serviceReference;
-					}
-				}
-				if (validator) {
+				// FIXME this doesn't belong here, seems like we should get the right service for the given title
+				if (title.indexOf(".js") === title.length - 3) {
 					var syntaxCheckerCallback = dojo.hitch(this, function (data) {
 						this.registry.getService("orion.core.marker").then(function(service) {
 							service._setProblems(data.errors);
@@ -42,11 +34,11 @@ eclipse.SyntaxChecker = (function () {
 							service._setItems({"title": t, "contents": c, "data": data});
 						});
 					});
-					this.registry.getService(validator)
-						.then(function(service) {
-							return service.checkSyntax(title, contents);
-						})
-						.then(syntaxCheckerCallback);
+						this.registry.getService("orion.edit.validator")
+							.then(function(service) {
+								return service.checkSyntax(title, contents);
+							})
+							.then(syntaxCheckerCallback);
 				} else {
 					this.registry.getService("orion.edit.outline").then(function(service) {
 						service._setItems({title: t, contents: c});
@@ -56,6 +48,6 @@ eclipse.SyntaxChecker = (function () {
 		}
 	};
 	return SyntaxChecker;
-}());
+})();
 return eclipse;	
 });

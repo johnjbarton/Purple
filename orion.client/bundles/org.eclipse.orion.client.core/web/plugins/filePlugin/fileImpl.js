@@ -173,7 +173,6 @@ eclipse.FileServiceImpl= (function() {
 				url: parentLocation,
 				headers: {
 					"Orion-Version": "1",
-					"X-Create-Options" : "no-overwrite",
 					"Slug": folderName,
 					"Content-Type": "application/json"
 				},
@@ -201,7 +200,6 @@ eclipse.FileServiceImpl= (function() {
 				url: parentLocation,
 				headers: {
 					"Orion-Version": "1",
-					"X-Create-Options" : "no-overwrite",
 					"Slug": fileName,
 					"Content-Type": "application/json"
 				},
@@ -310,34 +308,18 @@ eclipse.FileServiceImpl= (function() {
 		 *
 		 * @param {String} location The location of the file to set contents for
 		 * @param {String|Object} contents The content string, or metadata object to write
-		 * @param {String|Object} args Additional arguments used during write operation (i.e. ETag) 
-		 * @return A deferred for chaining events after the write completes with new metadata object
+		 * @return A deferred for chaining events after the write completes
 		 */		
-		write: function(location, contents, args) {
-			var headerData = {
-					"Orion-Version": "1"
-				};
-			if (args && args.ETag) {
-				headerData["If-Match"] = args.ETag;
-			}
+		write: function(location, contents) {
 			var xhrArgs = {
 				url: location,
 				timeout: 5000,
-				headers: headerData,
-				putData: contents,
-				handleAs: "json",
-				load: function(jsonData, ioArgs) {
-					return jsonData;
-				},
-				error: function(error) {
-					error.log = false;
-					return error;
-				},
-				failOk: true
+				putData: contents
 			};
 			//some different header for putting metadata
-			if (typeof contents !== "string") {
+			if (typeof contents === "string") {
 				xhrArgs.url = location + "?parts=meta";
+				xhrArgs.handleAs = "json";
 			}
 			return dojo.xhrPut(xhrArgs);
 		},

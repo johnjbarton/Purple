@@ -9,40 +9,37 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 /*jslint browser:true*/
-/*global define window dojo dijit*/
+/*global window dojo dijit*/
 
-define(['dojo', 'dijit', 'dijit/Dialog', 'dijit/form/TextBox',
-		'orion/widgets/_OrionDialogMixin', 'text!orion/widgets/templates/OpenResourceDialog.html'], function(dojo, dijit) {
+
+define(['dojo', 'dijit', 'dijit/Dialog', 'dijit/form/TextBox', 'text!orion/widgets/templates/OpenResourceDialog.html'], function(dojo, dijit) {
+
+//dojo.require("dijit.Dialog");
+//dojo.require("dijit._Widget");
+//dojo.require("dijit._Templated");
 
 /**
- * Usage: <code>new widgets.OpenResourceDialog(options).show();</code>
+ * Usage: new widgets.OpenResourceDialog(options).show();
  * 
- * @name orion.widgets.OpenResourceDialog
- * @class A dialog that searches for files by name or wildcard.
- * @param {String} [options.title] Text to display in the dialog's titlebar.
- * @param {String} options.SearchLocation The URL to use for searching the workspace.
- * @param {orion.searchClient.Searcher} options.searcher The searcher to use for displaying results.
+ * @param options {{ SearchLocation: string,
+ *                   searcher: {orion.searchClient.Searcher} }}
  */
-var OpenResourceDialog = dojo.declare("orion.widgets.OpenResourceDialog", [dijit.Dialog, orion.widgets._OrionDialogMixin],
-		/** @lends orion.widgets.OpenResourceDialog.prototype */ {
+var OpenResourceDialog = dojo.declare("orion.widgets.OpenResourceDialog", [dijit._Widget, dijit._Templated], {
 	widgetsInTemplate : true,
 	templateString : dojo.cache('orion', 'widgets/templates/OpenResourceDialog.html'),
 	
 	SEARCH_DELAY: 500,
 	timeoutId: null,
 	time: null,
-	options: null,
 	searchLocation: null,
 	searcher: null,
 	
-	/** @private */
 	constructor : function() {
 		this.inherited(arguments);
 		this.timeoutId = null;
 		this.time = 0;
-		this.options = arguments[0];
-		this.searchLocation = this.options && this.options.SearchLocation;
-		this.searcher = this.options && this.options.searcher;
+		this.searchLocation = arguments[0] && arguments[0].SearchLocation;
+		this.searcher = arguments[0] && arguments[0].searcher;
 		if (!this.searchLocation) {
 			throw new Error("Missing required argument: SearchLocation");
 		}
@@ -51,15 +48,13 @@ var OpenResourceDialog = dojo.declare("orion.widgets.OpenResourceDialog", [dijit
 		}
 	},
 	
-	/** @private */
 	postMixInProperties : function() {
-		this.options.title = this.options.title || "Open Resource";
+		this.inherited(arguments);
+		this.title = "Open Resource";
 		this.selectFile = "Type the name of a file to open (? = any character, * = any string):";
 		this.searchPlaceHolder = "Search";
-		this.inherited(arguments);
 	},
 	
-	/** @private */
 	postCreate: function() {
 		this.inherited(arguments);
 		dojo.connect(this.resourceName, "onChange", this, function(evt) {
@@ -72,29 +67,31 @@ var OpenResourceDialog = dojo.declare("orion.widgets.OpenResourceDialog", [dijit
 				var links = dojo.query("a", this.results);
 				if (links.length > 0) {
 					window.open(links[0].href);
-					this.hide();
+					this.dialog.hide();
 				}
 			}
 		});
-		dojo.connect(this, "onMouseUp", function(e) {
+		dojo.connect(this.dialog, "onMouseUp", function(e) {
 			// WebKit focuses <body> after link is clicked; override that
 			e.target.focus();
 		});
+		dojo.connect(this.dialog, "onHide", this, function() {
+			this.onHide();
+		});
+		this.dialog.refocus = false; // Dojo 10654
 	},
 	
-	/** @private */
 	checkSearch: function() {
 		clearTimeout(this.timeoutId);
-		var now = new Date().getTime();
+		var now = +new Date();
 		if ((now - this.time) > this.SEARCH_DELAY) {
 			this.time = now;
 			this.doSearch();
 		} else {
-			this.timeoutId = setTimeout(dojo.hitch(this, "checkSearch"), 50);
+			this.timeoutId = setTimeout(dojo.hitch(this, arguments.callee), 50);
 		}
 	},
 	
-	/** @private */
 	doSearch: function() {
 		var text = this.resourceName && this.resourceName.get("value");
 		if (!text) {
@@ -110,30 +107,28 @@ var OpenResourceDialog = dojo.declare("orion.widgets.OpenResourceDialog", [dijit
 		}, 0);
 	},
 	
-	/** @private */
 	decorateResult: function(resultsDiv) {
 		var widget = this;
 		dojo.query("a", resultsDiv).forEach(function(link) {
 			dojo.connect(link, "onmouseup", function(evt) {
 				if (!dojo.mouseButtons.isMiddle(evt) && !dojo.isCopyKey(evt)) {
-					widget.hide();
+					widget.dialog.hide();
 				}
 			});
 		});
 	},
 	
-	/**
-	 * Displays the dialog.
-	 */
 	show: function() {
-		this.inherited(arguments);
+		this.dialog.show();
 		this.resourceName.focus();
 	},
 	
-	/** @private */
 	onHide: function() {
 		clearTimeout(this.timeoutId);
-		this.inherited(arguments);
+		setTimeout(dojo.hitch(this, function() {
+			this.dialog.destroyRecursive();
+			this.destroyRecursive(); // doesn't destroy child widgets from our template (dojo bug?)
+		}), this.dialog.duration);
 	}
 	
 });

@@ -8,27 +8,36 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-/*global define */
+define(['dojo', 'orion/auth'], function(dojo, mAuth) {
+
+
+/*global dojo eclipse handleAuthenticationError */
 /*jslint devel:true*/
 
-define(['dojo', 'orion/auth'], function(dojo, mAuth) {
+var eclipse = {};
+eclipse.sites = {};
+
+/**
+ * @name eclipse.sites
+ * @namespace Namespace for code related to creating, managing, and displaying site configurations.
+ */
 
 /**
  * Service id used for registering the site service with the service registry.
- * @name orion.siteService#SITE_SERVICE_NAME
+ * @name eclipse.sites.SITE_SERVICE_NAME
  * @constant
- * @see orion.serviceregistry.ServiceRegistry#registerService
+ * @see eclipse.ServiceRegistry#registerService
  */
-var SITE_SERVICE_NAME = "org.eclipse.orion.sites.siteManagement";
+eclipse.sites.SITE_SERVICE_NAME = "org.eclipse.orion.sites.siteManagement";
 
 /**
- * @name orion.siteService.SiteConfiguration
+ * @name eclipse.sites.SiteConfiguration
  * @class Interface for an in-memory representation of a site configuration resource. Objects of
- * this interface are used as parameters, and returned by, methods of the  {@link orion.siteService.SiteService}
+ * this interface are used as parameters, and returned by, methods of the  {@link eclipse.sites.SiteService}
  * API.
  */
 	/**#@+
-		@fieldOf orion.siteService.SiteConfiguration.prototype
+		@fieldOf eclipse.sites.SiteConfiguration.prototype
 	*/
 	/**
 	 * The name of the site configuration.
@@ -62,21 +71,21 @@ var SITE_SERVICE_NAME = "org.eclipse.orion.sites.siteManagement";
 	 */
 	/**#@-*/
 
+/**
+ * Constructs a new SiteService.
+ * 
+ * @name eclipse.sites.SiteService
+ * @class Defines and implements a service that provides access to the server API for managing site 
+ * configurations.
+ * @requires auth.js
+ * @param {eclipse.ServiceRegistry} serviceRegistry The service registry to register ourself with.
+ */
+eclipse.sites.SiteService = (function() {
 	
-	/**
-	 * Constructs a new SiteService.
-	 * 
-	 * @name orion.siteService.SiteService
-	 * @class Defines and implements a service that provides access to the server API for managing site 
-	 * configurations.
-	 * @requires auth.js
-	 * @param {orion.serviceregistry.ServiceRegistry} serviceRegistry The service registry to register ourself with.
-	 */
 	function SiteService(serviceRegistry) {
-		this._serviceRegistration = serviceRegistry.registerService(SITE_SERVICE_NAME, this);
+		this._serviceRegistration = serviceRegistry.registerService(eclipse.sites.SITE_SERVICE_NAME, this);
 	}
-	
-	SiteService.prototype = /** @lends orion.siteService.SiteService.prototype */ {
+	SiteService.prototype = /** @lends eclipse.sites.SiteService.prototype */ {
 		/**
 		 * Retrieves all site configurations defined by the logged-in user.
 		 * @returns {dojo.Deferred} A deferred for the result. Will be resolved with the 
@@ -239,11 +248,8 @@ var SITE_SERVICE_NAME = "org.eclipse.orion.sites.siteManagement";
 			return clientDeferred;
 		}
 	};
-	SiteService.prototype.constructor = SiteService;
+	return SiteService;
+}());
 
-	//return module exports
-	return {
-		SITE_SERVICE_NAME: SITE_SERVICE_NAME,
-		SiteService: SiteService
-	};
+return eclipse.sites;
 });

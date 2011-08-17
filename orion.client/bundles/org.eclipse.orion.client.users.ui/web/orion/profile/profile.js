@@ -9,9 +9,9 @@
  ******************************************************************************/
 /*global dojo dijit window eclipse:true*/
 
-define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
+define(['dojo', 'dijit', 'orion/commands', 'orion/auth',
 	        'dojo/parser', 'dojo/hash', 'dojo/date/locale', 'dijit/layout/ContentPane', 'dijit/form/TextBox', 'dijit/form/Form'], 
-			function(dojo, dijit, mCommands ,mAuth, mBreadcrumbs) {
+			function(dojo, dijit, mCommands ,mAuth) {
 
 	/**
 	 * Used when a value should be displayed as Date but is returned as long.
@@ -59,7 +59,6 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 			this.commandService = options.commandService;
 			this.pageActionsPlaceholder = options.pageActionsPlaceholder;
 			this.usersClient = options.usersClient;
-			this.iframes = new Array();
 			
 			var userProfile = this;
 			
@@ -102,7 +101,7 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 					handleAs : "json",
 					timeout : 15000,
 					load : function(jsonData, ioArgs) {
-						dojo.hash(jsonData.Location);
+						dojo.hash("/users/"+jsonData.login);
 						return jsonData;
 					},
 					error : function(response, ioArgs) {
@@ -121,7 +120,6 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 				}
 				
 				this.profileForm.destroy();
-				this.iframes = new Array();
 			}
 			this.pageActionsPlaceholder =  dojo.byId('pageActions');
 			dojo.empty(this.pageActionsPlaceholder);
@@ -148,10 +146,9 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 							function(ref){
 								var plugin = registry.getService(ref.getServiceReferences()[0]);
 								plugin.then(function(pluginService){
-									if(pluginService.getDivContent)
-										pluginService.getDivContent().then(function(content) {
-											dojo.hitch(userProfile, userProfile.draw(content, div));
-										});
+									pluginService.getDivContent().then(function(content) {
+										dojo.hitch(userProfile, userProfile.draw(content, div));
+									});
 								});
 							});
 					})(pluginDiv);
@@ -191,20 +188,11 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 					if(dojo.byId("profileBanner"))
 						dojo.byId("profileBanner").innerHTML = "Profile Information for <b style='color: #000'>" + jsonData.login + "</b>";
 				}
-				for(var i in this.iframes){
-					this.setHash(this.iframes[i], jsonData.Location);
-				}
 			}else{
 				throw new Error("User is not defined");
 			}
 		},
-		setHash: function(iframe, hash){
-			if(iframe.src.indexOf("#")>0){
-				iframe.src = iframe.src.substr(0, iframe.src.indexOf("#")) + "#" + hash;
-			}else{
-				iframe.src = iframe.src + "#" + hash;
-			}
-		},
+		
 		createFormElem: function(json, node){
 			  if(!json.type){
 			    throw new Error("type is missing!");
@@ -232,13 +220,7 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 			  }
 			  
 			},
-		drawIframe: function(desc, placeholder){
-			var iframe = dojo.create("iframe", desc, placeholder);
-			this.iframes.push(iframe);
-			if(this.lastJSON)
-				this.setHash(iframe, this.lastJSON.Location);
-			dojo.place(iframe, placeholder);
-		},
+		
 		draw: function(content, placeholder){
 			var profile = this;
 			placeholder.innerHTML = "";
@@ -262,11 +244,6 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 				
 				var sectionContents = dojo.create("div", null, placeholder);
 				
-				if(content.sections[i].type==="iframe"){
-					dojo.hitch(this, this.drawIframe(content.sections[i].data, sectionContents));
-					return;
-				}
-				
 				for(var j=0; j<content.sections[i].data.length; j++){
 					var data = content.sections[i].data[j];
 					var dataDiv = dojo.create("div", null, sectionContents);
@@ -284,17 +261,8 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 				var bannerPane = dojo.byId('pageTitle');
 				
 				dojo.empty(bannerPane);
-				dojo.create("span", {id:"profileBanner", innerHTML: "Profile Information"}, bannerPane);
+				dojo.create("a", {id:"profileBanner", innerHTML: profile.lastJSON ? "Profile Information for <b style='color: #000'>" + profile.lastJSON.login + "</b>" : ""}, bannerPane);
 	
-				var location = dojo.byId("location");
-				if (location) {
-					dojo.empty(location);
-					new mBreadcrumbs.BreadCrumbs({
-						container: "location",
-						firstSegmentName: (profile.lastJSON.Name && profile.lastJSON.Name.replace(/^\s+|\s+$/g,"")!=="") ? profile.lastJSON.Name : profile.lastJSON.login
-					});
-				}
-				
 				dojo.empty(this.pageActionsPlaceholder);
 				this.commandService.addCommandGroup("eclipse.profileActionsGroup", 100, null, null, this.pageActionsPlaceholder.id);
 				for(var i=0; i<content.actions.length; i++){
@@ -316,7 +284,6 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 			
 		},
 		fire: function(action){
-			var self = this;
 			var data = new Object();
 			//collect all data that are not reaonly and are not empty passwords
 			dojo.forEach(dijit.byId('profileForm').getDescendants(), function(widget){ 
@@ -326,33 +293,7 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/auth', 'orion/breadcrumbs',
 	            data[name] = widget.get('value');
 			});
 			var url = this.currentUserURI;
-			this.usersClient.fire(action, url, data).then(
-					function(){
-							if(checkUser) checkUser(); //refresh the user header because user might been changed or user could be deleted
-						},
-					function(error){
-				
-						self.registry.getService("orion.page.message").then(function(progressService){
-						
-						if(error.status===401 || error.status===403 )
-							return;
-						
-						
-							var display = [];
-							
-							display.Severity = "Error";
-							display.HTML = false;
-							
-							try{
-								var resp = JSON.parse(error.responseText);
-								display.Message = resp.DetailedMessage ? resp.DetailedMessage : resp.Message;
-							}catch(Exception){
-								display.Message = error.message;
-							}
-							
-							progressService.setProgressResult(display);
-						});
-				});
+			this.usersClient.fire(action, url, data);
 	
 		}
 	};

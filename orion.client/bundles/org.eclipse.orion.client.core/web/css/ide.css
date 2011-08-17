@@ -30,41 +30,45 @@ h2 {
 a {
 	cursor: hand;
 	text-decoration: none;
-	color: #024892;
+	color: #05386B;
 }
 
 a:visited {
-	color: #024892;
+	text-decoration: none;
+	color: #05386B;
 }
 
 a:active {
-	color: #024892;
+	text-decoration: none;
+	color: #05386B;
 }
 
 a:hover {
 	cursor: hand;
 	text-decoration: underline;
-	color: #024892;
+	color: #05386B;
 }
 
 .navlinkonpage {
-	color: #024892;
+	color: #05386B;
 	cursor: hand;
 	text-decoration: none;
 }
 
 .navlinkonpage:visited {
-	color: #024892;
+	color: #05386B;
+	cursor: hand;
+	text-decoration: none;
 }
 
 .navlinkonpage:active {
-	color: #024892;
+	color: #05386B;
 	cursor: hand;
 	text-decoration: none;
 }
 
 .navlinkonpage:hover {
-	color: #024892;
+	color: #05386B;
 	cursor: hand;
 	text-decoration: none;
 	border-bottom: 1px dotted;
@@ -92,6 +96,7 @@ a:hover {
 
 .pageActions:visited {
 	color: #dddddd;
+	cursor: pointer;
 }
 
 .pageActions:hover {
@@ -129,7 +134,7 @@ a:hover {
 .paneHeading {
 	font-size: 1.2em;
 	font-weight: bold;
-	color: #666666;
+	color: #404040;;
 	vertical-align: middle;
 }
 
@@ -140,7 +145,7 @@ a:hover {
 }
 
 .paneHeadingContainer {
-	border-bottom: 1px dotted #bfbfbf;
+	border-bottom: 1px dotted #6d6d6d;
 	height: 30px;
 }
 
@@ -151,7 +156,7 @@ a:hover {
 
 .landingHeading {
 	font-size: 2.0em;
-	color: #666666;
+	color: #404040;
 	padding-bottom: 8px;
 }
 
@@ -175,45 +180,40 @@ a:hover {
 	background: #EDEDED;
 	padding: 0px;
 	margin: 0px;
-	border-left: 1px solid white;
-	border-right: 2px solid white;
+	border-top: 1px solid #cccccc;
 }
 
 .landingPanel {
 	background: #EDEDED;
 	border-left: 1px solid white;
 	border-right: 1px solid #cccccc;
+	border-top: 1px solid white;
+	border-bottom: 1px solid #cccccc;
 	padding: 0px;
 	margin: 0px;
 }
 
 .auxpane {
-	border-left: 2px solid white;
     padding-left: 32px;
     padding-top: 20px;
-    background: #ededed;
+    background: #EDEDED;
     overflow-x: auto;
 }
 
-.auxpaneNoPadding {
-    background: #ededed;
-}
-
 .nihilo .dijitSplitterV .dijitSplitterThumb {	
-	background: #dddddd;
+	background: #c5c5c5;
 }
 
 .nihilo .dijitSplitterV {
-	background: #dddddd;
-	border-right: 1px solid #bfbfbf;
+	background: #c5c5c5;
 }
 
 .nihilo .dijitSplitterH .dijitSplitterThumb {	
-	background: #dddddd;
+	background: #c5c5c5;
 }
 
 .nihilo .dijitSplitterH {
-	background: #dddddd;
+	background: #c5c5c5;
 }
 
 .nihilo .dijitDialogTitleBar {
@@ -242,41 +242,43 @@ a:hover {
 	cursor: pointer;
 	background: #ebebeb;
 	height: 2em;
+	border-top: 1px solid #dbdbdb
 }
 
 .help {
 	font-weight: bold;
-	font-size: 1.2em;
 	padding-left: 8px;
 	padding-right: 8px;
 }
 
 .toolbar {
+	background: #c5c5c5;
 	border: 0px;
 	padding: 0px;
 	margin: 0px;
 	overflow: hidden; /* works around a "mystery pixels" problem in IE, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=339302 */
 	cursor: pointer;
 	font-size: 0.9em;
-	min-height: 112px; 
+	color: #5a5a5a;
+	border-bottom: 1px solid #dbdbdb;
+	height: 108px; // temporary.  BorderContainer needs a height reserved
 }
 
 .pageTitle {
 	font-size: 12pt;
 	vertical-align: top;
-	color: #666666;
 }
 
 .footer {
 	text-align: center;
 	width: 100%;
-	background: #f5f5f5;
+	background: #ebebeb;
 	border: 0px;
 	padding: 0px;
 	cursor: pointer;
 	font-size: 0.9em;
-	color: #333333;
-	min-height: 2.5em; 
+	color: #05386B;
+	height: 2.5em;
 	border-top: 1px solid #dbdbdb
 }
 
@@ -311,11 +313,6 @@ a:hover {
 	background: #404040;
 	vertical-align: middle;
 	height: 2.5em;
-}
-
-.optionalPageToolbar {
-	background: #404040;
-	vertical-align: middle;
 }
 
 .searchbox {
@@ -417,7 +414,7 @@ a:hover {
 }
 
 .checkedRow {
-	background-color: #e3e3e3 !important;
+	background-color: #FFFFCC !important;
 }
 
 .testResult {
@@ -425,16 +422,27 @@ a:hover {
 	color: white;
 }
 
+.launchItemGo {
+	background: url(/images/silk/server_go.png);
+}
+.launchItemStop {
+	background: url(/images/silk/server_stop.png);
+}
+
+.projectItem {
+	background: url(/images/prj_obj.gif);
+}
+
 .folderItem {
-	background: url(/images/folder.gif);
+	background: url(/images/fldr_obj.gif);
 }
 
 .fileItem {
-	background: url(/images/file.gif);
+	background: url(/images/file_obj.gif);
 }
 
 .newItem {
-	background: url(/images/add.gif);
+	background: url(/images/add_obj.gif);
 }
 
 .treetable {
@@ -456,7 +464,7 @@ a:hover {
 }
 
 .darkTreeTableRow {
-	background-color: #f7f7f7;
+	background-color: #f8f8ff;
 }
 
 .testNavTreetable {
@@ -479,24 +487,12 @@ a:hover {
 	position: fixed;
 	top: 100px;
 	left: 100px;
-	border: 2px inset #DDD;
+	border: 1px solid black;
 	z-index:10;
-	cursor: default;
-	overflow: auto;
-	height: 150px;
-	width: 200px;
 }
 
 .contentassist .selected {
-	background-color: #DDD;
-}
-
-.contentassist>div {
-	padding: 1px 3px 0 3px;
-}
-
-.contentassist>div:hover {
-	background-color: #EAF2FE;
+	background-color: #DDDDDD;
 }
 
 .test-passed {

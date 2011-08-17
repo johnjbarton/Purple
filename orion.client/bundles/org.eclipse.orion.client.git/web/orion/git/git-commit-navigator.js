@@ -16,24 +16,22 @@ define(['dojo', 'orion/explorer', 'orion/util', 'orion/git/gitCommands'], functi
 var exports =  {};
 exports.GitCommitNavigator = (function() {
 	/**
-	 * Creates a new Git commit navigator.
-	 * @name orion.git.GitCommitNavigator
+	 * @name eclipse.GitCommitNavigator
 	 * @class A table-based git commit navigator
 	 */
-	function GitCommitNavigator(serviceRegistry, selection, commitDetails, options, parentId, pageTitleId, toolbarId, selectionToolsId) {
+	function GitCommitNavigator(serviceRegistry, selection, commitDetails, parentId, pageTitleId, toolbarId, selectionToolsId) {
 		this.registry = serviceRegistry;
 		this.selection = selection;
-		this.checkbox = options != null ? options.checkbox : true;
-		this.minimal = options != null ? options.minimal : false;
 		this.parentId = parentId;
 		this.pageTitleId = pageTitleId;
 		this.toolbarId = toolbarId;
 		this.selectionToolsId = selectionToolsId;
+		this.isRoot = null;
 		this.isDirectory = true;
 		this.model = null;
 		this.myTree = null;
 		this.commitDetails = commitDetails;
-		this.renderer = new exports.GitCommitRenderer({checkbox: this.checkbox, cachePrefix: "GitCommitsNavigator", minimal: this.minimal}, this);
+		this.renderer = new exports.GitCommitRenderer({checkbox: this.checkbox, cachePrefix: "GitCommitsNavigator"}, this);
 		if(this.commitDetails)
 			this.commitDetails.render(null);
 	}
@@ -41,7 +39,6 @@ exports.GitCommitNavigator = (function() {
 	GitCommitNavigator.prototype = new mExplorer.Explorer();
 	
 	GitCommitNavigator.prototype.loadCommitsList = function(path, treeRoot, force) {
-
 			path = mUtil.makeRelative(path);
 			if (path === this._lastHash && !force) {
 				return;
@@ -53,32 +50,11 @@ exports.GitCommitNavigator = (function() {
 			var parent = dojo.byId(this.parentId);
 
 			// Progress indicator
-			var progress = dojo.byId(parent.id + "progress"); 
+			var progress = dojo.byId("progress"); 
 			if(!progress){
-				progress = dojo.create("div", {id: parent.id + "progress"}, parent, "only");
+				progress = dojo.create("div", {id: "progress"}, parent, "only");
 			}
 			dojo.empty(progress);
-			
-			if(treeRoot.status && treeRoot.status!=200){
-				var response = treeRoot.message;
-				try {
-					var obj = JSON.parse(treeRoot.responseText);
-					if(obj.Message){
-						response = obj.Message;
-					} 
-				} catch(error) {
-					//it is not JSON, just continue;
-				}
-				if(treeRoot.status!=404 && response!=="")
-					dojo.create("b", {innerHTML: "Error " + treeRoot.status + ": "}, progress, "only");
-				dojo.place(document.createTextNode(response), progress, "last");
-				
-				if(this.toolbarId && this.selectionToolsId)
-					mGitCommands.updateNavTools(this.registry, this, this.toolbarId, this.selectionToolsId, treeRoot);
-				
-				return;
-			}
-			
 			b = dojo.create("b");
 			dojo.place(document.createTextNode("Loading "), progress, "last");
 			dojo.place(document.createTextNode(path), b, "last");
@@ -111,35 +87,28 @@ exports.GitCommitRenderer = (function() {
  	
 	function GitCommitRenderer (options, explorer) {
 		this._init(options);
-		this.options = options;
 		this.explorer = explorer;
 	}
 	GitCommitRenderer.prototype = mExplorer.SelectionRenderer.prototype;
 	
 	GitCommitRenderer.prototype.getCellHeaderElement = function(col_no){
 		
-		if (this.options['minimal'])
-			return;
-		
-		switch(col_no){		
-			case 0: 
-				return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Message</h2>"});
-				break;
-			case 1:
-				return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Author</h2>"});
-				break;
-			case 2:
-				return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Date</h2>"});
-				break;
-			case 3:
-				return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Actions</h2>"});
-				break;
-			case 4:
-				return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Branches</h2>"});
-				break;
-			case 5:
-				return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Tags</h2>"});
-				break;
+		switch(col_no){
+		case 0: 
+			return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Message</h2>"});
+			break;
+		case 1:
+			return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Author</h2>"});
+			break;
+		case 2:
+			return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Date</h2>"});
+			break;
+		case 3:
+			return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Actions</h2>"});
+			break;
+		case 4:
+			return dojo.create("th", {style: "padding-left: 5px; padding-right: 5px", innerHTML: "<h2>Tags</h2>"});
+			break;
 		};
 		
 	};
@@ -177,19 +146,18 @@ exports.GitCommitRenderer = (function() {
 			col = document.createElement('td');
 			div = dojo.create("div", {style: "margin-left: 5px; margin-right: 5px; margin-top: 5px; margin-bottom: 5px; padding-left: 20px;"}, col, "only");
 				
+			// clicking the link should update the commit details pane
 			link = dojo.create("a", {className: "navlinkonpage"}, div, "last");
-			if(this.explorer.commitDetails){
-				// clicking the link should update the commit details pane, if there is one
-				dojo.connect(link, "onclick", link, dojo.hitch(this, function() {
-					this.explorer.loadCommitDetails(item);	
-				}));			
-				dojo.connect(link, "onmouseover", link, function() {
-					link.style.cursor = /*self._controller.loading ? 'wait' :*/"pointer";
-				});
-				dojo.connect(link, "onmouseout", link, function() {
-					link.style.cursor = /*self._controller.loading ? 'wait' :*/"default";
-				});
-			}
+			dojo.connect(link, "onclick", link, dojo.hitch(this, function() {
+				this.explorer.loadCommitDetails(item);	
+			}));			
+			dojo.connect(link, "onmouseover", link, function() {
+				link.style.cursor = /*self._controller.loading ? 'wait' :*/"pointer";
+			});
+			dojo.connect(link, "onmouseout", link, function() {
+				link.style.cursor = /*self._controller.loading ? 'wait' :*/"default";
+			});
+			
 			dojo.place(document.createTextNode(item.Message), link, "only");	
 			
 			if (incomingCommit)
@@ -206,30 +174,14 @@ exports.GitCommitRenderer = (function() {
 			return dojo.create("td", {style: "padding-left: 5px; padding-right: 5px", innerHTML: dojo.date.locale.format(new Date(item.Time), {formatLength: "short"})});
 			break;
 		case 3:
-			if (this.options['minimal'])
-				break;
-			
 			var actionsColumn = this.getActionsColumn(item, tableRow);
 			dojo.style(actionsColumn, "padding-left", "5px");
 			dojo.style(actionsColumn, "padding-right", "5px");
 			return actionsColumn;
 			break;
 		case 4:
-			if (this.options['minimal'])
-				break;
-			
 			var td = document.createElement("td", {style: "padding-left: 5px; padding-right: 5px"});
-			dojo.forEach(item.Branches, function(branch, i){
-				dojo.place(document.createTextNode(branch.FullName), dojo.create("p", {style: "margin: 5px"}, td, "last"), "only");
-			});
-			return td;
-			break;
-		case 5:
-			if (this.options['minimal'])
-				break;
-			
-			var td = document.createElement("td", {style: "padding-left: 5px; padding-right: 5px"});
-			dojo.forEach(item.Tags, function(tag, i){
+			dojo.forEach(item.Children, function(tag, i){
 				dojo.place(document.createTextNode(tag.Name), dojo.create("p", {style: "margin: 5px"}, td, "last"), "only");
 			});
 			return td;

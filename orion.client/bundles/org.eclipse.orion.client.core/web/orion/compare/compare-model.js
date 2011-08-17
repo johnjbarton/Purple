@@ -76,20 +76,12 @@ orion.CompareTextModel = (function() {
 			return this._lineFeeder.getLineType(lineIndex , this._mapperColumnIndex);
 		},
 			
-		getMapper: function(){
-			return this._mapper;
-		},
-		
 		getAnnotations: function(){
 			return this._lineFeeder.getAnnotations();
 		},
 		
 		getAnnotationH: function(lineIndex){
 			return this._lineFeeder.getAnnotationH(lineIndex);
-		},
-		
-		getAnnotationLineCount: function(){
-			return 	this.getLineCount();
 		},
 		
 		getLineNumber: function(lineIndex , mapperColumnIndex){
@@ -290,7 +282,7 @@ orion.DiffLineFeeder = (function() {
 					gapBlocks.push([curLineindex + this._mapper[i][mapperColumnIndexCompare] , gap , this._mapper[i][2]]);
 				}
 				if((this._mapper[i][2] !== 0))
-					this._annotations.push([curLineindex , i, delta]);
+					this._annotations.push([curLineindex , delta]);
 				curLineindex += delta;
 			}
 			return {gapBlocks:gapBlocks , gapNumber:gapNumber};
@@ -323,19 +315,19 @@ orion.DiffLineFeeder = (function() {
 					delta = this._mapper[i][mapperColumnIndex] + this._mapper[i][mapperColumnIndexCompare];
 				if(lineIndex >= curLineindex && lineIndex < (curLineindex +delta)){
 					if(this._mapper[i][2] === 0){
-						return {type:"unchnaged" , mapperIndex:i};
+						return "unchnaged";
 					} else if(this._mapper[i][2] < 0){
-						return {type:"removed" , mapperIndex:i};
+						return "removed";
 					} else if(this._mapper[i][1] === 0){
-						return {type:"added", mapperIndex:i};
+						return "added";
 					} else if (lineIndex < this._mapper[i][mapperColumnIndexCompare] + curLineindex){
-						return {type:"removed" , mapperIndex:i};
+						return "removed";
 					}	
-					return {type:"added" , mapperIndex:i};
+					return "added";
 				}
 				curLineindex += delta;
 			}
-			return {type:"unchnaged" , mapperIndex:-1};
+			return "unchnaged";
 		},
 		
 		getLineNumber: function(lineIndex , mapperColumnIndex){
@@ -375,8 +367,12 @@ orion.DiffLineFeeder = (function() {
 			return this._annotations;
 		},
 		
-		getAnnotationH: function(annotationIndex){
-			return  this._annotations[annotationIndex][2];
+		getAnnotationH: function(lineIndex){
+			for (var i = 0 ; i < this._annotations.length ; i++){
+				if(this._annotations[i][0] === lineIndex)
+					return this._annotations[i][1];
+			}
+			return 0;
 		}
 		
 	};
@@ -384,7 +380,6 @@ orion.DiffLineFeeder = (function() {
 	return DiffLineFeeder;
 }()); 
 
-// Gap line feeder is no longer used. But we refer to it as an example how the different line feeders serve the compare model.
 orion.GapLineFeeder = (function() {
 	var isWindows = navigator.platform.indexOf("Win") !== -1;
 
@@ -409,7 +404,7 @@ orion.GapLineFeeder = (function() {
 				}
 				var delta = Math.max(this._mapper[i][mapperColumnIndexCompare], this._mapper[i][mapperColumnIndex]);
 				if((this._mapper[i][2] !== 0))
-					this._annotations.push([curLineindex , i, delta]);
+					this._annotations.push([curLineindex , delta]);
 				curLineindex += delta;
 			}
 			return {gapBlocks:gapBlocks , gapNumber:gapNumber};
@@ -449,8 +444,12 @@ orion.GapLineFeeder = (function() {
 			return this._annotations;
 		},
 		
-		getAnnotationH: function(annotationIndex){
-			return  this._annotations[annotationIndex][2];
+		getAnnotationH: function(lineIndex){
+			for (var i = 0 ; i < this._annotations.length ; i++){
+				if(this._annotations[i][0] === lineIndex)
+					return this._annotations[i][1];
+			}
+			return 0;
 		}
 		
 	};

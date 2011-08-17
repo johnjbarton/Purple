@@ -18,14 +18,12 @@ dojo.addOnLoad(function(){
 	var textViewFactory = function() {
 		return new orion.textview.TextView({
 			parent: editorDomNode,
-			stylesheet: [ "../../orion/textview/textview.css",
-							"../../orion/textview/rulers.css",
-							"../textview/textstyler.css"],
+			stylesheet: ["/orion/textview/textview.css", "/orion/textview/rulers.css", "/examples/textview/textstyler.css"],
 			tabSize: 4
 		});
 	};
 	
-	var annotationFactory = new orion.editor.AnnotationFactory("images/problem.gif");
+	var annotationFactory = new orion.editor.AnnotationFactory();
 
 	
 	var keyBindingFactory = function(editor, keyModeStack, undoStack, contentAssist) {

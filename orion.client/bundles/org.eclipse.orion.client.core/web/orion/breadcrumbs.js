@@ -34,7 +34,6 @@ define(['dojo'], function(dojo) {
 			}
 			if (!container) { throw "no parent container"; }
 			this._container = container;
-			dojo.removeClass(container, "currentLocation");
 			this._id = options.id || "eclipse.breadcrumbs";
 			this._resource = options.resource|| null;
 			this._firstSegmentName = options.firstSegmentName;
@@ -70,7 +69,7 @@ define(['dojo'], function(dojo) {
 				crumbs.appendChild(seg);
 				if (this._resource && this._resource.Parents) {
 					slash = document.createElement('span');
-					dojo.place(document.createTextNode(' / '), slash, "only");
+					dojo.place(document.createTextNode('/'), slash, "only");
 					this.path+="/";
 					dojo.addClass(slash, "breadcrumb");
 					crumbs.appendChild(slash);
@@ -98,7 +97,7 @@ define(['dojo'], function(dojo) {
 					}
 					crumbs.appendChild(seg);
 					slash = document.createElement('span');
-					dojo.place(document.createTextNode(' / '), slash, "only");
+					dojo.place(document.createTextNode('/'), slash, "only");
 					this.path += '/';
 					dojo.addClass(slash, "breadcrumb");
 					crumbs.appendChild(slash);

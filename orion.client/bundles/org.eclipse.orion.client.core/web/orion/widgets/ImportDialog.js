@@ -10,7 +10,9 @@
 /*global dojo dijit dojox widgets*/
 /*jslint browser:true */
 
-define(['dojo', 'dijit', 'dojox', 'dijit/Dialog', 'dojo/data/ItemFileReadStore', 'dojox/form/Uploader', 'dojox/form/uploader/FileList', 'dojox/form/uploader/plugins/IFrame', 'dijit/form/Button', 'dijit/ProgressBar', 'orion/widgets/_OrionDialogMixin', 'text!orion/widgets/templates/ImportDialog.html'], function(dojo, dijit, dojox) {
+
+
+define(['dojo', 'dijit', 'dojox', 'dijit/Dialog', 'dojo/data/ItemFileReadStore', 'dojo/io/iframe', 'dojox/form/FileUploader', 'dijit/form/Button', 'dijit/ProgressBar', 'orion/widgets/_OrionDialogMixin', 'text!orion/widgets/templates/ImportDialog.html'], function(dojo, dijit, dojox) {
 
 /**
  */
@@ -27,24 +29,38 @@ dojo.declare("orion.widgets.ImportDialog", [ dijit.Dialog, orion.widgets._OrionD
 		this.title = "Import from zip";
 	},
 	postCreate : function() {
-		this.inherited(arguments);		
-		dojo.byId("importDialog.myForm").action = this.options.importLocation;
-		dojo.byId("importDialog.uploader").url = this.options.importLocation;
+		this.inherited(arguments);
+		var h = new dojox.form.FileUploader({
+			isDebug : false,
+			hoverClass : "uploadHover",
+			activeClass : "uploadPress",
+			disabledClass : "uploadDisabled",
+			fileMask : ["Zip", "*.zip"],
+			uploadUrl : this.options.importLocation,
+			force : "html",
+			showProgress : true,
+			selectMultipleFiles : false,
+			progressWidgetId : this.importDialogProgressBar.id,
+			fileListId : this.importDialogFilesList.id,
+			destroy : function(){ /* workaround for error in FileUploader#destroy */ }
+		}, this.importDialogSelectButton.id);
 
-		var self = this;
+		dojo.connect(this.importButton, "onClick", dojo.hitch(this, function() {
+			h.upload();
+		}));
 		
-		dojo.connect(dijit.byId("importDialog.uploader"), "onError", dojo.hitch(this, function(dataArray) {
-			setTimeout(dojo.hitch(this, function(){
-				this.hide();
-			}), 2000);		
+		dojo.connect(h, "onError", dojo.hitch(this, function(dataArray) {
+			this.hide();
 		}));
-	
-		dojo.connect(dijit.byId("importDialog.uploader"), "onComplete", dojo.hitch(this, function(dataArray) {
-			setTimeout(dojo.hitch(this, function(){
-				this.hide();
-				this.options.func();
-			}), 2000);		
+		
+		dojo.connect(h, "onComplete", dojo.hitch(this, function(dataArray) {
+			this.hide();
+			this.options.func();
 		}));
+	},
+	execute : function() {
+
 	}
 });
+
 });

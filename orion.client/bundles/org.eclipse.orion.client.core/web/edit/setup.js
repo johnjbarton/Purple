@@ -1,27 +1,27 @@
 /*******************************************************************************
  * Copyright (c) 2010, 2011 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License v1.0
- * (http://www.eclipse.org/legal/epl-v10.html), and the Eclipse Distribution
- * License v1.0 (http://www.eclipse.org/org/documents/edl-v10.html).
+ * All rights reserved. This program and the accompanying materials are made 
+ * available under the terms of the Eclipse Public License v1.0 
+ * (http://www.eclipse.org/legal/epl-v10.html), and the Eclipse Distribution 
+ * License v1.0 (http://www.eclipse.org/org/documents/edl-v10.html). 
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-/*jslint browser:true devel:true*/
-/*global define eclipse:true orion:true dojo dijit window*/
+/*global eclipse:true orion:true dojo dijit window*/
+/*jslint devel:true*/
 
 define(['dojo', 'orion/serviceregistry', 'orion/preferences', 'orion/pluginregistry', 'orion/selection', 'orion/status', 'orion/dialogs',
-        'orion/commands', 'orion/util', 'orion/favorites', 'orion/fileClient', 'orion/searchClient', 'orion/globalCommands', 'orion/outliner',
+        'orion/users', 'orion/commands', 'orion/util', 'orion/favorites', 'orion/fileClient', 'orion/searchClient', 'orion/globalCommands', 'orion/outliner',
         'orion/problems', 'orion/editor/contentAssist', 'orion/editorCommands', 'orion/editor/editorFeatures', 'orion/editor/editor', 'orion/syntaxchecker',
-        'orion/editor/textMateStyler', 'orion/breadcrumbs', 'examples/textview/textStyler', 'orion/textview/textView', 'orion/textview/keyBinding','orion/searchAndReplace/textSearcher','orion/searchAndReplace/orionTextSearchAdaptor',
-        'dojo/parser', 'dojo/hash', 'dijit/layout/BorderContainer', 'dijit/layout/ContentPane', 'orion/widgets/eWebBorderContainer'],
-		function(dojo, mServiceregistry, mPreferences, mPluginRegistry, mSelection, mStatus, mDialogs, mCommands, mUtil, mFavorites,
+        'orion/editor/textMateStyler', 'orion/breadcrumbs', 'examples/textview/textStyler', 'orion/textview/textView', 'orion/textview/keyBinding',
+        'dojo/parser', 'dojo/hash', 'dijit/layout/BorderContainer', 'dijit/layout/ContentPane', 'orion/widgets/eWebBorderContainer'], 
+		function(dojo, mServiceregistry, mPreferences, mPluginRegistry, mSelection, mStatus, mDialogs, mUsers, mCommands, mUtil, mFavorites,
 				mFileClient, mSearchClient, mGlobalCommands, mOutliner, mProblems, mContentAssist, mEditorCommands, mEditorFeatures, mEditor,
-				mSyntaxchecker, mTextMateStyler, mBreadcrumbs, mTextStyler, mTextView, mKeyBinding, mSearcher, mSearchAdaptor) {
-
+				mSyntaxchecker, mTextMateStyler, mBreadcrumbs, mTextStyler, mTextView, mKeyBinding) {
+	
 var exports = exports || {};
-
+	
 exports.setUpEditor = function(isReadOnly){
 	var pluginRegistry = null;
 	var serviceRegistry = null;
@@ -31,10 +31,10 @@ exports.setUpEditor = function(isReadOnly){
 	var commandService;
 	var statusReportingService;
 	var problemService;
-
+	
 	document.body.style.visibility = "visible";
 	dojo.parser.parse();
-
+	
 	// Initialize the plugin registry
 	(function() {
 		// This is the new service registry.  All services should be registered and obtained here.
@@ -43,10 +43,11 @@ exports.setUpEditor = function(isReadOnly){
 		dojo.addOnWindowUnload(function() {
 			pluginRegistry.shutdown();
 		});
-
+		
 		selection = new mSelection.Selection(serviceRegistry);
 		statusReportingService = new mStatus.StatusReportingService(serviceRegistry, "statusPane", "notifications");
 		new mDialogs.DialogService(serviceRegistry);
+		new mUsers.UserService(serviceRegistry);
 		prefsService = new mPreferences.PreferencesService(serviceRegistry, "/prefs/user");
 		commandService = new mCommands.CommandService({serviceRegistry: serviceRegistry, selection: selection});
 
@@ -55,7 +56,7 @@ exports.setUpEditor = function(isReadOnly){
 		new mOutliner.OutlineService(serviceRegistry);
 		new mFavorites.FavoritesService({serviceRegistry: serviceRegistry});
 	}());
-
+	
 	var splitArea = dijit.byId("orion.innerCoding"),
 		outlineDomNode = dojo.byId("outline"),
 		editorDomNode = dojo.byId("editor"),
@@ -68,12 +69,12 @@ exports.setUpEditor = function(isReadOnly){
 			return new mContentAssist.ContentAssist(editor, "contentassist", serviceRegistry);
 		};
 	}
-
+	
 	// Temporary.  This will evolve into something pluggable.
 	var syntaxHighlightProviders = serviceRegistry.getServiceReferences("orion.edit.highlighter");
 	var syntaxHighlighter = {
-		styler: null,
-
+		styler: null, 
+		
 		highlight: function(fileName, textView) {
 			if (this.styler) {
 				this.styler.destroy();
@@ -94,28 +95,30 @@ exports.setUpEditor = function(isReadOnly){
 							this.styler = new mTextStyler.TextStyler(textView, "css");
 							break;
 					}
-
+					
 					if (!this.styler && syntaxHighlightProviders) {
-						var grammars = [],
-						    providerToUse;
-						for (var i=0; i < syntaxHighlightProviders.length; i++) {
-							var provider = syntaxHighlightProviders[i],
-							    fileTypes = provider.getProperty("fileTypes");
-							if (provider.getProperty("type") === "grammar") {
-								grammars.push(provider.getProperty("grammar"));
+						// Check our syntax highlight providers
+						var providerToUse;
+						dojo.some(syntaxHighlightProviders, function(provider) {
+							var fileTypes = provider.getProperty("fileTypes");
+							if (fileTypes) {
+								for (var i=0; i < fileTypes.length; i++) {
+									if (fileTypes[i] === extension) {
+										providerToUse = provider;
+										return true;
+									}
+								}
 							}
-							if (fileTypes && fileTypes.indexOf(extension) !== -1) {
-								providerToUse = provider;
-							}
-						}
-
+						});
+						
 						if (providerToUse) {
 							var providerType = providerToUse.getProperty("type");
-							if (providerType === "parser") {
-								console.debug("TODO implement support for parser-based syntax highlight provider");
-							} else if (providerType === "grammar" || typeof providerType === "undefined") {
+							if (providerType === "grammar") {
+								// TextMate styler
 								var grammar = providerToUse.getProperty("grammar");
-								this.styler = new mTextMateStyler.TextMateStyler(textView, grammar, grammars);
+								this.styler = new mTextMateStyler.TextMateStyler(textView, grammar);
+							} else if (providerType === "parser") {
+								console.debug("TODO implement support for parser-based syntax highlight provider");
 							}
 						}
 					}
@@ -126,7 +129,7 @@ exports.setUpEditor = function(isReadOnly){
 
 	var fileServices = serviceRegistry.getServiceReferences("orion.core.file");
 	var fileServiceReference;
-
+	
 	for (var i=0; i<fileServices.length; i++) {
 		var info = {};
 		var propertyNames = fileServices[i].getPropertyNames();
@@ -142,7 +145,7 @@ exports.setUpEditor = function(isReadOnly){
 		var fileClient = new mFileClient.FileClient(fileService);
 
 		var searcher = new mSearchClient.Searcher({serviceRegistry: serviceRegistry});
-
+		
 		var textViewFactory = function() {
 			return new mTextView.TextView({
 				parent: editorDomNode,
@@ -151,10 +154,10 @@ exports.setUpEditor = function(isReadOnly){
 				readonly: isReadOnly
 			});
 		};
-
+	
 		var inputManager = {
 			lastFilePath: "",
-
+			
 			setInput: function(location, editor) {
 				var input = mUtil.getPositionInfo(location);
 				var fileURI = input.filePath;
@@ -173,21 +176,6 @@ exports.setUpEditor = function(isReadOnly){
 						fileClient.read(fileURI).then(
 							dojo.hitch(this, function(contents) {
 								clearTimeout(progressTimeout);
-								var delimiter;
-								var lf = contents.indexOf("\n");
-								var cr = contents.indexOf("\r");
-								if (cr !== -1 && lf !== -1) {
-									if (lf === cr + 1) {
-										delimiter = "\r\n";
-									} else {
-										delimiter = cr < lf ? "\r" : "\n";
-									}
-								} else if (lf !== -1) {
-									delimiter = "\n";
-								} else if (cr !== -1) {
-									delimiter = "\r";
-								}
-								editor.getTextView().setModel(new orion.textview.TextModel("", delimiter));
 								editor.onInputChange(fileURI, null, contents);
 								// in the long run we should be looking for plug-ins to call here for highlighting
 								syntaxHighlighter.highlight(fileURI, editor.getTextView());
@@ -215,11 +203,11 @@ exports.setUpEditor = function(isReadOnly){
 					editor.onInputChange("No File Selected", "", null);
 				}
 			},
-
+			
 			getInput: function() {
 				return this.lastFilePath;
 			},
-
+				
 			setTitle : function(title) {
 				var indexOfSlash = title.lastIndexOf("/");
 				var shortTitle = title;
@@ -234,9 +222,9 @@ exports.setUpEditor = function(isReadOnly){
 				var titlePane = dojo.byId("location");
 				if (titlePane) {
 					dojo.empty(titlePane);
-					var root = mUtil.getUserName() || "Navigator Root";
+					var root = mUtil.userName || "Navigator Root";
 					new mBreadcrumbs.BreadCrumbs({
-						container: "location",
+						container: "location", 
 						resource: this._fileMetadata,
 						firstSegmentName: root
 					});
@@ -246,15 +234,15 @@ exports.setUpEditor = function(isReadOnly){
 					}
 				}
 			},
-
+			
 			getTitle: function() {
 				return this._lastTitle;
 			},
-
+			
 			getFileMetadata: function() {
 				return this._fileMetadata;
 			},
-
+			
 			setDirty: function(dirty) {
 				if (dirty) {
 					if (this._lastTitle && this._lastTitle.charAt(0) !== '*') {
@@ -266,8 +254,8 @@ exports.setUpEditor = function(isReadOnly){
 					}
 				}
 			},
-
-			hashChanged: function(editor) {
+			
+			hashChanged: function(editor) {	
 				if (this.shouldGoToURI(editor, dojo.hash())) {
 					selection.setSelections(dojo.hash());
 				} else {
@@ -275,7 +263,7 @@ exports.setUpEditor = function(isReadOnly){
 					dojo.hash(this.lastFilePath);
 				}
 			},
-
+			
 			shouldGoToURI: function(editor, fileURI) {
 				if (editor.isDirty()) {
 					var oldStripped = mUtil.getPositionInfo(this.lastFilePath).filePath;
@@ -286,15 +274,15 @@ exports.setUpEditor = function(isReadOnly){
 				}
 				return true;
 			}
-		};
-
+		};	
+		
 		var escHandler = {
 			handlers: [],
-
+			
 			addHandler: function(handler) {
 				this.handlers.push(handler);
 			},
-
+			
 			cancel: function() {
 				var handled = false;
 				// To be safe, we give all our handlers a chance, not just the first one.
@@ -304,7 +292,7 @@ exports.setUpEditor = function(isReadOnly){
 				}
 				return handled;
 			},
-
+		
 			isActive: function() {
 				for (var i=0; i<this.handlers.length; i++) {
 					if (this.handlers[i].isActive()) {
@@ -313,7 +301,7 @@ exports.setUpEditor = function(isReadOnly){
 				}
 				return false;
 			},
-
+		
 			lineUp: function() {
 				return false;
 			},
@@ -324,28 +312,24 @@ exports.setUpEditor = function(isReadOnly){
 				return false;
 			}
 		};
-
+		
 		var keyBindingFactory = function(editor, keyModeStack, undoStack, contentAssist) {
 			// Register commands that depend on external services, the registry, etc.
 			var commandGenerator = new mEditorCommands.EditorCommandFactory(serviceRegistry, commandService, fileClient, inputManager, "pageActions", isReadOnly);
 			commandGenerator.generateEditorCommands(editor);
-
+			
 			// Create keybindings for generic editing, no dependency on the service model
-			var genericBindings = new mEditorFeatures.TextActions(editor, undoStack , new mSearcher.TextSearcher(commandService, undoStack, new mSearchAdaptor.OrionTextSearchAdaptor()));
+			var genericBindings = new mEditorFeatures.TextActions(editor, undoStack);
 			keyModeStack.push(genericBindings);
-
-			// Linked Mode
-			var linkedMode = new orion.editor.LinkedMode(editor);
-			keyModeStack.push(linkedMode);
 			
 			// create keybindings for source editing
 			// TODO this should probably be something that happens more dynamically, when the editor changes input
-			var codeBindings = new mEditorFeatures.SourceCodeActions(editor, undoStack, contentAssist, linkedMode);
+			var codeBindings = new mEditorFeatures.SourceCodeActions(editor, undoStack, contentAssist);
 			keyModeStack.push(codeBindings);
-
+			
 			// give our external escape handler a shot at handling escape
 			keyModeStack.push(escHandler);
-
+			
 			// global search
 			editor.getTextView().setKeyBinding(new mKeyBinding.KeyBinding("h", true), "Search Files");
 			editor.getTextView().setAction("Search Files", function() {
@@ -360,17 +344,17 @@ exports.setUpEditor = function(isReadOnly){
 					} if (!searchPattern) {
 						return;
 					}
-					dojo.connect(document, "onkeypress", dojo.hitch(this, function (e){
+					dojo.connect(document, "onkeypress", dojo.hitch(this, function (e){ 
 						if (e.charOrCode === dojo.keys.ESCAPE) {
 							searchFloat.style.display = "none";
 						}
 					}));
-
+					
 					var searchFloatEscHandler = {
 						isActive: function() {
 							return searchFloat.style.display === "block";
 						},
-
+						
 						cancel: function() {
 							if (this.isActive()) {
 								searchFloat.style.display = "none";
@@ -380,17 +364,34 @@ exports.setUpEditor = function(isReadOnly){
 						}
 					};
 					escHandler.addHandler(searchFloatEscHandler);
-										
+					
+					// TEMPORARY until we can better scope the search
+					var extensionFilter = "";
+					var fileName = inputManager.getTitle();
+					
 					dojo.place(document.createTextNode("Searching for occurrences of "), searchFloat, "last");
 					var b = dojo.create("b", null, searchFloat, "last");
-					dojo.place(document.createTextNode("\"" + searchPattern + "\"..."), b, "only");
+					dojo.place(document.createTextNode("\"" + searchPattern + "\""), b, "only");
+					
+					if (fileName) {
+						var splits = fileName.split(".");
+						if (splits.length > 0) {
+							var extension = splits.pop().toLowerCase();
+							extensionFilter = "+Name:*." + extension + "+";
+							
+							dojo.place(document.createTextNode(" in *."), searchFloat, "last");
+							dojo.place(document.createTextNode(extension), searchFloat, "last");
+						}
+					}
+					dojo.place(document.createTextNode("..."), searchFloat, "last");
+					
 					searchFloat.style.display = "block";
-					var query = inputManager.getFileMetadata().SearchLocation + searchPattern;
+					var query = inputManager.getFileMetadata().SearchLocation + searchPattern + extensionFilter;
 					searcher.search(searchFloat, query, inputManager.getInput());
 				}, 0);
 				return true;
 			});
-
+			
 			// splitter binding
 			editor.getTextView().setKeyBinding(new mKeyBinding.KeyBinding("o", true), "Toggle Outliner");
 			editor.getTextView().setAction("Toggle Outliner", function(){
@@ -398,141 +399,82 @@ exports.setUpEditor = function(isReadOnly){
 					return true;
 			});
 		};
-
-		var statusReporter = function(message, isError, isProgress) {
-			if(isProgress){
-				statusReportingService.setProgressMessage(message);
-			} else if (isError) {
-				statusReportingService.setErrorMessage(message);
+		
+		var statusReporter = function(message, isError) {
+			if (isError) {
+				statusReportingService.setErrorMessage(message);	
 			} else {
-				statusReportingService.setMessage(message);
+				statusReportingService.setMessage(message);	
 			}
 		};
-
-		var annotationFactory = new mEditorFeatures.AnnotationFactory("/images/problem.gif");
-
+	
+		var annotationFactory = new mEditorFeatures.AnnotationFactory();
+		
 		var editor = new mEditor.Editor({
 			textViewFactory: textViewFactory,
 			undoStackFactory: new mEditorCommands.UndoCommandFactory(serviceRegistry, commandService, "pageActions"),
 			annotationFactory: annotationFactory,
 			lineNumberRulerFactory: new mEditorFeatures.LineNumberRulerFactory(),
 			contentAssistFactory: contentAssistFactory,
-			keyBindingFactory: keyBindingFactory,
+			keyBindingFactory: keyBindingFactory, 
 			statusReporter: statusReporter,
 			domNode: editorDomNode
 		});
-
+		
 		// Establishing dependencies on registered services
 		serviceRegistry.getService("orion.core.marker").then(function(problemProvider) {
 			problemProvider.addEventListener("problemsChanged", function(problems) {
 				annotationFactory.showProblems(problems);
 			});
 		});
-
+		
 		dojo.connect(editor, "onDirtyChange", inputManager, inputManager.setDirty);
-
+		
 		// Generically speaking, we respond to changes in selection.  New selections change the editor's input.
 		serviceRegistry.getService("orion.page.selection").then(function(service) {
 			service.addEventListener("selectionChanged", function(fileURI) {
 				if (inputManager.shouldGoToURI(editor, fileURI)) {
 					inputManager.setInput(fileURI, editor);
-				}
+				} 
 			});
 		});
-
+	
 		// In this page, the hash change drives selection.  In other scenarios, a file picker might drive selection
 		dojo.subscribe("/dojo/hashchange", inputManager, function() {inputManager.hashChanged(editor);});
 		inputManager.setInput(dojo.hash(), editor);
-
-		//**************************************************************************************************************
-		//
-		function EventForwarder(listener) {
-			this.remoteListener = listener;
-		}
-		EventForwarder.prototype = {
-			initialize: function(listener) {
-				var remoteMethods = Object.keys(listener.implementation); // array of eg ['onModelChanging']
-				var forwarder = this;
-				remoteMethods.forEach(function rebind(remoteMethod){
-					var onIndex = remoteMethod.indexOf('on');
-					if (onIndex === 0) {
-						var eventName = remoteMethod.substr(2);
-						// the object of the addEventListener may not be correct for all remoteMethods...
-						editor.getTextView().addEventListener(eventName, forwarder, forwarder.forwardIt, remoteMethod);
-						console.log("done testing, bound "+remoteMethod+" to "+eventName, forwarder.forwardIt);
-					}
-					
-				});
-			},
-			forwardIt: function(event, remoteMethod) {
-				try {
-					console.log("EventForwarder forwardIt "+remoteMethod, event);
-					this.remoteListener[remoteMethod](event);
-				} catch (exc) {
-					console.error(exc);
-				}
-			}
-		};
-
-		function contentUpdater() 
-		{
-			console.log("contentUpdater ", arguments);
-			var event = arguments[0];
-			var method = event.method;
-			var view = editor.getTextView();
-			view[method].apply(view, event.arguments);
-		};
-
-		var modelListeners = serviceRegistry.getServiceReferences("orion.edit.listener");
-
-		for (var i=0; i<modelListeners.length; i++) {
-			serviceRegistry.getService(modelListeners[i]).then(function(listener) {
-				try {
-					console.log("edit.setup got orion.edit.listener ", listener);
-					var eventForwarder = new EventForwarder(listener);
-					eventForwarder.initialize(listener);
-					
-					listener.addEventListener("content.update", contentUpdater);
-				} catch (exc) {
-				    console.error(exc);
-				}
-			});
-		}
 		
-		//**************************************************************************************************************
-
 		// TODO search location needs to be gotten from somewhere
 		mGlobalCommands.generateBanner("toolbar", serviceRegistry, commandService, prefsService, searcher, editor, editor, escHandler);
 		mGlobalCommands.generateDomCommandsInBanner(commandService, editor);
-
+			
 		var syntaxChecker = new mSyntaxchecker.SyntaxChecker(serviceRegistry, editor);
-
+		
 		// Create outliner "gadget"
-		new mOutliner.Outliner({parent: outlineDomNode, serviceRegistry: serviceRegistry, selectionService: selection});
-
+		new mOutliner.Outliner({parent: outlineDomNode, serviceRegistry: serviceRegistry, selectionService: selection});	
+		
 		window.onbeforeunload = function() {
 			if (editor.isDirty()) {
 				 return "There are unsaved changes.";
 			}
 		};
-
+		
 		// Set up the border container
 		splitArea.setToggleCallback(function() {
 			editor.getTextView().redrawLines();
 		});
-
-		// Ctrl+o handler for toggling outline
+				
+		// Ctrl+o handler for toggling outline 
 		document.onkeydown = function (evt){
 			evt = evt || window.event;
 			if(evt.ctrlKey && evt.keyCode  === 79){
 				splitArea.toggle();
-				if(document.all){
+				if(document.all){ 
 					evt.keyCode = 0;
-				}else{
+				}else{ 
 					evt.preventDefault();
 					evt.stopPropagation();
-				}
-			}
+				}					
+			} 
 		};
 	});
 };

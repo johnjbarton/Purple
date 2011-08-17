@@ -8,7 +8,7 @@
  * Contributors: 
  *		Felipe Heidrich (IBM Corporation) - initial API and implementation
  *		Silenio Quarti (IBM Corporation) - initial API and implementation
- *		Mihai Sucan (Mozilla Foundation) - fix for Bugs 334583, 348471, 349485, 350595.
+ *		Mihai Sucan (Mozilla Foundation) - fix for Bugs 334583, 348471
  ******************************************************************************/
 
 /*global window document navigator setTimeout clearTimeout XMLHttpRequest define */
@@ -17,9 +17,6 @@
  * @namespace The global container for Orion APIs.
  */ 
 var orion = orion || {};
-/**
- * @namespace The container for textview APIs.
- */ 
 orion.textview = orion.textview || {};
 
 /**
@@ -66,8 +63,7 @@ orion.textview.TextView = (function() {
 	var isLinux = navigator.platform.indexOf("Linux") !== -1;
 	var isW3CEvents = typeof window.document.documentElement.addEventListener === "function";
 	var isRangeRects = (!isIE || isIE >= 9) && typeof window.document.createRange().getBoundingClientRect === "function";
-	var platformDelimiter = isWindows ? "\r\n" : "\n";
-	
+
 	/** 
 	 * Constructs a new Selection object.
 	 * 
@@ -229,6 +225,95 @@ orion.textview.TextView = (function() {
 		addEventListener: function(type, context, func, data) {
 			this._eventTable.addEventListener(type, context, func, data);
 		},
+		/**
+		 * @class This interface represents a ruler for the text view.
+		 * <p>
+		 * A Ruler is a graphical element that is placed either on the left or on the right side of 
+		 * the view. It can be used to provide the view with per line decoration such as line numbering,
+		 * bookmarks, breakpoints, folding disclosures, etc. 
+		 * </p><p>
+		 * There are two types of rulers: page and document. A page ruler only shows the content for the lines that are
+		 * visible, while a document ruler always shows the whole content.
+		 * </p>
+		 * <b>See:</b><br/>
+		 * {@link orion.textview.TextView}<br/>
+		 * {@link orion.textview.TextView#addRuler}
+		 * </p>		 
+		 * @name orion.textview.Ruler
+		 * 
+		 */
+		/**
+		 * Returns the ruler overview type.
+		 *
+		 * @name getOverview
+		 * @methodOf orion.textview.Ruler#
+		 * @returns {String} the overview type, which is either "page" or "document".
+		 *
+		 * @see #getLocation
+		 */
+		/**
+		 * Returns the ruler location.
+		 *
+		 * @name getLocation
+		 * @methodOf orion.textview.Ruler#
+		 * @returns {String} the ruler location, which is either "left" or "right".
+		 */
+		/**
+		 * Returns the HTML content for the decoration of a given line.
+		 * <p>
+		 * If the line index is <code>-1</code>, the HTML content for the decoration
+		 * that determines the width of the ruler should be returned.
+		 * </p>
+		 *
+		 * @name getHTML
+		 * @methodOf orion.textview.Ruler#
+		 * @param {Number} lineIndex
+		 * @returns {String} the HTML content for a given line, or generic line.
+		 *
+		 * @see #getStyle
+		 */
+		/**
+		 * Returns the CSS styling information for the decoration of a given line.
+		 * <p>
+		 * If the line index is <code>-1</code>, the CSS styling information for the decoration
+		 * that determines the width of the ruler should be returned. If the line is
+		 * <code>undefined</code>, the ruler styling information should be returned.
+		 * </p>
+		 *
+		 * @name getStyle
+		 * @methodOf orion.textview.Ruler#
+		 * @param {Number} lineIndex
+		 * @returns {orion.textview.Style} the CSS styling for ruler, given line, or generic line.
+		 *
+		 * @see #getHTML
+		 */
+		/**
+		 * Returns the indices of the lines that have decoration.
+		 * <p>
+		 * This function is only called for rulers with "document" overview type.
+		 * </p>
+		 * @name getAnnotations
+		 * @methodOf orion.textview.Ruler#
+		 * @returns {Number[]} an array of line indices.
+		 */
+		/**
+		 * This event is sent when the user clicks a line decoration.
+		 *
+		 * @name onClick
+		 * @event
+		 * @methodOf orion.textview.Ruler#
+		 * @param {Number} lineIndex the line index of the clicked decoration
+		 * @param {DOMEvent} e the click event
+		 */
+		/**
+		 * This event is sent when the user double clicks a line decoration.
+		 *
+		 * @name onDblClick
+		 * @event
+		 * @methodOf orion.textview.Ruler#
+		 * @param {Number} lineIndex the line index of the double clicked decoration
+		 * @param {DOMEvent} e the double click event
+		 */
 		/**
 		 * Adds a ruler to the text view.
 		 *
@@ -1216,7 +1301,7 @@ orion.textview.TextView = (function() {
 		 * Sets the caret offset relative to the start of the document.
 		 *
 		 * @param {Number} caret the caret offset relative to the start of the document.
-		 * @param {Boolean} [show=true] if <code>true</code>, the view will scroll if needed to show the caret location.
+		 * @param {Boolean} [show=true] if <code>true</coce>, the view will scroll if needed to show the caret location.
 		 *
 		 * @see #getCaretOffset
 		 * @see #setSelection
@@ -1297,7 +1382,7 @@ orion.textview.TextView = (function() {
 		 * 
 		 * @param {Number} start the start offset of the selection
 		 * @param {Number} end the end offset of the selection
-		 * @param {Boolean} [show=true] if <code>true</code>, the view will scroll if needed to show the caret location.
+		 * @param {Boolean} [show=true] if <code>true</coce>, the view will scroll if needed to show the caret location.
 		 *
 		 * @see #getSelection
 		 */
@@ -1407,13 +1492,11 @@ orion.textview.TextView = (function() {
 		/**
 		 * Scrolls the selection into view if needed.
 		 *
-		 * @returns true if the view was scrolled. 
-		 *
 		 * @see #getSelection
 		 * @see #setSelection
 		 */
 		showSelection: function() {
-			return this._showCaret(true);
+			return this._showCaret();
 		},
 		
 		/**************************************** Event handlers *********************************/
@@ -1645,7 +1728,7 @@ orion.textview.TextView = (function() {
 			}
 			if (!ignore) {
 				var key = isOpera ? e.which : (e.charCode !== undefined ? e.charCode : e.keyCode);
-				if (key > 31) {
+				if (key !== 0) {
 					this._doContent(String.fromCharCode (key));
 					if (e.preventDefault) { e.preventDefault(); }
 					return false;
@@ -1941,20 +2024,7 @@ orion.textview.TextView = (function() {
 			}
 		},
 		_handleScroll: function () {
-			var scroll = this._getScroll();
-			var oldX = this._hScroll;
-			var oldY = this._vScroll;
-			if (oldX !== scroll.x || oldY !== scroll.y) {
-				this._hScroll = scroll.x;
-				this._vScroll = scroll.y;
-				this._commitIME();
-				this._updatePage();
-				var e = {
-					oldValue: {x: oldX, y: oldY},
-					newValue: scroll
-				};
-				this.onScroll(e);
-			}
+			this._doScroll(this._getScroll());
 		},
 		_handleSelectStart: function (e) {
 			if (!e) { e = window.event; }
@@ -1978,14 +2048,6 @@ orion.textview.TextView = (function() {
 			var rect = this._frame.getBoundingClientRect();
 			var body = this._parentDocument.body;
 			return {left: touch.clientX - rect.left - body.scrollLeft, top: touch.clientY - rect.top - body.scrollTop};
-		},
-		_handleTextAreaClick: function (e) {
-			var pt = this._touchConvert(e);	
-			this._clickCount = 1;
-			this._ignoreDOMSelection = false;
-			this._setSelectionTo(pt.left, pt.top, false);
-			var textArea = this._textArea;
-			textArea.focus();
 		},
 		_handleTouchStart: function (e) {
 			var touches = e.touches, touch, pt, sel;
@@ -2016,6 +2078,13 @@ orion.textview.TextView = (function() {
 					textArea.style.top = "-1000px";
 					textArea.style.width = "3000px";
 					textArea.style.height = "3000px";
+					var self = this;
+					var f = function() {
+						self._touchTimeout = null;
+						self._clickCount = 1;
+						self._setSelectionTo(pt.left, pt.top, false);
+					};
+					this._touchTimeout = setTimeout(f, 200);
 				}
 			} else if (touches.length === 2) {
 				this._touchGesture = "select";
@@ -2032,7 +2101,7 @@ orion.textview.TextView = (function() {
 				sel.extend(offset2);
 				this._setSelection(sel, true, true);
 			}
-			//Cannot prevent to show magnifier
+			//Cannot prevent to show maginifier
 //			e.preventDefault();
 		},
 		_handleTouchMove: function (e) {
@@ -2046,6 +2115,10 @@ orion.textview.TextView = (function() {
 				var deltaY = this._touchStartY - pageY;
 				pt = this._touchConvert(touch);
 				sel = this._getSelection();
+				if (this._touchTimeout) {
+					clearTimeout(this._touchTimeout);
+					this._touchTimeout = null;
+				}
 				if (this._touchGesture === "none") {
 					if ((e.timeStamp - this._touchStartTime) < 200 && (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5)) {
 						this._touchGesture = "scroll";
@@ -2100,25 +2173,18 @@ orion.textview.TextView = (function() {
 			e.preventDefault();
 		},
 		_handleTouchEnd: function (e) {
-			var self = this;
 			if (!this._touchMoved) {
-				if (e.touches.length === 0 && e.changedTouches.length === 1) {
+				if (e.touches.length === 0 && e.changedTouches.length === 1 && this._touchTimeout) {
+					clearTimeout(this._touchTimeout);
+					this._touchTimeout = null;
 					var touch = e.changedTouches[0];
+					this._clickCount = 1;
 					var pt = this._touchConvert(touch);
-					var textArea = this._textArea;
-					textArea.value = "";
-					textArea.style.left = "-1000px";
-					textArea.style.top = "-1000px";
-					textArea.style.width = "3000px";
-					textArea.style.height = "3000px";
-					setTimeout(function() {
-						self._clickCount = 1;
-						self._ignoreDOMSelection = false;
-						self._setSelectionTo(pt.left, pt.top, false);
-					}, 300);
+					this._setSelectionTo(pt.left, pt.top, false);
 				}
 			}
 			if (e.touches.length === 0) {
+				var self = this;
 				setTimeout(function() {
 					var selection = self._getSelection();
 					var text = self._model.getText(selection.start, selection.end);
@@ -2134,7 +2200,7 @@ orion.textview.TextView = (function() {
 					}
 				}, 0);
 			}
-//			e.preventDefault();
+			e.preventDefault();
 		},
 
 		/************************************ Actions ******************************************/
@@ -2276,12 +2342,7 @@ orion.textview.TextView = (function() {
 		},
 		_doEnter: function (args) {
 			var model = this._model;
-			var selection = this._getSelection();
 			this._doContent(model.getLineDelimiter()); 
-			if (args && args.noCursor) {
-				selection.end = selection.start;
-				this._setSelection(selection);
-			}
 			return true;
 		},
 		_doHome: function (args) {
@@ -2402,32 +2463,19 @@ orion.textview.TextView = (function() {
 			}
 			return text !== null;
 		},
-		_doScroll: function (args) {
-			var type = args.type;
-			var model = this._model;
-			var lineCount = model.getLineCount();
-			var clientHeight = this._getClientHeight();
-			var lineHeight = this._getLineHeight();
-			var verticalMaximum = lineCount * lineHeight;
-			var verticalScrollOffset = this._getScroll().y;
-			var pixel = undefined;
-			switch (type) {
-				case "textStart": pixel = 0; break;
-				case "textEnd": pixel = verticalMaximum - clientHeight; break;
-				case "pageDown": pixel = verticalScrollOffset + clientHeight; break;
-				case "pageUp": pixel = verticalScrollOffset - clientHeight; break;
-				case "centerLine": { 
-						var selection = this._getSelection();
-						var lineStart = model.getLineAtOffset(selection.start);
-						var lineEnd = model.getLineAtOffset(selection.end);
-						var selectionHeight = (lineEnd - lineStart + 1) * lineHeight;
-						pixel = (lineStart * lineHeight) - (clientHeight / 2) + (selectionHeight / 2);
-					break;
-				}
-			}
-			if (pixel !== undefined) {
-				pixel = Math.min(Math.max(0, pixel), verticalMaximum - clientHeight);
-				this._scrollView(0, pixel - verticalScrollOffset);
+		_doScroll: function (scroll) {
+			var oldX = this._hScroll;
+			var oldY = this._vScroll;
+			if (oldX !== scroll.x || oldY !== scroll.y) {
+				this._hScroll = scroll.x;
+				this._vScroll = scroll.y;
+				this._commitIME();
+				this._updatePage();
+				var e = {
+					oldValue: {x: oldX, y: oldY},
+					newValue: scroll
+				};
+				this.onScroll(e);
 			}
 		},
 		_doSelectAll: function (args) {
@@ -2592,35 +2640,6 @@ orion.textview.TextView = (function() {
 			}
 			this._imeOffset = -1;
 		},
-		_convertDelimiter: function (text, addTextFunc, addDelimiterFunc) {
-				var cr = 0, lf = 0, index = 0, length = text.length;
-				while (index < length) {
-					if (cr !== -1 && cr <= index) { cr = text.indexOf("\r", index); }
-					if (lf !== -1 && lf <= index) { lf = text.indexOf("\n", index); }
-					var start = index, end;
-					if (lf === -1 && cr === -1) {
-						addTextFunc(text.substring(index));
-						break;
-					}
-					if (cr !== -1 && lf !== -1) {
-						if (cr + 1 === lf) {
-							end = cr;
-							index = lf + 1;
-						} else {
-							end = cr < lf ? cr : lf;
-							index = (cr < lf ? cr : lf) + 1;
-						}
-					} else if (cr !== -1) {
-						end = cr;
-						index = cr + 1;
-					} else {
-						end = lf;
-						index = lf + 1;
-					}
-					addTextFunc(text.substring(start, end));
-					addDelimiterFunc();
-				}
-		},
 		_createActions: function () {
 			var KeyBinding = orion.textview.KeyBinding;
 			//no duplicate keybindings
@@ -2631,22 +2650,18 @@ orion.textview.TextView = (function() {
 			bindings.push({name: "lineDown",	keyBinding: new KeyBinding(40), predefined: true});
 			bindings.push({name: "charPrevious",	keyBinding: new KeyBinding(37), predefined: true});
 			bindings.push({name: "charNext",	keyBinding: new KeyBinding(39), predefined: true});
+			bindings.push({name: "pageUp",		keyBinding: new KeyBinding(33), predefined: true});
+			bindings.push({name: "pageDown",	keyBinding: new KeyBinding(34), predefined: true});
 			if (isMac) {
-				bindings.push({name: "scrollPageUp",		keyBinding: new KeyBinding(33), predefined: true});
-				bindings.push({name: "scrollPageDown",	keyBinding: new KeyBinding(34), predefined: true});
-				bindings.push({name: "pageUp",		keyBinding: new KeyBinding(33, null, null, true), predefined: true});
-				bindings.push({name: "pageDown",	keyBinding: new KeyBinding(34, null, null, true), predefined: true});
 				bindings.push({name: "lineStart",	keyBinding: new KeyBinding(37, true), predefined: true});
 				bindings.push({name: "lineEnd",		keyBinding: new KeyBinding(39, true), predefined: true});
 				bindings.push({name: "wordPrevious",	keyBinding: new KeyBinding(37, null, null, true), predefined: true});
 				bindings.push({name: "wordNext",	keyBinding: new KeyBinding(39, null, null, true), predefined: true});
-				bindings.push({name: "scrollTextStart",	keyBinding: new KeyBinding(36), predefined: true});
-				bindings.push({name: "scrollTextEnd",		keyBinding: new KeyBinding(35), predefined: true});
+				bindings.push({name: "textStart",	keyBinding: new KeyBinding(36), predefined: true});
+				bindings.push({name: "textEnd",		keyBinding: new KeyBinding(35), predefined: true});
 				bindings.push({name: "textStart",	keyBinding: new KeyBinding(38, true), predefined: true});
 				bindings.push({name: "textEnd",		keyBinding: new KeyBinding(40, true), predefined: true});
 			} else {
-				bindings.push({name: "pageUp",		keyBinding: new KeyBinding(33), predefined: true});
-				bindings.push({name: "pageDown",	keyBinding: new KeyBinding(34), predefined: true});
 				bindings.push({name: "lineStart",	keyBinding: new KeyBinding(36), predefined: true});
 				bindings.push({name: "lineEnd",		keyBinding: new KeyBinding(35), predefined: true});
 				bindings.push({name: "wordPrevious",	keyBinding: new KeyBinding(37, true), predefined: true});
@@ -2702,40 +2717,15 @@ orion.textview.TextView = (function() {
 			*
 			* Note that Chrome applies the styles on the Mac with Ctrl instead of Cmd.
 			*/
-			if (!isFirefox) {
-				var isMacChrome = isMac && isChrome;
-				bindings.push({name: null, keyBinding: new KeyBinding('u', !isMacChrome, false, false, isMacChrome), predefined: true});
-				bindings.push({name: null, keyBinding: new KeyBinding('i', !isMacChrome, false, false, isMacChrome), predefined: true});
-				bindings.push({name: null, keyBinding: new KeyBinding('b', !isMacChrome, false, false, isMacChrome), predefined: true});
-			}
+			var isMacChrome = isMac && isChrome;
+			bindings.push({name: null, keyBinding: new KeyBinding('u', !isMacChrome, false, false, isMacChrome), predefined: true});
+			bindings.push({name: null, keyBinding: new KeyBinding('i', !isMacChrome, false, false, isMacChrome), predefined: true});
+			bindings.push({name: null, keyBinding: new KeyBinding('b', !isMacChrome, false, false, isMacChrome), predefined: true});
 
 			if (isFirefox) {
 				bindings.push({name: "copy", keyBinding: new KeyBinding(45, true), predefined: true});
 				bindings.push({name: "paste", keyBinding: new KeyBinding(45, null, true), predefined: true});
 				bindings.push({name: "cut", keyBinding: new KeyBinding(46, null, true), predefined: true});
-			}
-
-			// Add the emacs Control+ ... key bindings.
-			if (isMac) {
-				bindings.push({name: "lineStart", keyBinding: new KeyBinding("a", false, false, false, true), predefined: true});
-				bindings.push({name: "lineEnd", keyBinding: new KeyBinding("e", false, false, false, true), predefined: true});
-				bindings.push({name: "lineUp", keyBinding: new KeyBinding("p", false, false, false, true), predefined: true});
-				bindings.push({name: "lineDown", keyBinding: new KeyBinding("n", false, false, false, true), predefined: true});
-				bindings.push({name: "charPrevious", keyBinding: new KeyBinding("b", false, false, false, true), predefined: true});
-				bindings.push({name: "charNext", keyBinding: new KeyBinding("f", false, false, false, true), predefined: true});
-				bindings.push({name: "deletePrevious", keyBinding: new KeyBinding("h", false, false, false, true), predefined: true});
-				bindings.push({name: "deleteNext", keyBinding: new KeyBinding("d", false, false, false, true), predefined: true});
-				bindings.push({name: "deleteLineEnd", keyBinding: new KeyBinding("k", false, false, false, true), predefined: true});
-				if (isFirefox) {
-					bindings.push({name: "scrollPageDown", keyBinding: new KeyBinding("v", false, false, false, true), predefined: true});
-					bindings.push({name: "deleteLineStart", keyBinding: new KeyBinding("u", false, false, false, true), predefined: true});
-					bindings.push({name: "deleteWordPrevious", keyBinding: new KeyBinding("w", false, false, false, true), predefined: true});
-				} else {
-					bindings.push({name: "pageDown", keyBinding: new KeyBinding("v", false, false, false, true), predefined: true});
-					bindings.push({name: "centerLine", keyBinding: new KeyBinding("l", false, false, false, true), predefined: true});
-					bindings.push({name: "enterNoCursor", keyBinding: new KeyBinding("o", false, false, false, true), predefined: true});
-					//TODO implement: y (yank), t (transpose)
-				}
 			}
 
 			//1 to 1, no duplicates
@@ -2749,15 +2739,10 @@ orion.textview.TextView = (function() {
 				{name: "charNext",		defaultHandler: function() {return self._doCursorNext({select: false, unit:"character"});}},
 				{name: "pageUp",		defaultHandler: function() {return self._doPageUp({select: false});}},
 				{name: "pageDown",		defaultHandler: function() {return self._doPageDown({select: false});}},
-				{name: "scrollPageUp",		defaultHandler: function() {return self._doScroll({type: "pageUp"});}},
-				{name: "scrollPageDown",		defaultHandler: function() {return self._doScroll({type: "pageDown"});}},
 				{name: "wordPrevious",		defaultHandler: function() {return self._doCursorPrevious({select: false, unit:"word"});}},
 				{name: "wordNext",		defaultHandler: function() {return self._doCursorNext({select: false, unit:"word"});}},
 				{name: "textStart",		defaultHandler: function() {return self._doHome({select: false, ctrl:true});}},
 				{name: "textEnd",		defaultHandler: function() {return self._doEnd({select: false, ctrl:true});}},
-				{name: "scrollTextStart",	defaultHandler: function() {return self._doScroll({type: "textStart"});}},
-				{name: "scrollTextEnd",		defaultHandler: function() {return self._doScroll({type: "textEnd"});}},
-				{name: "centerLine",		defaultHandler: function() {return self._doScroll({type: "centerLine"});}},
 				
 				{name: "selectLineUp",		defaultHandler: function() {return self._doLineUp({select: true});}},
 				{name: "selectLineDown",	defaultHandler: function() {return self._doLineDown({select: true});}},
@@ -2771,16 +2756,13 @@ orion.textview.TextView = (function() {
 				{name: "selectWordNext",	defaultHandler: function() {return self._doCursorNext({select: true, unit:"word"});}},
 				{name: "selectTextStart",	defaultHandler: function() {return self._doHome({select: true, ctrl:true});}},
 				{name: "selectTextEnd",		defaultHandler: function() {return self._doEnd({select: true, ctrl:true});}},
-
+				
 				{name: "deletePrevious",	defaultHandler: function() {return self._doBackspace({unit:"character"});}},
 				{name: "deleteNext",		defaultHandler: function() {return self._doDelete({unit:"character"});}},
 				{name: "deleteWordPrevious",	defaultHandler: function() {return self._doBackspace({unit:"word"});}},
 				{name: "deleteWordNext",	defaultHandler: function() {return self._doDelete({unit:"word"});}},
-				{name: "deleteLineStart",	defaultHandler: function() {return self._doBackspace({unit: "line"});}},
-				{name: "deleteLineEnd",	defaultHandler: function() {return self._doDelete({unit: "line"});}},
 				{name: "tab",			defaultHandler: function() {return self._doTab();}},
 				{name: "enter",			defaultHandler: function() {return self._doEnter();}},
-				{name: "enterNoCursor",	defaultHandler: function() {return self._doEnter({noCursor:true});}},
 				{name: "selectAll",		defaultHandler: function() {return self._doSelectAll();}},
 				{name: "copy",			defaultHandler: function() {return self._doCopy();}},
 				{name: "cut",			defaultHandler: function() {return self._doCut();}},
@@ -2832,12 +2814,18 @@ orion.textview.TextView = (function() {
 			}
 			
 			/*
-			* A trailing span with a whitespace is added for three different reasons:
-			* 1. Make sure the height of each line is the largest of the default font
-			* in normal, italic, bold, and italic-bold.
-			* 2. When full selection is off, Firefox, Opera and IE9 do not extend the 
-			* selection at the end of the line when the line is fully selected. 
-			* 3. The height of a div with only an empty span is zero.
+			* Firefox, Opera and IE9 do not extend the selection at the end of the line
+			* when the line is fully selected. The fix is to add an extra space at the end
+			* of the line.
+			*
+			* Note: the height of a div with only an empty span is zero.  The fix is
+			* the add a extra zero-width non-break space to preserve the default
+			* height in the line div. In Chrome this character shows a glyph, so the
+			* zero-width non-joiner character is used instead.
+			*
+			* Note: in order to support bold and italic fonts with fixed line
+			* height all lines need to have at least one span with the largest
+			* font.
 			*/
 			var span = document.createElement("SPAN");
 			span.ignoreChars = 1;
@@ -2847,25 +2835,9 @@ orion.textview.TextView = (function() {
 			if ((this._largestFontStyle & 2) !== 0) {
 				span.style.fontWeight = "bold";
 			}
-			var c = " ";
-			if (!this._fullSelection && isIE < 9) {
-				/* 
-				* IE8 already selects extra space at end of a line fully selected,
-				* adding another space at the end of the line causes the selection 
-				* to look too big. The fix is to use a zero-width space (\uFEFF) instead. 
-				*/
-				c = "\uFEFF";
-			}
-			if (isWebkit) {
-				/*
-				* Feature in WekKit. Adding a regular white space to the line will
-				* cause the longest line in the view to wrap even though "pre" is set.
-				* The fix is to use the zero-width non-joiner character (\u200C) instead.
-				* Note: To not use \uFEFF because in old version of Chrome this character 
-				* shows a glyph;
-				*/
-				c = "\u200C";
-			}
+			var fullSelection = this._fullSelection;
+			var extendSelection = !fullSelection && (isFirefox || isOpera || isIE >= 9);
+			var c = extendSelection ? " " : (isWebkit || isFirefox ? "\u200C" : "\uFEFF");
 			span.appendChild(document.createTextNode(c));
 			child.appendChild(span);
 			
@@ -3020,14 +2992,9 @@ orion.textview.TextView = (function() {
 			return Math.max(0, this._viewDiv.clientWidth - viewPad.left - viewPad.right);
 		},
 		_getClipboardText: function (event) {
-			var delimiter = this._model.getLineDelimiter();
-			var clipboadText, text;
 			if (this._frameWindow.clipboardData) {
 				//IE
-				clipboadText = [];
-				text = this._frameWindow.clipboardData.getData("Text");
-				this._convertDelimiter(text, function(t) {clipboadText.push(t);}, function() {clipboadText.push(delimiter);});
-				return clipboadText.join("");
+				return this._frameWindow.clipboardData.getData("Text");
 			}
 			if (isFirefox) {
 				var window = this._frameWindow;
@@ -3043,18 +3010,11 @@ orion.textview.TextView = (function() {
 				if (sel.rangeCount > 0) { sel.removeAllRanges(); }
 				sel.addRange(range);
 				var self = this;
-				/** @ignore */
 				var cleanup = function() {
 					self._updateDOMSelection();
-					/* 
-					* It is possible that child has already been removed from the clientDiv during updatePage.
-					* This happens, for example, on the Mac when command+p is held down and a second paste
-					* event happens before the timeout of the first event is called. 
-					*/
-					if (child.parent === self._clientDiv) {
-						self._clientDiv.removeChild(child);
-					}
+					self._clientDiv.removeChild(child);
 				};
+				var delimiter = this._model.getLineDelimiter();
 				var _getText = function() {
 					/*
 					* Use the selection anchor to determine the end of the pasted text as it is possible that
@@ -3065,10 +3025,9 @@ orion.textview.TextView = (function() {
 						endNode = sel.anchorNode.childNodes[sel.anchorOffset];
 					}
 					var text = [];
-					/** @ignore */
 					var getNodeText = function(node) {
 						var nodeChild = node.firstChild;
-						while (nodeChild && nodeChild !== endNode) {
+						while (nodeChild !== endNode) {
 							if (nodeChild.nodeType === child.TEXT_NODE) {
 								text.push(nodeChild !== sel.anchorNode ? nodeChild.data : nodeChild.data.substring(0, sel.anchorOffset));
 							} else if (nodeChild.tagName === "BR") {
@@ -3115,10 +3074,7 @@ orion.textview.TextView = (function() {
 				* Webkit (Chrome/Safari) allows getData during the paste event
 				* Note: setData is not allowed, not even during copy/cut event
 				*/
-				clipboadText = [];
-				text = event.clipboardData.getData("text/plain");
-				this._convertDelimiter(text, function(t) {clipboadText.push(t);}, function() {clipboadText.push(delimiter);});
-				return clipboadText.join("");
+				return event.clipboardData.getData("text/plain");
 			} else {
 				//TODO try paste using extension (Chrome only)
 			}
@@ -3192,14 +3148,6 @@ orion.textview.TextView = (function() {
 			return node;
 		},
 		_getOffset: function (offset, unit, direction) {
-			if (unit === "line") {
-				var model = this._model;
-				var lineIndex = model.getLineAtOffset(offset);
-				if (direction > 0) {
-					return model.getLineEnd(lineIndex);
-				}
-				return model.getLineStart(lineIndex);
-			}
 			if (unit === "wordend") {
 				return this._getOffset_W3C(offset, unit, direction);
 			}
@@ -3600,7 +3548,6 @@ orion.textview.TextView = (function() {
 				handlers.push({target: textArea, type: "keydown", handler: function(e) { return self._handleKeyDown(e);}});
 				handlers.push({target: textArea, type: "input", handler: function(e) { return self._handleInput(e); }});
 				handlers.push({target: textArea, type: "textInput", handler: function(e) { return self._handleTextInput(e); }});
-				handlers.push({target: textArea, type: "click", handler: function(e) { return self._handleTextAreaClick(e); }});
 				handlers.push({target: touchDiv, type: "touchstart", handler: function(e) { return self._handleTouchStart(e); }});
 				handlers.push({target: touchDiv, type: "touchmove", handler: function(e) { return self._handleTouchMove(e); }});
 				handlers.push({target: touchDiv, type: "touchend", handler: function(e) { return self._handleTouchEnd(e); }});
@@ -3930,7 +3877,6 @@ orion.textview.TextView = (function() {
 			}
 			this._createActions();
 			this._hookEvents();
-			this._updatePage();
 		},
 		_modifyContent: function(e, updateCaret) {
 			if (this.readonly && !e._code) {
@@ -3942,12 +3888,9 @@ orion.textview.TextView = (function() {
 			if (e.text === null || e.text === undefined) { return; }
 			
 			var model = this._model;
-			try {
-				if (e._ignoreDOMSelection) { this._ignoreDOMSelection = true; }
-				model.setText (e.text, e.start, e.end);
-			} finally {
-				if (e._ignoreDOMSelection) { this._ignoreDOMSelection = false; }
-			}
+			if (e._ignoreDOMSelection) { this._ignoreDOMSelection = true; }
+			model.setText (e.text, e.start, e.end);
+			if (e._ignoreDOMSelection) { this._ignoreDOMSelection = false; }
 			
 			if (updateCaret) {
 				var selection = this._getSelection ();
@@ -4059,8 +4002,8 @@ orion.textview.TextView = (function() {
 			* Scrolling is done only by setting the scrollLeft and scrollTop fields in the
 			* view div. This causes an updatePage from the scroll event. In some browsers 
 			* this event is asynchromous and forcing update page to run synchronously
-			* leads to redraw problems. 
-			* On Chrome 11, the view redrawing at times when holding PageDown/PageUp key.
+			* (by calling doScroll) leads to redraw problems. On Chrome 11, the view 
+			* stops redrawing at times when holding PageDown/PageUp key.
 			* On Firefox 4 for Linux, the view redraws the first page when holding 
 			* PageDown/PageUp key, but it will not redraw again until the key is released.
 			*/
@@ -4069,12 +4012,9 @@ orion.textview.TextView = (function() {
 			if (pixelY) { viewDiv.scrollTop += pixelY; }
 		},
 		_setClipboardText: function (text, event) {
-			var clipboardText;
 			if (this._frameWindow.clipboardData) {
 				//IE
-				clipboardText = [];
-				this._convertDelimiter(text, function(t) {clipboardText.push(t);}, function() {clipboardText.push(platformDelimiter);});
-				return this._frameWindow.clipboardData.setData("Text", clipboardText.join(""));
+				return this._frameWindow.clipboardData.setData("Text", text);
 			}
 			/* Feature in Chrome, clipboardData.setData is no-op on Chrome even though it returns true */
 			if (isChrome || isFirefox || !event) {
@@ -4083,14 +4023,33 @@ orion.textview.TextView = (function() {
 				var child = document.createElement("PRE");
 				child.style.position = "fixed";
 				child.style.left = "-1000px";
-				this._convertDelimiter(text, 
-					function(t) {
-						child.appendChild(document.createTextNode(t));
-					}, 
-					function() {
-						child.appendChild(document.createElement("BR"));
+				var cr = 0, lf = 0, index = 0, length = text.length;
+				while (index < length) {
+					if (cr !== -1 && cr <= index) { cr = text.indexOf("\r", index); }
+					if (lf !== -1 && lf <= index) { lf = text.indexOf("\n", index); }
+					var start = index, end;
+					if (lf === -1 && cr === -1) {
+						child.appendChild(document.createTextNode(text.substring(index)));
+						break;
 					}
-				);
+					if (cr !== -1 && lf !== -1) {
+						if (cr + 1 === lf) {
+							end = cr;
+							index = lf + 1;
+						} else {
+							end = cr < lf ? cr : lf;
+							index = (cr < lf ? cr : lf) + 1;
+						}
+					} else if (cr !== -1) {
+						end = cr;
+						index = cr + 1;
+					} else {
+						end = lf;
+						index = lf + 1;
+					}
+					child.appendChild(document.createTextNode(text.substring(start, end)));
+					child.appendChild(document.createElement("BR"));
+				}
 				child.appendChild(document.createTextNode(" "));
 				this._clientDiv.appendChild(child);
 				var range = document.createRange();
@@ -4100,7 +4059,6 @@ orion.textview.TextView = (function() {
 				if (sel.rangeCount > 0) { sel.removeAllRanges(); }
 				sel.addRange(range);
 				var self = this;
-				/** @ignore */
 				var cleanup = function() {
 					self._clientDiv.removeChild(child);
 					self._updateDOMSelection();
@@ -4127,9 +4085,7 @@ orion.textview.TextView = (function() {
 			}
 			if (event && event.clipboardData) {
 				//webkit
-				clipboardText = [];
-				this._convertDelimiter(text, function(t) {clipboardText.push(t);}, function() {clipboardText.push(platformDelimiter);});
-				return event.clipboardData.setData("text/plain", clipboardText.join("")); 
+				return event.clipboardData.setData("text/plain", text); 
 			}
 		},
 		_setDOMSelection: function (startNode, startOffset, endNode, endOffset) {
@@ -4416,7 +4372,7 @@ orion.textview.TextView = (function() {
 			} 
 			this._setSelection(selection, true, true);
 		},
-		_showCaret: function (allSelection) {
+		_showCaret: function () {
 			var model = this._model;
 			var selection = this._getSelection();
 			var scroll = this._getScroll();
@@ -4435,7 +4391,7 @@ orion.textview.TextView = (function() {
 			var left = bounds.left;
 			var right = bounds.right;
 			var minScroll = clientWidth / 4;
-			if (allSelection && !selection.isEmpty() && startLine === endLine) {
+			if (!selection.isEmpty() && startLine === endLine) {
 				bounds = this._getBoundsAtOffset(caret === end ? start : endInclusive);
 				var selectionWidth = caret === start ? bounds.right - left : right - bounds.left;
 				if ((clientWidth - minScroll) > selectionWidth) {
@@ -4462,7 +4418,7 @@ orion.textview.TextView = (function() {
 			var clientHeight = this._getClientHeight();
 			if (!(topIndex <= caretLine && caretLine <= bottomIndex)) {
 				var lineHeight = this._getLineHeight();
-				var selectionHeight = allSelection ? (endLine - startLine) * lineHeight : 0;
+				var selectionHeight = (endLine - startLine) * lineHeight;
 				pixelY = caretLine * lineHeight;
 				pixelY -= scroll.y;
 				if (pixelY + lineHeight > clientHeight) {
@@ -4810,7 +4766,7 @@ orion.textview.TextView = (function() {
 							div.removeChild(div.lastChild);
 							count--;
 						}
-						var lines = ruler.getAnnotations();
+						var lines = ruler.getAnnotations ();
 						frag = document.createDocumentFragment();
 						for (var j = 0; j < lines.length; j++) {
 							lineIndex = lines[j];

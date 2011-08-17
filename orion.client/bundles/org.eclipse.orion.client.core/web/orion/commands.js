@@ -12,17 +12,9 @@
  
 define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton', 'dijit/MenuItem', 'dijit/PopupMenuItem', 'dijit/MenuSeparator' ], function(dojo, dijit, mUtil){
 
-	var CommandMenuItem = dojo.declare(dijit.MenuItem, {
-		_onClick: function(evt) {
-			if (!this.hrefCallback) {
-				this.inherited(arguments);
-			}
-		}
-	});
-
 	/**
 	 * Constructs a new command service with the given options.
-	 * @param {Object} options The command options object which includes the service registry and optional selection service.
+	 * @param {Object} options The command options object which includes the service registry.
 	 * @class CommandService can render commands appropriate for a particular scope and DOM element.
 	 * @name orion.commands.CommandService
 	 */
@@ -117,10 +109,6 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 			return this._selection;
 		},
 		
-		/**
-		 * Show the keybindings that are registered with the command service inside the specified domNode.
-		 * @param {DOMElement} the dom node where the key bindings should be shown.
-		 */
 		showKeyBindings: function(targetNode) {
 			for (var binding in this._activeBindings) {
 				if (this._activeBindings[binding] && this._activeBindings[binding].keyBinding && this._activeBindings[binding].command) {
@@ -155,13 +143,13 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 		
 		/**
 		 * Registers a command group and specifies visual information about the group.
-		 * @param {String} groupId The id of the group, must be unique.  Also used for dom node id
-		 * @param {Number} position The relative position of the group within its parent, optional.
-		 * @param {String} title The title of the group, optional
-		 * @param {String} parentPath The path of parent groups, separated by '/'.  For example,
+		 * @param {String} the id of the group, must be unique.  Also used for dom node id
+		 * @param {Number} the relative position of the group within its parent, optional.
+		 * @param {String} the title of the group, optional
+		 * @param {String} the path of parent groups, separated by '/'.  For example,
 		 *  a path of "group1Id/group2Id" indicates that the group belongs as a child of 
 		 *  group2Id, which is itself a child of group1Id.  Optional.
-		 * @param {String} scopeId The id of a DOM element related to the command's scope.  Optional.
+		 * @param {String} the id of a DOM element related to the command's scope.  Optional.
 		 *  For example, if the scope is "dom" level, the scopeId describes which dom id to which this
 		 *  command should be added
 		 */	
@@ -210,12 +198,10 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 		 * Register a command contribution, which identifies how a command appears
 		 * on a page and how it is invoked.
 		 * @param {String} the id of the command
-		 * @param {Number} the relative position of the command within its parent
 		 * @param {String} scopeId The id related to the scope.  Depending on the scope,
 		 *  this might be the id of the page or of a dom element.
-		 * @param {String} the path of any parent groups, separated by '/'.  For example,
-		 *  a path of "group1Id/group2Id/command" indicates that the command belongs as a child of 
-		 *  group2Id, which is itself a child of group1Id.  Optional.
+		 * @param {String} the path on which the command is located.  Optional.
+		 * @param {Number} the relative position of the command within its parent
 		 * @param {orion.commands.CommandKeyBinding} a keyBinding for the command.  Optional.
 		 * @param {boolean} if true, then the command is never rendered, but the keybinding is hooked.
 		 */
@@ -255,28 +241,21 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 		 * @param {String} scope The scope to which the command applies.  "dom" level 
 		 *  commands apply only when a specified dom element is rendering commands.
 		 *  "object" scope applies to particular objects/items displayed in widgets
-		 *  such as list or trees.  "global" commands always apply.
-		 * @param {Object} items An item or array of items to which the command applies.  Optional.  If not
-		 *  items are specified and a selection service was specified at creation time, then the selection
-		 *  service will be used to determine which items are involved. 
-		 * @param {Object} handler The object that should perform the command
-		 * @param {String} renderType The style in which the command should be rendered.  "image" will render
-		 *  a button-like image element in the dom.  "menu" will render a push button menu containing
-		 *  the commands.
-		 * @param {String} cssClass Optional name of a CSS class that should be added to any rendered commands.
+		 *  such as list or trees.
+		 * @param {Object} items An item or array of items to which the command applies.
+		 * @param {Object} handler The object that will perform the command
+		 * @param {String} style The style in which the command should be rendered.  Currently
+		 *  only "image" is implemented, but this should involve into something like "button,"
+		 *  "menu," "link," etc.
 		 * @param {Object} userData Optional user data that should be attached to generated command callbacks
-		 * @param {Boolean} forceText When true, always use text and not the icon when showing the command, regardless of the
-		 *  specified renderType.  
+		 * @param {Boolean} forceText Always use text and not the icon when showing the command, regardless of style.
 		 */	
-		renderCommands: function(parent, scope, items, handler, renderType, cssClass, userData, forceText, cssClassCmdOver, cssClassCmdLink) {
-			if (typeof(parent) === "string") {
-				parent = dojo.byId(parent);
-			}
+		renderCommands: function(parent, scope, items, handler, renderType, cssClass, userData, forceText) {
 			if (!items) {
 				var cmdService = this;
 				if (this._selection) {
 					this._selection.getSelections(function(selections) {
-						cmdService.renderCommands(parent, scope, selections, handler, renderType, cssClass, userData, forceText, cssClassCmdOver, cssClassCmdLink);
+						cmdService.renderCommands(parent, scope, selections, handler, renderType, cssClass, userData, forceText);
 					});
 				}
 				return;
@@ -291,7 +270,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 			} else {
 				throw "Unrecognized command scope " + scope;
 			}
-			this._render(this._namedGroups, parent, scope, items, handler, renderType, cssClass, userData, refCommands, forceText, cssClassCmdOver, cssClassCmdLink);
+			this._render(this._namedGroups, parent, scope, items, handler, renderType, cssClass, userData, refCommands, forceText);
 			// If the last thing we rendered was a group, it's possible there is an unnecessary trailing separator.
 			if (renderType === "image") {
 				if (this._isLastChildSeparator(parent, renderType)) {
@@ -306,7 +285,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 			}
 		},
 		
-		_render: function(commandItems, parent, scope, items, handler, renderType, cssClass, userData, commandList, forceText, cssClassCmdOver, cssClassCmdLink) {
+		_render: function(commandItems, parent, scope, items, handler, renderType, cssClass, userData, commandList, forceText) {
 			// sort the items
 			var positionOrder = commandItems.sortedCommands;
 			if (!positionOrder) {
@@ -341,7 +320,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 							// if commands are scoped to the dom, we'll need to identify a menu with the dom id of its original parent
 							newMenu.eclipseScopeId = parent.eclipseScopeId || parent.id;
 							// render the children
-							this._render(positionOrder[i].children, newMenu, scope, items, handler, "menu", cssClass, userData, commandList, forceText, cssClassCmdOver, cssClassCmdLink); 
+							this._render(positionOrder[i].children, newMenu, scope, items, handler, "menu", cssClass, userData, commandList, forceText); 
 							// special post-processing when we've created a menu in an image bar.
 							// we want to get rid of a trailing separator in the menu first, and then decide if a menu is necessary
 							children = newMenu.getChildren();
@@ -356,8 +335,8 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 								var needMenu = true;
 								var menuCommand = children[0].eclipseCommand;
 								if (children.length === 1) {
-									// we don't want to put a single command in a menu, just add the text
-									needMenu = !(menuCommand && !menuCommand.hasImage());
+									// we don't want to put a single command in a button menu, just add the image
+									needMenu = !(menuCommand && menuCommand.hasImage());
 								}
 								if (needMenu) {
 									menuButton = new dijit.form.DropDownButton({
@@ -371,7 +350,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 									dojo.place(menuButton.domNode, parent, "last");
 								} else {
 									id = "image" + menuCommand.id + i;  // using the index ensures unique ids within the DOM when a command repeats for each item
-									image = menuCommand._asImage(id, items, handler, userData, forceText, cssClassCmdOver, cssClassCmdLink);
+									image = menuCommand._asImage(id, items, handler, userData, forceText);
 									dojo.place(image, parent, "last");
 								}
 							}
@@ -382,7 +361,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 								sep = this.generateSeparatorImage();
 								dojo.place(sep, parent, "last");
 							}
-							this._render(positionOrder[i].children, parent, scope, items, handler, renderType, cssClass, userData, commandList, forceText, cssClassCmdOver, cssClassCmdLink); 
+							this._render(positionOrder[i].children, parent, scope, items, handler, renderType, cssClass, userData, commandList, forceText); 
 
 							// make sure that more than just the separator got rendered before rendering a trailing separator
 							if (parent.childNodes.length > 0) {
@@ -397,7 +376,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 						// group within a menu
 						if (group.title) {
 							var subMenu = new dijit.Menu();
-							this._render(positionOrder[i].children, subMenu, scope, items, handler, renderType, cssClass, userData, commandList, forceText, cssClassCmdOver, cssClassCmdLink); 
+							this._render(positionOrder[i].children, subMenu, scope, items, handler, renderType, cssClass, userData, commandList, forceText); 
 							if (subMenu.getChildren().length > 0) {
 								parent.addChild(new dijit.PopupMenuItem({
 									label: group.title,
@@ -411,7 +390,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 								menuSep = new dijit.MenuSeparator();
 								parent.addChild(menuSep);
 							}
-							this._render(positionOrder[i].children, parent, scope, items, handler, renderType, cssClass, userData, commandList, forceText, cssClassCmdOver, cssClassCmdLink); 
+							this._render(positionOrder[i].children, parent, scope, items, handler, renderType, cssClass, userData, commandList, forceText); 
 							// Add a trailing separator if children rendered.
 							var menuChildren = parent.getChildren();
 							if (menuChildren[menuChildren.length - 1] !== menuSep) {
@@ -490,7 +469,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 						} else {
 							if (renderType === "image") {
 								id = "image" + command.id + i;  // using the index ensures unique ids within the DOM when a command repeats for each item
-								image = command._asImage(id, items, handler, userData, cssClass, forceText, cssClassCmdOver, cssClassCmdLink);
+								image = command._asImage(id, items, handler, userData, cssClass, forceText);
 								dojo.place(image, parent, "last");
 							} else if (renderType === "menu") {
 								command._addMenuItem(parent, items, handler, userData, cssClass);
@@ -500,13 +479,6 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 				}
 			}
 		},
-		
-		/**
-		 * Return an image object that is appropriate for using a separator between different groups
-		 * of commands.  This function is useful when a page is precisely arranging groups of commands
-		 * (in a table or contiguous spans) and needs to use the same separator that the command service
-		 * would use when rendering different groups of commands.
-		 */
 		generateSeparatorImage: function() {
 			var sep = new Image();
 			// TODO should get this from CSS
@@ -521,25 +493,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 
 	/**
 	 * Constructs a new command with the given options.
-	 * @param {Object} options The command options object.
-	 * @param {String} options.id the unique id to be used when referring to the command in the command service.
-	 * @param {String} options.name the name to be used when showing the command as text.
-	 * @param {String} options.tooltip the tooltip description to use when explaining the purpose of the command.
-	 * @param {Function} options.callback the callback to call when the command is activated.  The callback should either 
-	 *  perform the command or return a deferred that represents the asynchronous performance of the command.  Optional.
-	 * @param {Function} options.hrefcallback when options.callback is not specfied, this callback is used to retrieve
-	 *  a URL that can be used as the location for a command represented as a hyperlink.  The callback should return 
-	 *  the URL.  In this release, the callback may also return a deferred that will eventually return the URL, but this 
-	 *  functionality may not be supported in the future.  See https://bugs.eclipse.org/bugs/show_bug.cgi?id=341540.
-	 *  Optional.
-	 * @param {Function} options.choicecallback a callback which retrieves choices that should be shown in a secondary
-	 *  menu from the command itself.  Returns a list of choices that supply the name and image to show, and the callback
-	 *  to call when the choice is made.  Optional.
-	 * @param {Image} options.image the image that may be used to represent the callback.  A text link will be shown in lieu
-	 *  of an image if no image is supplied.  Optional.
-	 * @param {Function} options.visibleWhen A callback that returns a boolean to indicate whether the command should be visible
-	 *  given a particular set of items that are selected.
-	 *
+	 * @param {Object} options The command options object
 	 * @class A command is an object that describes an action a user can perform, as well as when and
 	 *  what it should look like when presented in various contexts.  Commands are identified by a
 	 *  unique id.
@@ -564,7 +518,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 			//how will we know this?
 			this._deviceSupportsHover = false;  
 		},
-		_asImage: function(name, items, handler, userData, cssClass, forceText, cssClassCmdOver, cssClassCmdLink) {
+		_asImage: function(name, items, handler, userData, cssClass, forceText) {
 			handler = handler || this;
 			var image = new Image();
 			var link = dojo.create("a");
@@ -608,18 +562,13 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 					});	
 				} else {
 					image.src = this.image;	
+					dojo.style(image, "opacity", "0.7");
 					dojo.connect(image, "onmouseover", this, function() {
-						if(cssClassCmdOver)
-							dojo.addClass(image, cssClassCmdOver);
-						else
-							dojo.addClass(image, "commandOver");
+						dojo.style(image, "opacity", "1");
 					});
 					dojo.connect(image, "onmouseout", this, function() {
 						image.src = this.image;
-						if(cssClassCmdOver)
-							dojo.removeClass(image, cssClassCmdOver);
-						else
-							dojo.removeClass(image, "commandOver");
+						dojo.style(image, "opacity", "0.7");
 					});
 				}
 				dojo.addClass(image, 'commandImage');
@@ -628,10 +577,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 				}			
 				dojo.place(image, link, "last");
 			}
-			if(cssClassCmdLink)
-				dojo.addClass(link, cssClassCmdLink);
-			else
-				dojo.addClass(link, 'commandLink');
+			dojo.addClass(link, 'commandLink');
 			if (cssClass) {
 				dojo.addClass(link, cssClass);
 			}
@@ -666,11 +612,10 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 			return anchor;
 		},
 		_addMenuItem: function(parent, items, handler, userData, cssClass) {
-			var menuitem = new CommandMenuItem({
+			var menuitem = new dijit.MenuItem({
 				labelType: this.hrefCallback ? "html" : "text",
 				label: this.name,
-				tooltip: this.tooltip,
-				hrefCallback: !!this.hrefCallback
+				tooltip: this.tooltip
 			});
 			if (this.hrefCallback) {
 				var loc = this.hrefCallback.call(handler, items, this.id, parent.id, userData);
@@ -678,9 +623,11 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 					if (loc.then) {
 						loc.then(dojo.hitch(this, function(l) { 
 							menuitem.set("label", "<a href='"+l+"'>"+this.name+"</a>");
+							menuitem.onClick = function(event) {mUtil.followLink(l, event);};
 						}));
 					} else {
 						menuitem.set("label", "<a href='"+loc+"'>"+this.name+"</a>");
+						menuitem.onClick = function(event) {mUtil.followLink(loc, event);};
 					}
 				}
 			} else if (this.callback) {
@@ -701,12 +648,7 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 				menuitem.iconNode.src = this.image;
 			}
 		},
-		/**
-		 * Populate the specified menu with choices using the choiceCallback.
-		 * Used internally by the command service.  Not intended to be overridden or called
-		 * externally.
-		 */
-		 populateChoicesMenu: function(menu, items, handler, userData) {
+		populateChoicesMenu: function(menu, items, handler, userData) {
 			// see http://bugs.dojotoolkit.org/ticket/10296
 			menu.focusedChild = null;
 			dojo.forEach(menu.getChildren(), function(child) {
@@ -733,12 +675,6 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 				menu.addChild(menuitem);
 			}
 		},
-		
-		/**
-		 * Get the appropriate choices using the choiceCallback.
-		 * Used internally by the command service.  Not intended to be overridden or called
-		 * externally.
-		 */
 		getChoices: function(items, handler, userData) {
 			if (this.choiceCallback) {
 				return this.choiceCallback.call(handler, items, userData);
@@ -746,11 +682,6 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 			return null;
 		},
 		
-		/**
-		 * Make a choice callback appropriate for the given choice and items.
-		 * Used internally by the command service.  Not intended to be overridden or called
-		 * externally.
-		 */
 		makeChoiceCallback: function(choice, items) {
 			return function(event) {
 				if (choice.callback) {
@@ -758,12 +689,6 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 				}
 			};
 		},
-		
-		/**
-		 * Return a boolean indicating whether this command has a specific image associated
-		 * with it. Used internally by the command service.  Not intended to be overridden or called
-		 * externally.
-		 */
 		hasImage: function() {
 			return this.image !== "/images/none.png";
 		}
@@ -772,15 +697,23 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 
 	var isMac = window.navigator.platform.indexOf("Mac") !== -1;
 	/**
-	 * Temporary copy of editor key binding.  Will be removed in the next released.
+	 * Constructs a new key binding with the given key code and modifiers.
+	 * 
 	 * @param {String|Number} keyCode the key code.
 	 * @param {Boolean} mod1 the primary modifier (usually Command on Mac and Control on other platforms).
 	 * @param {Boolean} mod2 the secondary modifier (usually Shift).
 	 * @param {Boolean} mod3 the third modifier (usually Alt).
 	 * @param {Boolean} mod4 the fourth modifier (usually Control on the Mac).
 	 * 
+	 * @class A CommandKeyBinding represents of a key code and a modifier state that can be triggered by the user using the keyboard.
 	 * @name orion.commands.CommandKeyBinding
 	 * 
+	 * @property {String} userString The user representation for the string (to show in key assist dialog)
+	 * @property {String|Number} keyCode The key code.
+	 * @property {Boolean} mod1 The primary modifier (usually Command on Mac and Control on other platforms).
+	 * @property {Boolean} mod2 The secondary modifier (usually Shift).
+	 * @property {Boolean} mod3 The third modifier (usually Alt).
+	 * @property {Boolean} mod4 The fourth modifier (usually Control on the Mac).
 	 */
 	function CommandKeyBinding (keyCode, mod1, mod2, mod3, mod4) {
 		if (typeof(keyCode) === "string") {
@@ -833,7 +766,6 @@ define(['dojo', 'dijit', 'orion/util', 'dijit/Menu', 'dijit/form/DropDownButton'
 	return {
 		CommandService: CommandService,
 		CommandKeyBinding: CommandKeyBinding,
-		Command: Command,
-		CommandMenuItem: CommandMenuItem
+		Command: Command
 	};
 });

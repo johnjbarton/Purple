@@ -13,33 +13,8 @@
 
 var orion = orion || {};
 orion.editor = orion.editor || {};	
-
-/**
- * @name orion.editor.Editor
- * @class An <code>Editor</code> is a user interface for editing text that provides additional features over the basic {@link orion.textview.TextView}.
- * Some of <code>Editor</code>'s features include:
- * <ul>
- * <li>Additional actions and key bindings for editing text</li>
- * <li>Content assist</li>
- * <li>Find and Incremental Find</li>
- * <li>Rulers for displaying line numbers and annotations</li>
- * <li>Status reporting</li>
- * </ul>
- * 
- * @description Creates a new Editor with the given options.
- * @param {Object} options Options controlling the features of this Editor.
- * @param {Object} options.annotationFactory
- * @param {Object} options.contentAssistFactory
- * @param {Object} options.domNode
- * @param {Object} options.keyBindingFactory
- * @param {Object} options.lineNumberRulerFactory
- * @param {Object} options.statusReporter
- * @param {Object} options.syntaxHighlightProviders
- * @param {Object} options.textViewFactory
- * @param {Object} options.undoStackFactory
- */
+	
 orion.editor.Editor = (function() {
-	/** @private */
 	function Editor(options) {
 		this._textViewFactory = options.textViewFactory;
 		this._undoStackFactory = options.undoStackFactory;
@@ -57,21 +32,14 @@ orion.editor.Editor = (function() {
 		this._contentAssist = null;
 		this._keyModes = [];		
 	}
-	Editor.prototype = /** @lends orion.editor.Editor.prototype */ {
-		/**
-		 * Returns the underlying <code>TextView</code> used by this editor. 
-		 * @returns orion.textview.TextView
-		 */
+	Editor.prototype = {
 		getTextView: function() {
 			return this._textView;
 		},
 		
-		/**
-		 * @private
-		 */
-		reportStatus: function(message, isError, isProgress) {
+		reportStatus: function(message, isError) {
 			if (this._statusReporter) {
-				this._statusReporter(message, isError, isProgress);
+				this._statusReporter(message, isError);
 			} else {
 				window.alert(isError ? "ERROR: " + message : message);
 			}
@@ -79,13 +47,11 @@ orion.editor.Editor = (function() {
 				
 		/**
 		 * @static
-		 * @param {orion.textview.TextView} textView
-		 * @param {Number} start
-		 * @param {Number} [end]
-		 * @param {function} callBack A call back function that is used after the move animation is done
-		 * @private
+		 * @param textView
+		 * @param start
+		 * @param end
 		 */
-		moveSelection: function(textView, start, end, callBack) {
+		moveSelection: function(textView, start, end) {
 			end = end || start;
 			textView.setSelection(start, end, false);
 			var topPixel = textView.getTopPixel();
@@ -105,35 +71,22 @@ orion.editor.Editor = (function() {
 					onEnd: function() {
 						textView.showSelection();
 						textView.focus();
-						if(callBack)
-							callBack();
 					}
 				});
 				a.play();
 			} else {
 				textView.showSelection();
 				textView.focus();
-				if(callBack)
-					callBack();
 			}
 		},
-		/**
-		 * Returns the current contents of the editor. 
-		 * @returns {String}
-		 */
 		getContents : function() {
 			if (this._textView) {
 				return this._textView.getText();
 			}
 		},
-		/**
-		 * Returns <code>true</code> if the editor is dirty; <code>false</code> otherwise.
-		 * @returns {Boolean} 
-		 */
 		isDirty : function() {
 			return this._dirty;
 		},
-		/** @private */
 		checkDirty : function() {
 			var dirty = !this._undoStack.isClean();
 			if (this._dirty === dirty) {
@@ -142,23 +95,17 @@ orion.editor.Editor = (function() {
 			this.onDirtyChange(dirty);
 		},
 		
-		/**
-		 * @returns {Object}
-		 */
 		getAnnotationsRuler : function() {
 			return this._annotationsRuler;
 		},
 
 		/**
-		 * Helper for finding occurrences of str in the editor contents.
-		 * @param {String} str
-		 * @param {Number} startIndex
-		 * @param {Boolean} [ignoreCase] Default is false.
-		 * @param {Boolean} [reverse] Default is false.
-		 * @return {Object} An object giving the match details, or <code>null</code> if no match found. The returned 
-		 * object will have the properties:<br />
-		 * {Number} index<br />
-		 * {Number} length 
+		 * Helper for finding occurrences of str in the textView.
+		 * @param str {String}
+		 * @param startIndex {number}
+		 * @param [ignoreCase] {boolean} Default is false
+		 * @param [reverse] {boolean} Default is false
+		 * @return {index: number, length: number} giving the match details, or null if no match found.
 		 */
 		doFind: function(str, startIndex, ignoreCase, reverse) {
 			var text = this._textView.getText();
@@ -186,15 +133,12 @@ orion.editor.Editor = (function() {
 		},
 		
 		/**
-		 * Helper for finding regex matches in the editor contents. Use {@link #doFind} for simple string searches.
-		 * @param {String} pattern A valid regexp pattern.
-		 * @param {String} flags Valid regexp flags: [is]
-		 * @param {Number} [startIndex] Default is false.
-		 * @param {Boolean} [reverse] Default is false.
-		 * @return {Object} An object giving the match details, or <code>null</code> if no match found. The returned object
-		 * will have the properties:<br />
-		 * {Number} index<br />
-		 * {Number} length 
+		 * Helper for finding regexp matches in the textView. Use doFind() for simple string searches.
+		 * @param pattern {String} A valid regexp pattern
+		 * @param flags {String} Valid regexp flags: [is]
+		 * @param [startIndex] {number} Default is false
+		 * @param [reverse] {boolean} Default is false
+		 * @return {index: number, length: number} giving the match details, or null if no match found.
 		 */
 		doFindRegExp: function(pattern, flags, startIndex, reverse) {
 			if (!pattern) {
@@ -224,10 +168,8 @@ orion.editor.Editor = (function() {
 		},
 		
 		/**
-		 * @private
-		 * @static
 		 * @param {String} Input string
-		 * @returns {pattern:String, flags:String} if str looks like a RegExp, or null otherwise
+		 * @return {pattern:String, flags:String} if str looks like a RegExp, or null otherwise
 		 */
 		parseRegExp: function(str) {
 			var regexp = /^\s*\/(.+)\/([gim]{0,3})\s*$/.exec(str);
@@ -237,9 +179,6 @@ orion.editor.Editor = (function() {
 			return null;
 		},
 		
-		/**
-		 * Creates the underlying TextView and installs the editor's features.
-		 */
 		installTextView : function() {
 			// Create textView and install optional features
 			this._textView = this._textViewFactory();
@@ -286,17 +225,8 @@ orion.editor.Editor = (function() {
 				}
 				return false;
 			}));
-
-			textView.setAction("enter", dojo.hitch(this, function() {
-				for (var i=0; i<this._keyModes.length; i++) {
-					if (this._keyModes[i].isActive()) {
-						return this._keyModes[i].enter();
-					}
-				}
-				return false;
-			}));
 						
-			/** @this {orion.editor.Editor} */
+			/**@this {orion.editor.Editor} */
 			function updateCursorStatus() {
 				var model = textView.getModel();
 				var caretOffset = textView.getCaretOffset();
@@ -347,14 +277,6 @@ orion.editor.Editor = (function() {
 			}
 		},
 		
-		/**
-		 * Reveals and selects a portion of text.
-		 * @param {Number} start
-		 * @param {Number} end
-		 * @param {Number} line
-		 * @param {Number} offset
-		 * @param {Number} length
-		 */
 		showSelection : function(start, end, line, offset, length) {
 			// We use typeof because we need to distinguish the number 0 from an undefined or null parameter
 			if (typeof(start) === "number") {
@@ -374,13 +296,6 @@ orion.editor.Editor = (function() {
 			}
 		},
 		
-		/**
-		 * Called when the editor's contents have changed.
-		 * @param {String} title
-		 * @param {String} message
-		 * @param {String} contents
-		 * @param {Boolean} contentsSaved
-		 */
 		onInputChange : function (title, message, contents, contentsSaved) {
 			if (contentsSaved && this._textView) {
 				// don't reset undo stack on save, just mark it clean so that we don't lose the undo past the save
@@ -402,12 +317,6 @@ orion.editor.Editor = (function() {
 			}
 		},
 		
-		/**
-		 * Reveals a line in the editor, and optionally selects a portion of the line.
-		 * @param {Number} line
-		 * @param {Number|String} column
-		 * @param {Number} [end]
-		 */
 		onGotoLine : function (line, column, end) {
 			if (this._textView) {
 				var lineStart = this._textView.getModel().getLineStart(line);
@@ -429,10 +338,6 @@ orion.editor.Editor = (function() {
 			}
 		},
 		
-		/**
-		 * Called when the dirty state of the editor is changing.
-		 * @param {Boolean} isDirty
-		 */
 		onDirtyChange: function(isDirty) {
 			this._dirty = isDirty;
 		}
@@ -441,7 +346,7 @@ orion.editor.Editor = (function() {
 }());
 
 if (typeof window !== "undefined" && typeof window.define !== "undefined") {
-	define(['dojo', 'orion/textview/keyBinding'], function(){
+	define(['dojo', 'dijit', 'orion/textview/keyBinding', 'dijit/TitlePane', 'dijit/layout/ContentPane' ], function(){
 		return orion.editor;
 	});
 }

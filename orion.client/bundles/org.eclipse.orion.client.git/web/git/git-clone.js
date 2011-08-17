@@ -11,10 +11,10 @@ var eclipse;
 /*global dojo dijit window eclipse serviceRegistry:true widgets alert*/
 /*browser:true*/
 define(['dojo', 'orion/serviceregistry', 'orion/preferences', 'orion/pluginregistry', 'orion/status', 'orion/commands',
-        'orion/auth', 'orion/dialogs', 'orion/selection', 'orion/fileClient', 'orion/searchClient', 'orion/globalCommands', 'orion/git/gitClient',
+        'orion/auth', 'orion/dialogs', 'orion/users', 'orion/selection', 'orion/fileClient', 'orion/searchClient', 'orion/globalCommands', 'orion/git/gitClient',
         'orion/ssh/sshTools', 'orion/git/git-clone-details', 'orion/git/git-clones-explorer', 'orion/git/gitCommands',
 	    'dojo/parser', 'dojo/hash', 'dijit/layout/BorderContainer', 'dijit/layout/ContentPane', 'orion/widgets/eWebBorderContainer'], 
-		function(dojo, mServiceregistry, mPreferences, mPluginRegistry, mStatus, mCommands, mAuth, mDialogs, mSelection, mFileClient,
+		function(dojo, mServiceregistry, mPreferences, mPluginRegistry, mStatus, mCommands, mAuth, mDialogs, mUsers, mSelection, mFileClient,
 					mSearchClient, mGlobalCommands, mGitClient, mSshTools, mGitCloneDetails, mGitClonesExplorer, mGitCommands) {
 
 dojo.addOnLoad(function() {
@@ -29,6 +29,7 @@ dojo.addOnLoad(function() {
 	});
 	new mStatus.StatusReportingService(serviceRegistry, "statusPane", "notifications");
 	new mDialogs.DialogService(serviceRegistry);
+	new mUsers.UserService(serviceRegistry);
 	var selection = new mSelection.Selection(serviceRegistry);
 	new mSshTools.SshService(serviceRegistry);
 	var preferenceService = new mPreferences.PreferencesService(serviceRegistry, "/prefs/user");
@@ -46,20 +47,16 @@ dojo.addOnLoad(function() {
 	commandService.registerCommandContribution("eclipse.initGitRepository", 101, "pageActions", "eclipse.gitGroup");
 	commandService.addCommandGroup("eclipse.selectionGroup", 500, "More actions", null, "selectionTools");
 	commandService.registerCommandContribution("eclipse.git.deleteClone", 1);
-	commandService.registerCommandContribution("eclipse.openGitLogAll", 1);
 	commandService.registerCommandContribution("eclipse.git.deleteClone", 1, "selectionTools", "eclipse.selectionGroup");
 	commandService.registerCommandContribution("eclipse.checkoutBranch", 2);
 	commandService.registerCommandContribution("eclipse.addBranch", 2);
 	commandService.registerCommandContribution("eclipse.removeBranch", 2);
-	commandService.registerCommandContribution("eclipse.removeRemoteBranch", 2);
 	commandService.registerCommandContribution("eclipse.addRemote", 2);
 	commandService.registerCommandContribution("eclipse.removeRemote", 2);
 	commandService.registerCommandContribution("eclipse.openGitLog", 2);
 	commandService.registerCommandContribution("eclipse.openCloneContent", 2);
-	commandService.registerCommandContribution("eclipse.openGitStatus", 2);
 	commandService.registerCommandContribution("eclipse.orion.git.fetch", 2);
 	commandService.registerCommandContribution("eclipse.orion.git.merge", 2);
-	commandService.registerCommandContribution("eclipse.orion.git.rebase", 2);
 	commandService.registerCommandContribution("eclipse.orion.git.push", 2);
 	commandService.registerCommandContribution("eclipse.orion.git.pushto", 3);
 	commandService.registerCommandContribution("eclipse.orion.git.resetIndex", 4);

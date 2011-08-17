@@ -12,10 +12,10 @@
 /*browser:true*/
 
 define(['dojo', 'orion/serviceregistry', 'orion/preferences', 'orion/pluginregistry', 'orion/selection', 'orion/status', 'orion/dialogs',
-        'orion/ssh/sshTools', 'orion/commands', 'orion/favorites', 'orion/searchClient', 'orion/fileClient', 'orion/globalCommands',
+        'orion/users', 'orion/ssh/sshTools', 'orion/commands', 'orion/favorites', 'orion/searchClient', 'orion/fileClient', 'orion/globalCommands',
         'orion/fileCommands', 'orion/explorer-table',
         'dojo/parser', 'dijit/layout/BorderContainer', 'dijit/layout/ContentPane', 'orion/widgets/eWebBorderContainer'], 
-		function(dojo, mServiceregistry, mPreferences, mPluginRegistry, mSelection, mStatus, mDialogs, mSsh, mCommands, mFavorites, 
+		function(dojo, mServiceregistry, mPreferences, mPluginRegistry, mSelection, mStatus, mDialogs, mUsers, mSsh, mCommands, mFavorites, 
 				mSearchClient, mFileClient, mGlobalCommands, mFileCommands, mExplorerTable) {
 
 
@@ -40,6 +40,7 @@ dojo.addOnLoad(function(){
 		var selection = new mSelection.Selection(serviceRegistry);		
 		new mStatus.StatusReportingService(serviceRegistry, "statusPane", "notifications");
 		new mDialogs.DialogService(serviceRegistry);
+		new mUsers.UserService(serviceRegistry);
 		new mSsh.SshService(serviceRegistry);
 		
 		var commandService = new mCommands.CommandService({serviceRegistry: serviceRegistry, selection: selection});
@@ -160,6 +161,7 @@ dojo.addOnLoad(function(){
 		// commands appearing directly in local actions column
 		commandService.registerCommandContribution("eclipse.makeFavorite", 1);
 		commandService.registerCommandContribution("eclipse.renameResource", 2);
+		commandService.registerCommandContribution("eclipse.downloadFile", 3);
 		// commands appearing in nav tool bar
 		commandService.registerCommandContribution("eclipse.openResource", 500, "pageActions");
 		// commands appearing in local actions "More"
@@ -167,9 +169,8 @@ dojo.addOnLoad(function(){
 		commandService.registerCommandContribution("eclipse.moveFile", 2, null, "eclipse.fileGroup");
 		commandService.registerCommandContribution("eclipse.deleteFile", 3, null, "eclipse.fileGroup");
 		commandService.registerCommandContribution("eclipse.importCommand", 4, null, "eclipse.fileGroup");
-		commandService.registerCommandContribution("eclipse.downloadFile", 5, null, "eclipse.fileGroup");
-		commandService.registerCommandContribution("eclipse.importSFTPCommand", 6, null, "eclipse.fileGroup");
-		commandService.registerCommandContribution("eclipse.exportSFTPCommand", 7, null, "eclipse.fileGroup");
+		commandService.registerCommandContribution("eclipse.importSFTPCommand", 5, null, "eclipse.fileGroup");
+		commandService.registerCommandContribution("eclipse.exportSFTPCommand", 6, null, "eclipse.fileGroup");
 		// new file and new folder in the actions column uses the labeled group
 		commandService.registerCommandContribution("eclipse.newFile", 1, null, "eclipse.fileGroup/eclipse.newResources");
 		commandService.registerCommandContribution("eclipse.newFolder", 2, null, "eclipse.fileGroup/eclipse.newResources");

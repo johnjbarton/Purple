@@ -8,7 +8,9 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-/*global define console */
+/*global dojo console handleGetAuthenticationError */
+
+/** @namespace The global container for eclipse APIs. */
 
 define(['dojo', 'orion/auth'], function(dojo, mAuth) {
 
@@ -16,9 +18,8 @@ var orion = orion || {};
 
 orion.DiffProvider = (function() {
 	/**
-	 * Creates a new diff provider.
-	 * @class Provides operations on Diff in a compare editor
-	 * @name orion.compare.DiffProvider
+	 * @class Provides operations on Diff.
+	 * @name orion.DiffProvider
 	 */
 	function DiffProvider(serviceRegistry) {
 		if (serviceRegistry) {
@@ -26,7 +27,7 @@ orion.DiffProvider = (function() {
 		}
 	}
 
-	DiffProvider.prototype = /** @lends orion.compare.DiffProvider.prototype */
+	DiffProvider.prototype = /** @lends orion.DiffProvider.prototype */
 	{
 		getDiffContent: function(diffURI , onLoad , onError){
 			var service = this;

@@ -24,45 +24,44 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/util', 'orion/textview/keyBind
 	// BEGIN TOP BANNER FRAGMENT
 	var topHTMLFragment =
 	// a table?!!?  Yes, you can't mix CSS float right and absolutes to pin the bottom.
-	'<table style="border: 2px solid white; margin: 0; padding: 0; border-collapse: collapse; width: 100%;">' +
+	'<table style="border-spacing: 0px; margin: 0; padding: 0; border-collapse: collapse; width: 100%;">' +
 	// Row 1:  Logo + page title + primary nav links
 		'<tr class="topRowBanner" id="bannerRow1">' +
-			'<td rowspan=3 style="padding-top: 12px; padding-bottom: 12px; padding-left: 8px; width: 148px"><a id="home" href="/index.html"><img class="toolbarLabel" src="/images/orion.gif" alt="Orion Logo" align="top"></a></td>' +
-			'<td class="leftGlobalToolbar" style="padding-top: 16px">' +
+			'<td rowspan=3 style="padding-top: 12px; padding-bottom: 12px; padding-left: 16px; width: 124px"><a id="home" href="/index.html"><img class="toolbarLabel" src="/images/orion.png" alt="Orion Logo" align="top"></a></td>' +
+			'<td class="leftGlobalToolbar" style="padding-top: 12px">' +
 				'<span id="pageTitle" class="pageTitle"></span>' +
 			'</td>' + 
-			'<td class="rightGlobalToolbar" style="padding-top: 16px">' +
+			'<td class="rightGlobalToolbar" style="padding-top: 12px">' +
 				'<span id="primaryNav" class="globalActions"></span>' +
+			'</td>' + 
+		'</tr>' +
+	// Row 2:  Location (optional breadcrumb + current page resource)
+		'<tr class="topRowBanner" id="bannerRow2">' +
+			'<td>' +
+				'<span id="location" class="currentLocation"></span>' +
+			'</td>' + 
+			'<td>' +
+				'<span></span>' +
+			'</td>' + 
+		'</tr>' +
+	// Row 3:  Status on left, global commands, search, user, etc. on right
+		'<tr class="topRowBanner" id="bannerRow3">' +
+			'<td style="text-align: left">' +
+				'<span id="statusPane"></span>' +
+				'<span id="notifications"></span>' +
+			'</td>' +
+			'<td style="text-align: right">' +
 				'<span id="globalActions" class="globalActions"></span>' +
 				'<input type="search" id="search" class="searchbox">' +
 				'<span id="userInfo"></span>' +
 				'<span id="help" class="help"><a id="help" href="/help/index.jsp">?</a></span>' +
 			'</td>' + 
 		'</tr>' +
-	// Row 2:  Location (optional breadcrumb + current page resource)
-		'<tr class="topRowBanner" id="bannerRow2">' +
-			'<td colspan=2 style="text-wrap: normal">' +
-				'<span id="location" class="currentLocation" style="text-wrap: normal"></span>' +
-			'</td>' + 
-		'</tr>' +
-	// Row 3:  Status on left, global commands, search, user, etc. on right
-		'<tr class="topRowBanner" id="bannerRow3">' +
-			'<td colspan=2 style="height: 16px; text-align: left">' +
-				'<span id="statusPane" style="color: #5a5a5a;"></span>' +
-				'<span id="notifications"></span>' +
-			'</td>' +
-		'</tr>' +
 		
 	// Row 4: Page Toolbar
 		'<tr class="pageToolbar">' +
 			'<td colspan=3 style="padding-left: 16px;" id="pageToolbar" class="pageToolbar">' +
 				'<span id="pageActions" class="pageActions"></span>' +
-			'</td>' +
-		'</tr>' +
-		// Row 5: optional Page Toolbar
-		'<tr class="optionalPageToolbar">' +
-			'<td colspan=3 style="border: 1px solid grey;padding-left: 16px;" id="optionalPageToolbar" class="optionalPageToolbar">' +
-				'<div id="optionalPageActions"  class="pageActions"></div>' +
 			'</td>' +
 		'</tr>' +
 	'</table>';
@@ -89,7 +88,7 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/util', 'orion/textview/keyBind
 	 * @name orion.globalCommands#generateUserInfo
 	 * @function
 	 */
-	function generateUserInfo(userName, userLocation, userStatusText) {
+	function generateUserInfo(userName, userStatusText) {
 		// add the logout button to the toolbar if available
 		var userInfo = dojo.byId("userInfo");
 		if (userInfo) {
@@ -108,9 +107,11 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/util', 'orion/textview/keyBind
 				});
 				
 				// profile item
-				var menuitem2 = new mCommands.CommandMenuItem({
-					label: "<a href=\"" + "/profile/user-profile.html#" + (userLocation ? userLocation : "") + "\">Profile</a>",
-					hrefCallback: true
+				var menuitem2 = new dijit.MenuItem({
+					label: "Profile",
+					onClick: 
+						dojo.hitch(this, 
+								function(){window.location = "/profile/user-profile.html#/users/" + userName;})	
 				});
 				newMenu.addChild(menuitem2);
 				
@@ -122,9 +123,9 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/util', 'orion/textview/keyBind
 				newMenu.addChild(menuitem);
 	
 				var menuButton = new dijit.form.DropDownButton({
-					label: userName.length > 40 ? userName.substring(0, 30) + "..." : userName,
+					label: userName,
 					dropDown: newMenu,
-					title: userName + ' ' + userStatusText
+					title: userStatusText
 			        });
 			        dojo.addClass(menuButton.domNode, "commandImage");
 				dojo.place(menuButton.domNode, userInfo, "last");
@@ -249,6 +250,7 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/util', 'orion/textview/keyBind
 			
 		var openResourceCommand = new mCommands.Command({
 			name: "Find File Named...",
+			image: "/images/find.gif",
 			id: "eclipse.openResource",
 			callback: function(item) {
 				openResourceDialog(searchLocation, searcher, editor);
@@ -315,7 +317,7 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/util', 'orion/textview/keyBind
 		commandService.addCommand(keyAssistCommand, "global");
 		commandService.registerCommandContribution("eclipse.keyAssist", 1, "globalActions", null, new mCommands.CommandKeyBinding(191, false, true), true);
 		if (editor) {
-			editor.getTextView().setKeyBinding(new mCommands.CommandKeyBinding('L', true, true), "Show Keys");
+			editor.getTextView().setKeyBinding(new mCommands.CommandKeyBinding(191, true, true), "Show Keys");
 			editor.getTextView().setAction("Show Keys", keyAssistCommand.callback);
 		}
 
@@ -330,7 +332,7 @@ define(['dojo', 'dijit', 'orion/commands', 'orion/util', 'orion/textview/keyBind
 		
 		if (userDataToSet) {
 			//if last time we couldn't set the user name try again after creating the banner
-			generateUserInfo(userDataToSet.userName, userDataToSet.Location, userDataToSet.userStatusText);
+			generateUserInfo(userDataToSet.userName, userDataToSet.userStatusText);
 		}
 		
 		// generate the footer. 

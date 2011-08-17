@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Mihai Sucan (Mozilla Foundation) - fix for bug 350636
  *******************************************************************************/
  
  /*globals window define document navigator setTimeout XMLHttpRequest PerformanceTest */
@@ -40,12 +39,10 @@ function log (text) {
 		"orion/textview/textView", 
 		"orion/textview/rulers",
 		"orion/textview/undoStack",
-		"orion/editor/textMateStyler",
-		"orion/editor/htmlGrammar",
 		"examples/textview/textStyler",
 		"tests/textview/test-performance"],   
  
-function(mKeyBinding, mTextModel, mTextView, mRulers, mUndoStack, mTextMateStyler, mHtmlGrammar, mTextStyler) {
+function(mKeyBinding, mTextModel, mTextView, mRulers, mUndoStack, mTextStyler) {
 	var view = null;
 	var styler = null;
 	var isMac = navigator.platform.indexOf("Mac") !== -1;
@@ -74,17 +71,13 @@ function(mKeyBinding, mTextModel, mTextView, mRulers, mUndoStack, mTextMateStyle
 		var stylesheets = [
 			"/orion/textview/textview.css",
 			"/orion/textview/rulers.css",
-			"/examples/textview/textstyler.css",
-			"/examples/editor/htmlStyles.css",
+			"/examples/textview/textstyler.css"
 		];
-		var fullSelection = window.document.getElementById('fullSelection').checked;
-		var tabSize = parseInt(window.document.getElementById('tabSize').value);
 		var options = {
 			parent: "divParent",
 			model: new mTextModel.TextModel(),
 			stylesheet: stylesheets,
-			fullSelection: fullSelection,
-			tabSize: tabSize > 0 ? tabSize : 4
+			tabSize: 4
 		};
 		view = new mTextView.TextView(options);
 		
@@ -145,23 +138,12 @@ function(mKeyBinding, mTextModel, mTextView, mRulers, mUndoStack, mTextMateStyle
 	
 	function createJavaScriptSample() {
 		checkView();
-		var file =  getFile("/orion/textview/textView.js");
+		var file =  getFile("/orion/textview/textview.js");
 		if (styler) {
 			styler.destroy();
 			styler = null;
 		}
 		styler = new mTextStyler.TextStyler(view, "js");
-		view.setText(file);
-	}
-
-	function createHtmlSample() {
-		checkView();
-		var file =  getFile("/examples/textview/demo.html");
-		if (styler) {
-			styler.destroy();
-			styler = null;
-		}
-		styler = new mTextMateStyler.TextMateStyler(view, mHtmlGrammar.HtmlGrammar.grammar);
 		view.setText(file);
 	}
 	
@@ -208,7 +190,6 @@ function(mKeyBinding, mTextModel, mTextView, mRulers, mUndoStack, mTextMateStyle
 	/* Adding events */
 	document.getElementById("createJavaSample").onclick = createJavaSample;
 	document.getElementById("createJavaScriptSample").onclick = createJavaScriptSample;
-	document.getElementById("createHtmlSample").onclick = createHtmlSample;
 	document.getElementById("createPlainTextSample").onclick = createPlainTextSample;
 	document.getElementById("createBidiTextSample").onclick = createBidiTextSample;
 	document.getElementById("clearLog").onclick = clearLog;

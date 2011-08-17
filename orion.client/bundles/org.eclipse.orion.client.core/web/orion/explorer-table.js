@@ -77,14 +77,14 @@ define(['dojo', 'orion/util', 'orion/explorer', 'orion/breadcrumbs', 'orion/file
 	FileRenderer.prototype.getCellElement = function(col_no, item, tableRow){
 		switch(col_no){
 		case 0:
-			var col, span, link;
+			var col, div, link;
 			if (item.Directory) {
 				col = document.createElement('td');
 				var nameId =  tableRow.id + "__expand";
-				span = dojo.create("span", null, col, "only");
+				div = dojo.create("div", null, col, "only");
 				// defined in ExplorerRenderer.  Sets up the expand/collapse behavior
-				this.getExpandImage(tableRow, span);
-				link = dojo.create("a", {className: "navlinkonpage", id: tableRow.id+"NameColumn", href: "#" + item.ChildrenLocation}, span, "last");
+				this.getExpandImage(tableRow, div);
+				link = dojo.create("a", {className: "navlinkonpage", id: tableRow.id+"NameColumn", href: "#" + item.ChildrenLocation}, div, "last");
 				dojo.place(document.createTextNode(item.Name), link, "only");
 			} else {
 				col = document.createElement('td');
@@ -103,10 +103,10 @@ define(['dojo', 'orion/util', 'orion/explorer', 'orion/breadcrumbs', 'orion/file
 					}
 				}
 				
-				span = dojo.create("span", null, col, "only");
-				dojo.create("img", {src: "/images/none.png", style: "vertical-align: middle"}, span, "last");
-				dojo.create("img", {src: "/images/file.gif", style: "vertical-align: middle; margin-right: 4px"}, span, "last");
-				link = dojo.create("a", {className: "navlink", id: tableRow.id+"NameColumn", href: href}, span, "last");
+				div = dojo.create("div", null, col, "only");
+				dojo.create("img", {src: "/images/none.png"}, div, "last");
+				dojo.create("img", {src: "/images/file_obj.gif"}, div, "last");
+				link = dojo.create("a", {className: "navlink", id: tableRow.id+"NameColumn", href: href}, div, "last");
 				dojo.place(document.createTextNode(item.Name), link, "only");
 			}
 			return col;
@@ -225,7 +225,7 @@ define(['dojo', 'orion/util', 'orion/explorer', 'orion/breadcrumbs', 'orion/file
 					mUtil.processNavigatorParent(this.treeRoot, loadedWorkspace.Children);					
 					// erase any old page title
 					var breadcrumb = dojo.byId(this.breadcrumbId);
-					var root = mUtil.getUserName() || "Navigator Root";
+					var root = mUtil.userName || "Navigator Root";
 					if (breadcrumb) {
 						dojo.empty(breadcrumb);
 						new mBreadcrumbs.BreadCrumbs({

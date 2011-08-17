@@ -9,9 +9,9 @@
  ******************************************************************************/
 
 define(['dojo', 'orion/serviceregistry', 'orion/preferences', 'orion/pluginregistry', 'orion/status',  'orion/commands',
-	        'orion/fileClient', 'orion/searchClient', 'orion/globalCommands', 'orion/git/gitClient', 'orion/git/git-status-table', 'orion/breadcrumbs','orion/dialogs','orion/ssh/sshTools',
+	        'orion/fileClient', 'orion/searchClient', 'orion/globalCommands', 'orion/git/gitClient', 'orion/git/git-status-table', 'orion/breadcrumbs','orion/dialogs',
 	        'dojo/parser', 'dojo/hash', 'dijit/layout/BorderContainer', 'dijit/layout/ContentPane'], 
-			function(dojo, mServiceregistry, mPreferences, mPluginRegistry, mStatus, mCommands, mFileClient, mSearchClient, mGlobalCommands, mGitClient, mGitStatusTable, mBreadcrumbs,mDialogs,mSshTools) {
+			function(dojo, mServiceregistry, mPreferences, mPluginRegistry, mStatus, mCommands, mFileClient, mSearchClient, mGlobalCommands, mGitClient, mGitStatusTable, mBreadcrumbs,mDialogs) {
 
 dojo.addOnLoad(function() {
 	document.body.style.visibility = "visible";
@@ -24,7 +24,6 @@ dojo.addOnLoad(function() {
 	var searcher = new mSearchClient.Searcher({serviceRegistry: serviceRegistry});
 	// Git operations
 	new mGitClient.GitService(serviceRegistry);
-	new mSshTools.SshService(serviceRegistry);
 	// File operations
 
 	new mDialogs.DialogService(serviceRegistry);
@@ -49,7 +48,7 @@ dojo.addOnLoad(function() {
 
 		mGlobalCommands.generateBanner("toolbar", serviceRegistry, commandService, preferenceService, searcher);
 	
-		var controller = new mGitStatusTable.GitStatusController({renderLog :true},serviceRegistry , commandService , statusService,"unstagedZone" , "stagedZone");
+		var controller = new mGitStatusTable.GitStatusController({renderLog :true},serviceRegistry , statusService,"unstagedZone" , "stagedZone");
 		controller.getGitStatus(dojo.hash(),true);
 	
 		//every time the user manually changes the hash, we need to load the git status

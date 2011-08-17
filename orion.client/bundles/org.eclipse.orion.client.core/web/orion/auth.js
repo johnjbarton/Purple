@@ -7,7 +7,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-/*global define dojo dijit handleAuthenticationError */
+/*global dojo dijit handleAuthenticationError */
  /*
 	Authentication and authorization error handling. Adds methods that handle 401 and 403 responses for 
 	XHR calls.
@@ -78,17 +78,13 @@ function handlePutAuthenticationError(xhrArgs, ioArgs) {
  */
 function handleAuthenticationError(error, retry) {
 	if (error.status === 403) { 
-		if (typeof forbiddenAccessDlg === "undefined") {
+		if (forbiddenAccessDlg == null) {
 			forbiddenAccessDlg = new dijit.Dialog({
 		        title: "Forbidden access"
 		    });
 		}
-		var message = error.message;
-		if (error.responseText) {
-			var responseObject = JSON.parse(error.responseText);
-			message = responseObject.Message || error.message;
-		}
-		forbiddenAccessDlg.set("content", message);
+		
+		forbiddenAccessDlg.set("content", error.message);
 		forbiddenAccessDlg.show();
 	}
 	if (error.status === 401) { 
