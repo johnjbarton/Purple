@@ -31,10 +31,12 @@ traceur.define('semantics.symbols', function() {
     this.exports_ = Object.create(null);
     this.parent = parent;
     this.tree = tree;
+    /* this should only be an error if the url is used 
     if (!url) {
       // TODO(arv): Find offensive callers.
       console.error('Missing URL');
     }
+    */
     this.url = url;
   }
 
