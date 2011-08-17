@@ -1,0 +1,39 @@
+.breadcrumb {
+	font-size: 10pt;
+	text-decoration: none;
+	color: #666666;
+}
+
+a.breadcrumb:link {
+	font-size: 10pt;
+	text-decoration: none;
+	color: #0058B8;
+}
+
+a.breadcrumb:hover {
+	font-size: 10pt;
+	text-decoration: none;
+	border-bottom: 1px dotted;
+	color: #0058B8;
+}
+
+a.breadcrumb:visited {
+	color: #0058B8;
+}
+
+.currentLocation {
+	font-weight: bold;
+	font-size: 12pt;
+	color: #666666;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a.currentLocation:hover {
+	font-weight: bold;
+	font-size: 12pt;
+	color: #666666;
+	text-decoration: none;
+	border-bottom: 0px;
+	cursor: pointer;
+}

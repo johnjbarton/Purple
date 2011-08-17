@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<script type="text/javascript" src="../orion/plugin.js"></script>
+	<script>
+		window.onload = function() {
+			var provider = new eclipse.PluginProvider();
+			provider.registerServiceProvider("orion.edit.listener", {
+				onModelChanging : function(event){
+					console.log(event.text);
+				}
+			}, {});
+			provider.connect();
+		};
+	</script>
+</head>
+<body>
+</body>
+</html>
