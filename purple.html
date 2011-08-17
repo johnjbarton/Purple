@@ -89,10 +89,9 @@ body {
 			</div>
 		</span>
 	</div>
-    <div id="editor" style="width: 100%; height: 90%"></div>
+    <div class="input" id="editor" style="width: 100%; height: 90%"></div>
 	<div id="contentassist" class="contentassist"></div>
 <!-- End embeddededitor -->
-<textarea class="input editor"></textarea>
 <pre class="error"></pre>
 <label><input class="eval" type="checkbox" checked> Evaluate</label>
 <pre class="eval"></pre>
@@ -120,7 +119,7 @@ body {
     output.hidden = !outputCheckbox.checked;
   }, false);
 
-  function compile() {
+  function compile(src) {
     hasError = false;
     output.textContent = errorElement.textContent = '';
 
@@ -137,7 +136,7 @@ body {
 
     var project = new traceur.semantics.symbols.Project();
     var name = 'repl';
-    var contents = input.value;
+    var contents = src;
     var sourceFile = new traceur.syntax.SourceFile(name, contents);
     project.addFile(sourceFile);
     var res = traceur.codegeneration.Compiler.compile(reporter, project, false);
