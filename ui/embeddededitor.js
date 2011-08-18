@@ -205,8 +205,8 @@ dojo.addOnLoad(function(){
 	  },
 	  
 	  // problems: array of {reason: a string, line: anumber, character: aColumnNumber}
-	  reportError: function(message, location) {
-	    var problem = {reason: message, line: location.line+1, character: location.column+1};
+	  reportError: function(indicator, location) {
+	    var problem = {reason: indicator.tooltip, line: location.line+1, character: location.column+1};
 	    annotationFactory.showProblems([problem]); 
 	  },
 	  

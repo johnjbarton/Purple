@@ -124,17 +124,28 @@ body {
     hasError = false;
     output.textContent = errorElement.textContent = '';
 
+    var errorTypes = {
+      "%s is not defined": function(format, args, message) {
+      	return {token: '?', tooltip: message};
+      },
+    };
     var reporter = new traceur.util.ErrorReporter();
     reporter.reportMessageInternal = function(location, kind, format, args) {
       var i = 0;
       var message = format.replace(/%s/g, function() {
         return args[i++];
       });
-      if (location)
-        format = location + ': ' + message;
-      errorElement.textContent += format + '\n';
       
-      window.purple.editorIntegration.reportError(message, location);
+      var getIndicator = errorTypes[format];
+      if (getIndicator) {
+        var indicator = getIndicator(format, args, message);
+      } else {
+        if (location) format = location + ': ' + message;
+        errorElement.textContent += format + '\n';
+        var indicator = {tooltop: message};
+     }
+	      
+      window.purple.editorIntegration.reportError(indicator, location);
     };
 
     var project = new traceur.semantics.symbols.Project();

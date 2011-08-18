@@ -13,8 +13,8 @@ window.purple.editorIntegration = {
     this.editorAPI.setContent("inBrowser", "");
   },
   
-  reportError: function(message, location) {
-    this.editorAPI.reportError(message, location);
+  reportError: function(indicator, location) {
+    this.editorAPI.reportError(indicator, location);
   },
   // -----------------------------------------------------------------------------------
   // From editor
