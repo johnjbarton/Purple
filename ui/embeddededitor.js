@@ -62,7 +62,7 @@ dojo.addOnLoad(function(){
 		}
 	};
 	
-	var annotationFactory = new orion.editor.AnnotationFactory();
+	var annotationFactory = new window.purple.AnnotationFactory();
 
 	function save(editor) {
 		editor.onInputChange(null, null, null, true);
@@ -87,7 +87,7 @@ dojo.addOnLoad(function(){
 		});
 		
 		// speaking of save...
-		dojo.byId("save").onclick = function() {save(editor);};
+		//dojo.byId("save").onclick = function() {save(editor);};
 
 	};
 		
@@ -97,10 +97,11 @@ dojo.addOnLoad(function(){
 	var statusReporter = function(message, isError) {
 		if (isError) {
 			status =  "ERROR: " + message;
+			console.error("Orion editor ERROR:"+message);
 		} else {
 			status = message;
 		}
-		dojo.byId("status").innerHTML = dirtyIndicator + status;
+//		dojo.byId("status").innerHTML = dirtyIndicator + status;
 	};
 	
 	var editor = new orion.editor.Editor({
@@ -120,7 +121,7 @@ dojo.addOnLoad(function(){
 		} else {
 			dirtyIndicator = "";
 		}
-		dojo.byId("status").innerHTML = dirtyIndicator + status;
+		//dojo.byId("status").innerHTML = dirtyIndicator + status;
 	});
 	
 	editor.installTextView();
@@ -132,6 +133,7 @@ dojo.addOnLoad(function(){
 	    editor.getTextView().addEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
 		window.purple.editorIntegration.onEditorReady(this);
 	  },
+	  
 	  setContent: function(name, src) {
 	    this.sourceName = name;  // TODO multiple editors
 	    // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
@@ -139,6 +141,7 @@ dojo.addOnLoad(function(){
 		syntaxHighlighter.highlight(name, editor.getTextView());
 		// end of code to run when content changes.
 	  },
+	  
 	  // name: a key given to setContent,
 	  // src: new buffer contents, 
 	  // startDamage: first pos of change (both old and new)
@@ -146,6 +149,13 @@ dojo.addOnLoad(function(){
 	  sourceChange: function(name, src, startDamage, endDamage) {
 	    window.purple.editorIntegration.onSourceChange(name, src, startDamage, endDamage);
 	  },
+	  
+	  // problems: array of {reason: a string, line: anumber, character: aColumnNumber}
+	  reportError: function(message, location) {
+	    var problem = {reason: message, line: location.line+1, character: location.column+1};
+	    annotationFactory.showProblems([problem]); 
+	  },
+	  
 	  //----------------------------
 	  // Event handlers
 	  onModelChanged: function(event) {
