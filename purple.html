@@ -22,7 +22,7 @@
 <script src="traceur/trunk/src/traceur.js"></script>
 <style>
 body {
-  background-color: #6B3FA0;
+  background-color: #642d8b;
 }  
 .editor {
   display: block;
@@ -126,7 +126,7 @@ body {
 
     var errorTypes = {
       "%s is not defined": function(format, args, message) {
-      	return {token: '?', tooltip: message};
+      	return {token: 'undefined', tooltip: message};
       },
     };
     var reporter = new traceur.util.ErrorReporter();
@@ -143,9 +143,11 @@ body {
         if (location) format = location + ': ' + message;
         errorElement.textContent += format + '\n';
         var indicator = {tooltop: message};
-     }
-	      
-      window.purple.editorIntegration.reportError(indicator, location);
+      }
+	  indicator.line = location.line;
+	  indicator.column = location.column;
+	  
+      window.purple.editorIntegration.reportError(indicator);
     };
 
     var project = new traceur.semantics.symbols.Project();
