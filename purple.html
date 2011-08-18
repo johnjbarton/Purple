@@ -79,24 +79,24 @@ body {
 
 </head>
 <body>
-<!-- From Orion embeddededitor -->
-	<div id="logo" style="height: 28px; background: #404040; text-align: left;">
-		<img src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
-		<span id="bar" style="height: 28px; vertical-align: top; color: #FFFFFF">
-			<span id="status" style="height: 28px; vertical-align: top; color: #FFFFFF"></span>
-			<div id="actions" style="height: 28px; padding-right: 8px; vertical-align: top; float: right; color: #FFFFFF">
-				<a id="save">Save</a>
-			</div>
-		</span>
-	</div>
-    <div class="input" id="editor" style="width: 100%; height: 90%"></div>
-	<div id="contentassist" class="contentassist"></div>
-<!-- End embeddededitor -->
 <pre class="error"></pre>
 <label><input class="eval" type="checkbox" checked> Evaluate</label>
 <pre class="eval"></pre>
 <label><input class="output" type="checkbox" checked> Show generated code</label>
 <pre class="output"></pre>
+<!-- From Orion embeddededitor -->
+    <div class="input" id="editor" style="width: 100%; height: 90%"></div>
+	<div id="contentassist" class="contentassist"></div>
+<!-- End embeddededitor -->
+	<div id="poweredBy" style="height: 28px;text-align:center">
+	    <a href="http://www.eclipse.org/orion/">
+		<img src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
+		Powered by Orion</a>
+		and 
+		<a href="http://code.google.com/p/traceur-compiler/">
+		Traceur</a>		
+	</div>
+
 
 <script>
 
@@ -115,6 +115,7 @@ body {
     evalElement.hidden = !evalCheckbox.checked;
   }, false);
 
+
   outputCheckbox.addEventListener('click', function(e) {
     output.hidden = !outputCheckbox.checked;
   }, false);
@@ -132,6 +133,8 @@ body {
       if (location)
         format = location + ': ' + message;
       errorElement.textContent += format + '\n';
+      
+      window.purple.editorIntegration.reportError(message, location);
     };
 
     var project = new traceur.semantics.symbols.Project();
@@ -151,6 +154,7 @@ body {
         } catch(ex) {
           hasError = true;
           errorElement.textContent = ex;
+          console.error(ex);
         }
       }
     }
@@ -158,7 +162,6 @@ body {
     errorElement.hidden = !hasError;
   }
 
-  input.addEventListener('input', compile, false);
   window.purple.editorIntegration.onSourceChange = function(name, src, startDamage, endDamage) {
     if (src) compile(name, src);
   }
