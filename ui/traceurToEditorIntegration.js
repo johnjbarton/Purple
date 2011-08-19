@@ -1,3 +1,11 @@
+// See license.txt for BSD license
+// Some characters in this file from Apache 2.0 licensed code elsewhere in this project.
+// Copyright Google 2011.  johnjbarton@johnjbarton.com
+
+/*
+ * Traceur to Editor Integration 
+ */
+
 window.purple = window.purple || {}; // our namespace
   
 window.purple.editorIntegration = {
