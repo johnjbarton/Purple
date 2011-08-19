@@ -50,10 +50,29 @@ window.purple.AnnotationFactory = (function() {
   return AnnotationFactory;
 }());
 
+window.purple.ErrorStyler = (function () {
+  function ErrorStyler(view) {
+	view.addEventListener("LineStyle", this, this._onLineStyle);
+  }
+  ErrorStyler.prototype = {
+    _onLineStyle: function(e) {
+      e.ranges = this._getStyles(e.lineText, e.lineStart);
+      return;
+    },
+    _getStyles: function(text, start) {
+      console.log("ErrorStyler called with start: "+start+' text:'+text);
+      return [];
+      //styles.push({start: tokenStart, end: scanner.getOffset() + offset, style: style});
+    },
+  };
+  return ErrorStyler;
+}());
 
 dojo.addOnLoad(function(){
   
   var editorDomNode = dojo.byId("editor");
+  
+  // These stylesheets will be inserted into the iframe containing the editor.
   var stylesheets = [
     "/orion/textview/textview.css", 
     "/orion/textview/rulers.css", 
@@ -78,32 +97,29 @@ dojo.addOnLoad(function(){
   
   // Canned highlighters for js, java, and css. Grammar-based highlighter for html
   var syntaxHighlighter = {
-    styler: null, 
+    stylers: {}, 
     
     highlight: function(fileName, textView) {
-      if (this.styler) {
-        this.styler.destroy();
-        this.styler = null;
-      }
       if (fileName) {
         var splits = fileName.split(".");
         var extension = splits.pop().toLowerCase();
         if (splits.length > 0) {
           switch(extension) {
             case "js":
-              this.styler = new examples.textview.TextStyler(textView, "js");
+              this.stylers[extension] = new window.purple.ErrorStyler(textView);
               break;
             case "java":
-              this.styler = new examples.textview.TextStyler(textView, "java");
+              this.stylers[extension] = new examples.textview.TextStyler(textView, "java");
               break;
             case "css":
-              this.styler = new examples.textview.TextStyler(textView, "css");
+              this.stylers[extension] = new examples.textview.TextStyler(textView, "css");
               break;
             case "html":
-              this.styler = new orion.editor.TextMateStyler(textView, orion.editor.HtmlGrammar.grammar);
+              this.stylers[extension] = new orion.editor.TextMateStyler(textView, orion.editor.HtmlGrammar.grammar);
               break;
           }
         }
+        return this.stylers[extension];
       }
     }
   };
@@ -171,21 +187,22 @@ dojo.addOnLoad(function(){
   });
   
   editor.installTextView();
+  
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
   var editorAPI = {
     initialize: function(editor, syntaxHighlighter) {
       editor.getTextView();
       editor.getTextView().addEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
-    window.purple.editorIntegration.onEditorReady(this);
+      window.purple.editorIntegration.onEditorReady(this);
     },
     
     setContent: function(name, src) {
       this.sourceName = name;  // TODO multiple editors
       // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
-    editor.onInputChange(name, null, src);
-    syntaxHighlighter.highlight(name, editor.getTextView());
-    // end of code to run when content changes.
+      editor.onInputChange(name, null, src);
+      syntaxHighlighter.highlight(name, editor.getTextView());
+      // end of code to run when content changes.
     },
     
     // name: a key given to setContent,
@@ -194,6 +211,7 @@ dojo.addOnLoad(function(){
     // endDamage: last pos of change in *old* buffer 
     sourceChange: function(name, src, startDamage, endDamage) {
       window.purple.editorIntegration.onSourceChange(name, src, startDamage, endDamage);
+      syntaxHighlighter.highlight(name, editor.getTextView());
     },
     
     // indicator: {token: string, tooltip: string, line: number, column: number 

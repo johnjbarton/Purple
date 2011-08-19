@@ -1,9 +1,14 @@
 .purpleAnnotation {
-   color: #BDBDBD;
+   color: #BDBDBD;  /* don't detract from the source */
+   margin-right: 1ex;
  }
 
 .viewLeftRuler {
    font-family:Verdana,Geneva,sans-serif;
-   text-align: right;
-   margin-right: 1.0ex;
+   text-align: right; /* near the source line */
+}
+
+.token_undefined {
+  outline: 1px solid red;
+  background-color: #FF999E  /* distinct from keyword tokens */
 }
