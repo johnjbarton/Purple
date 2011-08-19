@@ -10,7 +10,7 @@
   // feature: a property of thePurple.features, {name: string, api: [functions]}
   // implementation: an object with function properties matching |feature|
   thePurple.features.implement = function(feature, implementation) {
-    if (!feature.name || thePurple.features.hasOwnProperty(feature.name)) {
+    if (!feature.name || !thePurple.features.hasOwnProperty(feature.name)) {
       var info = {unknownFeature: feature, features: thePurple.features};
       thePurple.error("Purple: attempt to implement an unknown feature", info);
       return;
