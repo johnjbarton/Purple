@@ -190,13 +190,12 @@ dojo.addOnLoad(function(){
   
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
+  var thePurple = window.purple;
+  
   var editorAPI = {
-    initialize: function(editor, syntaxHighlighter) {
-      editor.getTextView();
-      editor.getTextView().addEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
-      window.purple.traceurToEditorIntegration.onEditorReady(this);
-    },
     
+    //--------------------------------------------------------------------------------------------------------
+    // Implement features.editor
     setContent: function(name, src) {
       this.sourceName = name;  // TODO multiple editors
       // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
@@ -220,7 +219,27 @@ dojo.addOnLoad(function(){
       indicator.column = indicator.column + 1;
       annotationFactory.showIndicator(indicator); 
     },
+
+    //---------------------------------------------------------------------------------------------
+    // Implement PurplePart
+    initialize: function(thePurple) {
+      thePurple.features.implement(thePurple.features.editor, this);
+    },
+
+    connect: function(thePurple) {
+      editor.getTextView().addEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
+      window.purple.traceurToEditorIntegration.onEditorReady(this);
+      
+    },
     
+    disconnect: function(thePurple) {
+      editor.getTextView().removeEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
+    },
+    
+    destroy: function(thePurple) {
+      thePurple.features.unimplement(thePurple.features.editor, this);
+    },
+
     //----------------------------
     // Event handlers
     onModelChanged: function(event) {
@@ -230,8 +249,7 @@ dojo.addOnLoad(function(){
     }
   };
   
-  editorAPI.initialize(editor, syntaxHighlighter);
-  
+  thePurple.registerPart(editorAPI);
   
   window.onbeforeunload = function() {
     if (editor.isDirty()) {
