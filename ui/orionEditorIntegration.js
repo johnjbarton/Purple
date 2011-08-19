@@ -194,7 +194,7 @@ dojo.addOnLoad(function(){
     initialize: function(editor, syntaxHighlighter) {
       editor.getTextView();
       editor.getTextView().addEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
-      window.purple.editorIntegration.onEditorReady(this);
+      window.purple.traceurToEditorIntegration.onEditorReady(this);
     },
     
     setContent: function(name, src) {
@@ -210,7 +210,7 @@ dojo.addOnLoad(function(){
     // startDamage: first pos of change (both old and new)
     // endDamage: last pos of change in *old* buffer 
     sourceChange: function(name, src, startDamage, endDamage) {
-      window.purple.editorIntegration.onSourceChange(name, src, startDamage, endDamage);
+      window.purple.traceurToEditorIntegration.onSourceChange(name, src, startDamage, endDamage);
       syntaxHighlighter.highlight(name, editor.getTextView());
     },
     

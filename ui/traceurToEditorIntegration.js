@@ -8,7 +8,7 @@
 
 window.purple = window.purple || {}; // our namespace
   
-window.purple.editorIntegration = {
+window.purple.traceurToEditorIntegration = {
   // -----------------------------------------------------------------------------------
   // To Editor
   onEditorReady: function(editorAPI) {
@@ -58,7 +58,7 @@ window.purple.editorIntegration = {
 	indicator.line = location.line;
 	indicator.column = location.column;
 	
-    window.purple.editorIntegration.reportError(indicator);
+    window.purple.traceurToEditorIntegration.reportError(indicator);
   };
 
   function compile(name, src) {
@@ -88,7 +88,7 @@ window.purple.editorIntegration = {
     }
   }
 
-  window.purple.editorIntegration.onSourceChange = function(name, src, startDamage, endDamage) {
+  window.purple.traceurToEditorIntegration.onSourceChange = function(name, src, startDamage, endDamage) {
     if (src) compile(name, src);
   }
 })();
