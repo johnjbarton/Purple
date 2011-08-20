@@ -192,64 +192,62 @@ dojo.addOnLoad(function(){
   // Orion Editor API Implementation
   var thePurple = window.purple;
   
-  var editorAPI = {
+  var editorFeatureByOrion = new thePurple.Feature();
+  var editorAPI__ = editorFeatureByOrion.api;
+  
+  //--------------------------------------------------------------------------------------------------------
+  // Implement features.editor
+  editorAPI__.setContent = function(name, src) {
+    this.sourceName = name;  // TODO multiple editors
+    // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
+    editor.onInputChange(name, null, src);
+    syntaxHighlighter.highlight(name, editor.getTextView());
+    // end of code to run when content changes.
+  };
     
-    //--------------------------------------------------------------------------------------------------------
-    // Implement features.editor
-    setContent: function(name, src) {
-      this.sourceName = name;  // TODO multiple editors
-      // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
-      editor.onInputChange(name, null, src);
-      syntaxHighlighter.highlight(name, editor.getTextView());
-      // end of code to run when content changes.
-    },
+  // name: a key given to setContent,
+  // src: new buffer contents, 
+  // startDamage: first pos of change (both old and new)
+  // endDamage: last pos of change in *old* buffer 
+  editorAPI__._sourceChange = function(name, src, startDamage, endDamage) {
+    return this.someListeners("onSourceChange", arguments);
+  };
     
-    // name: a key given to setContent,
-    // src: new buffer contents, 
-    // startDamage: first pos of change (both old and new)
-    // endDamage: last pos of change in *old* buffer 
-    sourceChange: function(name, src, startDamage, endDamage) {
-      window.purple.traceurToEditorIntegration.onSourceChange(name, src, startDamage, endDamage);
-      syntaxHighlighter.highlight(name, editor.getTextView());
-    },
-    
-    // indicator: {token: string, tooltip: string, line: number, column: number 
-    reportError: function(indicator) {
-      indicator.line = indicator.line + 1;
-      indicator.column = indicator.column + 1;
-      annotationFactory.showIndicator(indicator); 
-    },
+  // indicator: {token: string, tooltip: string, line: number, column: number 
+  editorAPI__.reportError = function(indicator) {
+    indicator.line = indicator.line + 1;
+    indicator.column = indicator.column + 1;
+    annotationFactory.showIndicator(indicator); 
+  };
 
-    //---------------------------------------------------------------------------------------------
-    // Implement PurplePart
-    initialize: function(thePurple) {
-      thePurple.features.implement(thePurple.features.editor, this);
-    },
+  //---------------------------------------------------------------------------------------------
+  // Implement PurplePart
+  editorFeatureByOrion.initialize = function(thePurple) {
+    thePurple.features.implement(thePurple.features.editor, this);
+  };
 
-    connect: function(thePurple) {
-      editor.getTextView().addEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
-      window.purple.traceurToEditorIntegration.onEditorReady(this);
-      
-    },
+  editorFeatureByOrion.connect = function(thePurple) {
+    editor.getTextView().addEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion.onModelChanged, "no data");
+  };
     
-    disconnect: function(thePurple) {
-      editor.getTextView().removeEventListener("ModelChanged", editorAPI, editorAPI.onModelChanged, "no data");
-    },
+  editorFeatureByOrion.disconnect = function(thePurple) {
+    editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion.onModelChanged, "no data");
+  };
     
-    destroy: function(thePurple) {
-      thePurple.features.unimplement(thePurple.features.editor, this);
-    },
+  editorFeatureByOrion.destroy = function(thePurple) {
+    thePurple.features.unimplement(thePurple.features.editor, this);
+  };
 
-    //----------------------------
-    // Event handlers
-    onModelChanged: function(event) {
-      console.log("editor textView onModelChanged", arguments);
-      var model = editor.getTextView().getModel();
-      editorAPI.sourceChange(this.sourceName, model.getText(), event.start, event.removedCharCount); 
-    }
+  //----------------------------
+  // Orion Event handlers
+  editorFeatureByOrion.onModelChanged = function(event) {
+    console.log("editor textView onModelChanged", arguments);
+    var model = editor.getTextView().getModel();
+    editorFeatureByOrion._sourceChange(this.sourceName, model.getText(), event.start, event.removedCharCount); 
+    syntaxHighlighter.highlight(this.sourceName, editor.getTextView());
   };
   
-  thePurple.registerPart(editorAPI);
+  thePurple.registerPart(editorFeatureByOrion);
   
   window.onbeforeunload = function() {
     if (editor.isDirty()) {

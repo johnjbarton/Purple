@@ -26,32 +26,21 @@
  
   // Parts implement these functions
   // If any method returns a truthy value, the remainder are not notified.
-  thePurple.PurplePart = {
+  thePurple.PurplePart = function PurplePart() {};
+  thePurple.PurplePart.prototype = {
     // 1. allocate internal data structures
-    initialize: function() {
-      thePurple.error("PurplePart must implement ");
-    },
+    initialize: function() { },
     // 2. add listeners to other Parts
-    connect: function(thePurple) {
-      thePurple.error("PurplePart must implement ");
-    },
+    connect: function(thePurple) { },
     // end-1. remove listeners from other Parts
-    disconnect: function(thePurple) {
-      thePurple.error("PurplePart must implement ");
-    },
+    disconnect: function(thePurple) { },
     // end: deallocate internals
-    destroy: function() {
-      thePurple.error("PurplePart must implement ");
-    },
+    destroy: function() { },
     // ------------------------------------------
     // 3. respond to UI events
-    onUserAction: function(action) {
-      thePurple.error("PurplePart must implement ");
-    },
+    onUserAction: function(action) { },
     // 4. respond to devtools events
-    onDevToolEvent: function(event) {
-      thePurple.error("PurplePart must implement ");
-    },
+    onDevToolEvent: function(event) { },
   };
 
   thePurple._container = {
@@ -75,28 +64,33 @@
     this._container.parts.slice(index, 1);   
   };
 
-  thePurple.someParts = function(method, args) {
+  thePurple.someListeners = function(listeners, method, args) {
     if (!method) {
-      thePurple.error("Purple: dispatch with no method name");
+      thePurple.error("Purple: someListeners with no method name");
       return;
     }
     args = args || [];
     var theUnheardOf = [];
-    thePurple._container.parts.some(function oneDispatch(part) {
-      if (part[method] && typeof (part[method] === 'function') ) {
+    listeners.some(function oneDispatch(listener) {
+      if (listener[method] && typeof (listener[method] === 'function') ) {
         try {
-          return part[method].apply(part, args);
+          return listener[method].apply(listener, args);
         } catch (exc) {
-          thePurple.error("Purple: dispatch "+method+" to part threw "+exc, {part: part, exc: exc});
+          thePurple.error("Purple: someListeners "+method+" to listener threw "+exc, {listener: listener, exc: exc});
         }
       } else {
-        theUnheardOf.push(part);
+        theUnheardOf.push(listener);
       }
     });
     if (theUnheardOf.length) {
-      thePurple.warn("Purple: some parts do not implement "+method, theUnheardOf);
+      thePurple.warn("Purple: some listeners do not implement "+method, theUnheardOf);
     }
   };
+  
+  thePurple.someParts = function(method, args) {
+    return thePurple.someListeners(thePurple._container.parts, method, args);
+  };
+  
   
   thePurple.preInitialize = [];   // system-level init
   thePurple.postDestroy = [];

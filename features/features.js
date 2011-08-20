@@ -5,6 +5,38 @@
 
   var thePurple = window.purple;
 
+  thePurple.Feature = function() {
+  };
+  
+  thePurple.Feature.prototype = {
+    _listeners: [],
+    
+    api: {
+      addListener: function(listener) {
+        var index = this._listeners.indexOf(listener);
+        if (index === -1) {
+          this._listeners.push(listener);
+        } else {
+          thePurple.warn("Purple.Feature addListener already has listener", listener);
+        }
+      },
+    
+      removeListener: function(listener) {
+        var index = this._listeners.indexOf(listener);
+        if (index === -1) {
+          thePurple.warn("Purple.Feature removeListener already removed", listener);
+        } else {
+          this._listeners.slice(index, 1);
+        }
+      },
+     
+      someListeners: function(method, args) {
+       thePurple.someListeners(this._listeners, method, args);
+      },
+    },
+  };
+
+
   thePurple.features = {};  
   
   // feature: a property of thePurple.features, {name: string, api: [functions]}
@@ -21,7 +53,9 @@
       return;
     }
     feature.implementation = implementation;
-    Object.keys(feature.api).every(function copyFunction(key) {
+    var api = Object.keys(feature.api);
+    api = api.concat(["addListener", "removeListener", "someListeners"]);
+    api.every(function copyFunction(key) {
       if (implementation[key]) {
         feature[key] = implementation[key];
         return true;
@@ -47,6 +81,7 @@
       feature.implementation[method] = fail(feature.name, method);
     });
   };
+
 
   //-----------------------------------------------------------------------------------------
   thePurple.preInitialize.push(function prepFeatures() {
