@@ -79,8 +79,8 @@
   var compiler__ = thePurple.compileFeatureByTraceur;
     
   compiler__.connect = function(thePurple){
-    this.editor = thePurple.features['editor'];
-    this.editor.api.setContent("purpleDemo.js", "purple");
+    this.editor = thePurple.getFeature('editor');
+    this.editor.setContent("purpleDemo.js", "purple");
     this.editor.addListener(this);
   }
   
@@ -89,11 +89,11 @@
   };
   
   compiler__.reportError = function(indicator) {
-    this.editor.api.reportError(indicator);
+    this.editor.reportError(indicator);
   };
   
   compiler__.reportValue = function(value) {
-    console.log("Traceur evaluation result: "+value);
+    console.log("Traceur evaluation result: ", value);
   }
   
   // -----------------------------------------------------------------------------------

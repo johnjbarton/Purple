@@ -4,7 +4,7 @@
 (function () {
   var thePurple = window.purple;
   
-  thePurple.features.editor = {
+  thePurple._features.editor = {
     name: "editor",
     api: {
       //-------------------
