@@ -14,6 +14,8 @@
       // indicator: {token: string, tooltip: string, line: number, column: number }
       reportError: function(indicator) { },
       
+      showValue: function(value, line, col) {},
+      
       //---------------------------
       // Events From Editor. Listeners will see onX called when editor fires _X
       

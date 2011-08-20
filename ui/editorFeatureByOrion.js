@@ -28,14 +28,18 @@ window.purple.AnnotationFactory = (function() {
       this.overviewRuler = new orion.textview.OverviewRuler("right", overviewStyle, this.annotationRuler);
       return {annotationRuler: this.annotationRuler, overviewRuler: this.overviewRuler};
     },
-    // indicators = {}
-    showIndicator : function(indicator) {
+
+    _showAnnotation: function(data, createAnnotation) {
       var ruler = this.annotationRuler;
       if (!ruler) {
         return;
       }
       ruler.clearAnnotations();
-      var lastLine = -1;
+      var annotation = createAnnotation(data);
+      ruler.setAnnotation(annotation.line - 1, annotation);
+    },
+    
+    createErrorAnnotation: function(indicator) {
       // escaping voodoo... we need to construct HTML that contains valid JavaScript.
       var escapedReason = indicator.tooltip.replace(/'/g, "&#39;").replace(/"/g, '&#34;');
       var annotation = {
@@ -44,12 +48,35 @@ window.purple.AnnotationFactory = (function() {
         html: "<a style='line-height:17px;' class='purpleAnnotation' title='" + escapedReason + "' alt='" + escapedReason + "'>"+indicator.token+"</a>",
         overviewStyle: {style: {"backgroundColor": "lightcoral", "border": "1px solid red"}}
       };
-      ruler.setAnnotation(indicator.line - 1, annotation);
-    }
+	  return annotation;
+    },
+    
+    // indicators = {}
+    showIndicator: function(indicator) {
+      this._showAnnotation(indicator, this.createErrorAnnotation);
+    },
+    
+    createValueAnnotation: function(evaluation) {
+      var value = evaluation.value;
+      var tooltip = Object.keys(value).join(', ');
+      var annotation = {
+        line: evaluation.line,
+        column: evaluation.column,
+        html: "<a style='line-height:17px;' class='purpleAnnotation' title='" + tooltip + "' alt='" + tooltip + "'>"+value+"</a>",
+        overviewStyle: {style: {"backgroundColor": "lightcoral", "border": "1px solid red"}}
+      };
+	  return annotation;
+    },
+    
+    showValue: function(evaluation) {
+	  this._showAnnotation(evaluation, this.createValueAnnotation);
+    },
   };
   return AnnotationFactory;
 }());
 
+
+// Syntax highlighting is triggered by an editor callback 'lineStyle' event
 window.purple.ErrorStyler = (function () {
   function ErrorStyler(view) {
 	view.addEventListener("LineStyle", this, this._onLineStyle);
@@ -198,6 +225,10 @@ dojo.addOnLoad(function(){
   
   //--------------------------------------------------------------------------------------------------------
   // Implement features.editor
+  
+  // Errors reported but not used by the highlighter yet.
+  editor__._unclaimedIndicators = []; 
+  
   editor__.setContent = function(name, src) {
     this.sourceName = name;  // TODO multiple editors
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
@@ -220,6 +251,10 @@ dojo.addOnLoad(function(){
     indicator.column = indicator.column + 1;
     annotationFactory.showIndicator(indicator); 
   };
+  
+  editor__.showValue = function(value, line, col) {
+    annotationFactory.showValue({value: value, line: line, column: col});
+  },
 
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart

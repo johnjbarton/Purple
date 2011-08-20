@@ -88,14 +88,6 @@
     this.editor.removeListener(this);
   };
   
-  compiler__.reportError = function(indicator) {
-    this.editor.reportError(indicator);
-  };
-  
-  compiler__.reportValue = function(value) {
-    console.log("Traceur evaluation result: ", value);
-  }
-  
   // -----------------------------------------------------------------------------------
   // From editor
   
@@ -103,10 +95,10 @@
     if (src) {
       var res = compile(name, src);
       if (res instanceof Array) {
-        this.reportError(res[0]);
+        this.editor.reportError(res[0]);
       } else {
         var value = evaluate(res);
-        this.reportValue(value);
+        this.editor.showValue(value, 1, 1);
       }
     }
     // else ignore empty buffers
