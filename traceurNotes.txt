@@ -1,0 +1,18 @@
+src/
+    syntax/
+           LineNumberTable maps char offset in buffer to line/col
+           ParseTreeVisitor extend and implement visit* methods
+           ParseTreeValidator extends ParseTreeVisitor to check the compiler
+           ParseTree AST, instructions for adding new subclasses
+           Parser recursively calls parseX when it expects X, 
+              each parseX calls getTreeStartLocation_ to get the start char
+              getTreeStartLocation_ calls scanner peekToken, which can be incremental
+              supports speculative parsing
+              returns a ParseTree              
+           
+          trees/
+            Each branch is {type: string, location: SourceRange, properties-for-children: tree}
+          
+           
+demo/
+   classifier.js Categorizes tokens eg for colorization. Can be incremental
