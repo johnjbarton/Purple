@@ -57,28 +57,34 @@
 
 </head>
 <body>
-<div id="purpleRoot" class="purpleNode purpleColumn">
- <div id="purpleTop" class="purpleNode purpleRow">
-  <div id="purpleOptions" class="purpleNode">
-    <span id="purpleThePurple" class="purpleNode purpleCell">Purple</span>    
-  </div> <!-- purpleOptions -->
- </div> <!-- purpleTop -->
-<!-- From Orion embeddededitor -->
-    <div class="purpleNode purpleRow purpleCell" id="editor"></div>
-	<div id="contentassist" class="contentassist"></div>
-<!-- End embeddededitor -->
-</div> <!-- purpleRoot -->
-  <div id='poweredBy' class='center hbox'>
-     
+<div id="purpleRoot" class="vbox">
+ <div id='purpleTop' class='hbox boxFlex0'>
+   <div id='purpleControl' class='vbox purpleCell'>
+     Purple
+   </div>
+ </div>
+ <div class="hbox boxFlex1">
+    <!-- From Orion embeddededitor -->
+    <div class="purpleNode vbox boxFlex1 purpleCell" id="editor"></div>
+	<div id="contentassist" class="contentassist"></div> 
+    <!-- End embeddededitor -->
+ </div>
+
+  <div id='poweredBy' class='center hbox boxFlex0'>
+   <div class='center vbox'>
+    <div class='hbox boxFlex1'></div>
+    <div class='hbox boxFlex0'>
     <a href="http://www.eclipse.org/orion/">
 	<img src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
 		Powered by Orion</a>
 		and 
 		<a href="http://code.google.com/p/traceur-compiler/">
 		Traceur</a>	
-      
+	</div>
+    <div class='hbox boxFlex1'></div>
+   </div>   
   </div>
-
+</div> <!-- purpleRoot -->
 
 </body>
 </html>

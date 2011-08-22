@@ -13,14 +13,15 @@
 	box-orient: horizontal;
 	box-align: stretch;
 }
- 
+ /*
 .hbox > * {
 	-webkit-box-flex: 0;
 	-moz-box-flex: 0;
 	box-flex: 0;
-	display: inline;  /* Changed by jjb, hbox should have inline children */
+	display: inline;   
 }
- 
+*/ 
+
 .vbox {
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
@@ -34,14 +35,14 @@
 	box-orient: vertical;
 	box-align: stretch;
 }
- 
+/*
 .vbox > * {
 	-webkit-box-flex: 0;
 	-moz-box-flex: 0;
 	box-flex: 0;
 	display: block;
 }
- 
+ */
 .spacer {
 	-webkit-box-flex: 1;
 	-moz-box-flex: 1;

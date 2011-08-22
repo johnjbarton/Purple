@@ -1,6 +1,16 @@
-body {
-  
-}  
+html, body {
+  height: 100%;
+  margin: 0px;  /* kill off any margin so we control */
+} 
+
+iframe {
+  -moz-box-flex: 1; /* https://bugzilla.mozilla.org/show_bug.cgi?id=681050 */
+  -webkit-box-flex: 1; 
+}
+
+#poweredBy > * {
+  background-color: #642d8b;
+} 
 /*
 .editor {
   display: block;
@@ -9,8 +19,11 @@ body {
   height: 300px;
 }
 */
-footer {
-  background-color: #642d8b;
+
+
+#purpleRoot {
+  height: 100%;  /* Outer most flexbox needs guidance */
+  width: 100%;
 }
 
 .purpleNode {
@@ -36,14 +49,24 @@ footer {
   -webkit-box-align: stretch;
   -mox-box-align: stretch;
   
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  box-flex: 1;
+  
   min-width: 640px;
+  width: 100%;
 }
 
 .purpleColumn {
   box-orient: vertical;
   -webkit-box-orient: vertical;
   -moz-box-orient: vertical;
+  
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  box-flex: 1;
 }
+
 .purpleCell {
   padding: 1px;
   border: 1px solid #EEEEEE;
