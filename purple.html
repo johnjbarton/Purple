@@ -79,26 +79,63 @@ body {
         <script type="text/javascript" src="features/editor.js"></script>
         <script type="text/javascript" src="ui/compileFeatureByTraceur.js"></script>
         <script type="text/javascript" src="ui/editorFeatureByOrion.js"></script>
+<style type="text/css">
 
+.purpleNode {
+  display: box;
+  display: -webkit-box;
+  display: -moz-box;
+  
+  box-pack: start;
+  -webkit-box-pack: start;
+  -moz-box-pack: start;
+
+  box-align: stretch;
+  -webkit-box-align: stretch;
+  -mox-box-align: stretch;
+}
+.purpleRow {
+  box-orient: horizontal;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  
+  box-align: stretch;
+  -webkit-box-align: stretch;
+  -mox-box-align: stretch;
+}
+.purpleColumn {
+  box-orient: vertical;
+  -webkit-box-orient: vertical;
+  -moz-box-orient: vertical;
+}
+
+#editor {
+  width: 2500px;
+  height: 400px;
+}
+
+</style>
 </head>
 <body>
-<pre class="error"></pre>
-<label><input class="eval" type="checkbox" checked> Evaluate</label>
-<pre class="eval"></pre>
-<label><input class="output" type="checkbox" checked> Show generated code</label>
-<pre class="output"></pre>
+<div id="purpleRoot" class="purpleNode purpleColumn">
+ <div id="purpleTop" class="purpleNode purpleRow">
+  <div id="purpleOptions" class="purpleNode">
+    <span id="purpleThePurple" class="purpleNode">Purple</span>    
+  </div> <!-- purpleOptions -->
+ </div> <!-- purpleTop -->
 <!-- From Orion embeddededitor -->
-    <div class="input" id="editor" style="width: 100%; height: 90%"></div>
+    <div class="purpleNode purpleRow" id="editor"></div>
 	<div id="contentassist" class="contentassist"></div>
 <!-- End embeddededitor -->
-	<div id="poweredBy" style="height: 28px;text-align:center">
-	    <a href="http://www.eclipse.org/orion/">
-		<img src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
+</div> <!-- purpleRoot -->
+<div id="poweredBy" style="height: 28px;text-align:center">
+    <a href="http://www.eclipse.org/orion/">
+	<img src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
 		Powered by Orion</a>
 		and 
 		<a href="http://code.google.com/p/traceur-compiler/">
 		Traceur</a>		
-	</div>
+</div>
 
 
 </body>
