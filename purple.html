@@ -3,39 +3,14 @@
 
 // Copyright 2011 Google Inc.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+// See license.txt for BSD license
 -->
 <html>
 <head>
 <title>Purple: parse, re-run, break loop experiment</title>
 <script src="traceur/trunk/src/traceur.js"></script>
-<style>
-body {
-  background-color: #642d8b;
-}  
-.editor {
-  display: block;
-  font-family: monospace;
-  width: 80%;
-  height: 300px;
-}
-
-.error {
-  color: red;
-}
-
-</style>
+<link  rel="stylesheet" type="text/css" href="ui/purple.css">
+<link  rel="stylesheet" type="text/css" href="ui/alexRussellFlexbox.css">
 <!-- From Orion embeddededitor -->
 		<meta name="copyright" content="Copyright (c) IBM Corporation and others 2010." >
 		<meta http-equiv="Content-Language" content="en-us">
@@ -79,63 +54,30 @@ body {
         <script type="text/javascript" src="features/editor.js"></script>
         <script type="text/javascript" src="ui/compileFeatureByTraceur.js"></script>
         <script type="text/javascript" src="ui/editorFeatureByOrion.js"></script>
-<style type="text/css">
 
-.purpleNode {
-  display: box;
-  display: -webkit-box;
-  display: -moz-box;
-  
-  box-pack: start;
-  -webkit-box-pack: start;
-  -moz-box-pack: start;
-
-  box-align: stretch;
-  -webkit-box-align: stretch;
-  -mox-box-align: stretch;
-}
-.purpleRow {
-  box-orient: horizontal;
-  -webkit-box-orient: horizontal;
-  -moz-box-orient: horizontal;
-  
-  box-align: stretch;
-  -webkit-box-align: stretch;
-  -mox-box-align: stretch;
-}
-.purpleColumn {
-  box-orient: vertical;
-  -webkit-box-orient: vertical;
-  -moz-box-orient: vertical;
-}
-
-#editor {
-  width: 2500px;
-  height: 400px;
-}
-
-</style>
 </head>
 <body>
 <div id="purpleRoot" class="purpleNode purpleColumn">
  <div id="purpleTop" class="purpleNode purpleRow">
   <div id="purpleOptions" class="purpleNode">
-    <span id="purpleThePurple" class="purpleNode">Purple</span>    
+    <span id="purpleThePurple" class="purpleNode purpleCell">Purple</span>    
   </div> <!-- purpleOptions -->
  </div> <!-- purpleTop -->
 <!-- From Orion embeddededitor -->
-    <div class="purpleNode purpleRow" id="editor"></div>
+    <div class="purpleNode purpleRow purpleCell" id="editor"></div>
 	<div id="contentassist" class="contentassist"></div>
 <!-- End embeddededitor -->
 </div> <!-- purpleRoot -->
-<div id="poweredBy" style="height: 28px;text-align:center">
+  <div id='poweredBy' class='center hbox'>
+     
     <a href="http://www.eclipse.org/orion/">
 	<img src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
 		Powered by Orion</a>
 		and 
 		<a href="http://code.google.com/p/traceur-compiler/">
-		Traceur</a>		
-</div>
+		Traceur</a>	
+      
+  </div>
 
 
 </body>
