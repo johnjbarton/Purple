@@ -254,7 +254,7 @@ dojo.addOnLoad(function(){
   
   editor__.showValue = function(value, line, col) {
     annotationFactory.showValue({value: value, line: line, column: col});
-  },
+  };
 
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
@@ -269,7 +269,9 @@ dojo.addOnLoad(function(){
   };
     
   editorFeatureByOrion.disconnect = function(thePurple) {
-    editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion.onModelChanged, "no data");
+    var view = editor.getTextView();
+    view.removeEventListener("ModelChanged", this, this.onModelChanged, "no data");
+    view.removeEventListener("LineStyle", this, this._onLineStyle, "no data");
   };
     
   editorFeatureByOrion.destroy = function(thePurple) {

@@ -52,7 +52,8 @@
     var contents = src;
     var sourceFile = new traceur.syntax.SourceFile(name, contents);
     project.addFile(sourceFile);
-    var res = traceur.codegeneration.Compiler.compile(reporter, project, false);
+    this.compiler = new traceur.codegeneration.Compiler(reporter, project);
+    var res = this.compiler.compileFile_(sourceFile);
     if (reporter.currentErrorIndicators) {
       return reporter.currentErrorIndicators;
     } else {
@@ -89,21 +90,12 @@
   };
   
   // -----------------------------------------------------------------------------------
-  // Attach scanner
-  // compiler__.tokenCategorizer = traceur.syntax.TokenCategorization;
-  // -----------------------------------------------------------------------------------
   // From editor
   
   compiler__.onSourceChange = function(name, src, startDamage, endDamage) {
-    if (src) {      
-      // Compile on keystroke, so we need to work out how to be incremental 
-      var res = compile(name, src);
-      if (res instanceof Array) {  // then one or more errors.
-        var cursor = (startDamage < endDamage) ? startDamage : endDamage; 
-        if (startDamage < endDamage) { // addition 
-          //  "foo| " appended to a word or "foo |" ended a work, 
-          // or "fo|o" inserted in a word or "foo | " appended to whitespace
-        }
+    if (src) {
+      var res = this.compile(name, src);
+      if (res instanceof Array) {
         this.editor.reportError(res[0]);
       } else {
         var value = evaluate(res);
@@ -111,6 +103,25 @@
       }
     }
     // else ignore empty buffers
+  };
+  
+  
+  compiler__.compile = function(name, src) {
+    
+    var reporter = new traceur.util.ErrorReporter();
+    reporter.reportMessageInternal = reportToPurple;
+    
+    var project = new traceur.semantics.symbols.Project();
+    var contents = src;
+    var sourceFile = new traceur.syntax.SourceFile(name, contents);
+    project.addFile(sourceFile);
+    this.compiler = new traceur.codegeneration.Compiler(reporter, project);
+    var res = this.compiler.compileFile_(sourceFile);
+    if (reporter.currentErrorIndicators) {
+      return reporter.currentErrorIndicators;
+    } else {
+      return res;
+    }
   };
   
   thePurple.registerPart(thePurple.compileFeatureByTraceur);
