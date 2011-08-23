@@ -40,12 +40,12 @@ var classifyTraceurTokens = function() {};
   /**
    * Represents the classification of a region of text
    * @param {Classification} category
-   * @param {string} text
+   * @param {SourceRange} location
    * @constructor
    */
-  function ClassifiedText(category, text) {
+  function ClassifiedText(category, location) {
     this.category = category;
-    this.text = text;
+    this.location = location;
     Object.freeze(this);
   }
 
@@ -84,15 +84,11 @@ var classifyTraceurTokens = function() {};
       var contents = this.source_.contents;
 
       traceur.assert(this.lastClassifierLocation_ <= start);
-      var code;
       if (this.lastClassifierLocation_ < start) {
-        code = contents.substring(this.lastClassifierLocation_, start);
-
-        this.classifications_.push(new ClassifiedText(null, code));
+        this.classifications_.push(new ClassifiedText(null, location));
       }
 
-      code = contents.substring(start, end);
-      this.classifications_.push(new ClassifiedText(category, code));
+      this.classifications_.push(new ClassifiedText(category, location));
       this.lastClassifierLocation_ = end;
     },
 
@@ -270,6 +266,10 @@ var classifyTraceurTokens = function() {};
     });
   }
 
-  classifyAllScripts();
+  // classifyAllScripts();
+  traceur.syntax.TokenCategorization = {
+    categories: Classification,
+    getCategoriesBySource: getClassifiedTokens,
+    };
 
 })();
