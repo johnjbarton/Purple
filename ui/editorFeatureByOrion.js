@@ -263,7 +263,9 @@ dojo.addOnLoad(function(){
   };
 
   editorFeatureByOrion.connect = function(thePurple) {
-    editor.getTextView().addEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion.onModelChanged, "no data");
+    var view = editor.getTextView();
+    view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
+    view.addEventListener("LineStyle", this, this._onLineStyle);
   };
     
   editorFeatureByOrion.disconnect = function(thePurple) {
@@ -276,11 +278,20 @@ dojo.addOnLoad(function(){
 
   //----------------------------
   // Orion Event handlers
-  editorFeatureByOrion.onModelChanged = function(event) {
+  editorFeatureByOrion._onModelChanged = function(event) {
     console.log("editor textView onModelChanged", arguments);
     var model = editor.getTextView().getModel();
-    editorFeatureByOrion._sourceChange(this.sourceName, model.getText(), event.start, event.removedCharCount); 
+    var startDamage = event.start; 
+    var endDamage = event.start - event.removedCharCount + event.addedCharCount;
+    editorFeatureByOrion._sourceChange(this.sourceName, model.getText(), startDamage, endDamage); 
     syntaxHighlighter.highlight(this.sourceName, editor.getTextView());
+  };
+  
+  editorFeatureByOrion._onLineStyle = function(event) {
+      //e.ranges = this._getStyles(e.lineText, e.lineStart);
+      console.log("_onLineStyle called", event);
+      return [];
+      //styles.push({start: tokenStart, end: scanner.getOffset() + offset, style: style});
   };
   
   thePurple.registerPart(editorFeatureByOrion);

@@ -89,12 +89,21 @@
   };
   
   // -----------------------------------------------------------------------------------
+  // Attach scanner
+  // compiler__.tokenCategorizer = traceur.syntax.TokenCategorization;
+  // -----------------------------------------------------------------------------------
   // From editor
   
   compiler__.onSourceChange = function(name, src, startDamage, endDamage) {
-    if (src) {
+    if (src) {      
+      // Compile on keystroke, so we need to work out how to be incremental 
       var res = compile(name, src);
-      if (res instanceof Array) {
+      if (res instanceof Array) {  // then one or more errors.
+        var cursor = (startDamage < endDamage) ? startDamage : endDamage; 
+        if (startDamage < endDamage) { // addition 
+          //  "foo| " appended to a word or "foo |" ended a work, 
+          // or "fo|o" inserted in a word or "foo | " appended to whitespace
+        }
         this.editor.reportError(res[0]);
       } else {
         var value = evaluate(res);
