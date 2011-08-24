@@ -58,7 +58,12 @@ window.purple.AnnotationFactory = (function() {
     
     createValueAnnotation: function(evaluation) {
       var value = evaluation.value;
-      var tooltip = Object.keys(value).join(', ');
+      if (typeof value === 'object') {
+	      var tooltip = Object.keys(value).join(', ');
+      } else {
+          var tooltip = typeof value;
+      }
+	      
       var annotation = {
         line: evaluation.line,
         column: evaluation.column,
@@ -226,6 +231,19 @@ dojo.addOnLoad(function(){
   //--------------------------------------------------------------------------------------------------------
   // Implement features.editor
   
+  // index by compiler.api.TokenTypes, output Orion class
+  var ecmaToOrionTokenTypes = [
+    {},                                      // IdentifierName
+    {styleClass: "token_bracket_outline"},   // Punctuator
+    {},                                      // NumericLiteral
+    {styleClass: "token_string"},            // StringLiteral
+    {},                                      // RegularExpressionLiteral
+	{styleClass: "token_comment"},           // Comment
+	{styleClass: "token_keyword"},           // ReservedWord
+	{},                                      // Experimental
+	{},                                      // Error
+	];
+	
   // Errors reported but not used by the highlighter yet.
   editor__._unclaimedIndicators = []; 
   
@@ -233,7 +251,7 @@ dojo.addOnLoad(function(){
     this.sourceName = name;  // TODO multiple editors
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
     editor.onInputChange(name, null, src);
-    syntaxHighlighter.highlight(name, editor.getTextView());
+//    syntaxHighlighter.highlight(name, editor.getTextView());
     // end of code to run when content changes.
   };
     
@@ -262,28 +280,16 @@ dojo.addOnLoad(function(){
   },
   
   // tokenRanges: [{start: index-into-src, end: index-into-src, tokenType: index-into-compiler.api.TokenTypes}]
-  editor__.showTokenTypes = function(tokenRanges) {
-    this.tokenStyles = [];
+  editor__.convertTokenTypes = function(tokenRanges, tokenStyles) {
     tokenRanges.forEach(function adapt(tokenRange) {
-      var orionStyle = this.ecmaToOrionTokenTypes[tokenRange.tokenType];
+      var orionStyle = ecmaToOrionTokenTypes[tokenRange.tokenType];
       if (orionStyle) {
-        this.tokenStyles.push({start: tokenRange.start, end: tokenRange.end, style: orionStyle});
+        tokenStyles.push({start: tokenRange.start, end: tokenRange.end, style: orionStyle});
       }
     });
   },
 
-  // index by compiler.api.TokenTypes, output Orion class
-  editor__.ecmaToOrionTokenTypes = [
-    {},                                      // IdentifierName
-    {styleClass: "token_bracket_outline"},   // Punctuator
-    {},                                      // NumericLiteral
-    {styleClass: "token_string"},            // StringLiteral
-    {},                                      // RegularExpressionLiteral
-	{styleClass: "token_comment"},           // Comment
-	{styleClass: "token_keyword"},           // ReservedWord
-	{},                                      // Experimental
-	{},                                      // Error
-	],
+
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   editorFeatureByOrion.initialize = function(thePurple) {
@@ -312,7 +318,7 @@ dojo.addOnLoad(function(){
     var startDamage = event.start; 
     var endDamage = event.start - event.removedCharCount + event.addedCharCount;
     editorFeatureByOrion._sourceChange(this.sourceName, model.getText(), startDamage, endDamage); 
-    syntaxHighlighter.highlight(this.sourceName, editor.getTextView());
+    //syntaxHighlighter.highlight(this.sourceName, editor.getTextView());
   };
   
   editorFeatureByOrion._onLineStyle = function(event) {
@@ -321,10 +327,9 @@ dojo.addOnLoad(function(){
       console.log("_onLineStyle called", event);
       // The goofy API here is because I want the interaction to be async eventually and for the compiler to only
       // know about events and the editor API.
-      this._lineRevealed(this.sourceName, event.lineStart);
-      
+      this.tokenStyles = [];
+      this._lineRevealed(this.sourceName, event.lineStart, this.tokenStyles);
       return this.tokenStyles;
-      //styles.push({start: tokenStart, end: scanner.getOffset() + offset, style: style});
   };
   
   thePurple.registerPart(editorFeatureByOrion);
