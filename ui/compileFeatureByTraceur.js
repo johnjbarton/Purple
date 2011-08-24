@@ -42,24 +42,6 @@
 	this.currentErrorIndicators = this.currentErrorIndicators || [];
 	this.currentErrorIndicators.push(indicator);
   }
-
-  function compile(name, src) {
-    
-    var reporter = new traceur.util.ErrorReporter();
-    reporter.reportMessageInternal = reportToPurple;
-    
-    var project = new traceur.semantics.symbols.Project();
-    var contents = src;
-    var sourceFile = new traceur.syntax.SourceFile(name, contents);
-    project.addFile(sourceFile);
-    this.compiler = new traceur.codegeneration.Compiler(reporter, project);
-    var res = this.compiler.compileFile_(sourceFile);
-    if (reporter.currentErrorIndicators) {
-      return reporter.currentErrorIndicators;
-    } else {
-      return res;
-    }
-  }
   
   function evaluate(res) {
     var source = traceur.codegeneration.ProjectWriter.write(res);
