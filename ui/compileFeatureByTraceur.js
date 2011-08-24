@@ -13,7 +13,7 @@
   var thePurple = window.purple;
 
 
-  var errorTypes = {
+  var indicatorGetters = {
     "%s is not defined": function(format, args, message) {
       return {token: 'undefined', tooltip: message};
     },
@@ -26,9 +26,9 @@
     });
       
     var indicator; // temp hack to shut jslint up
-    var getIndicator = errorTypes[format];
-    if (getIndicator) {
-      indicator = getIndicator(format, args, message);
+    var getIndicatorForMessage = indicatorGetters[format];
+    if (getIndicatorForMessage) {
+      indicator = getIndicatorForMessage(format, args, message);
     } else {
       if (location) {
         format = location + ': ' + message;
@@ -39,8 +39,8 @@
 	indicator.line = location.line;
 	indicator.column = location.column;
 	
-	this.currentErrorIndicators = this.currentErrorIndicators || [];
-	this.currentErrorIndicators.push(indicator);
+	this.errorIndicators = this.errorIndicators || [];
+	this.errorIndicators.push(indicator);
   }
   
   function evaluate(res) {
@@ -77,33 +77,34 @@
   compiler__.onSourceChange = function(name, src, startDamage, endDamage) {
     if (src) {
       var res = this.compile(name, src);
-      if (res instanceof Array) {
-        this.editor.reportError(res[0]);
-      } else {
+      if (res) {
         var value = evaluate(res);
         this.editor.showValue(value, 1, 1);
-      }
+      } else {
+        this.editor.reportError(this.reporter.errorIndicators[0]);
+      } 
     }
     // else ignore empty buffers
   };
   
-  
   compiler__.compile = function(name, src) {
-    
-    var reporter = new traceur.util.ErrorReporter();
-    reporter.reportMessageInternal = reportToPurple;
     
     var project = new traceur.semantics.symbols.Project();
     var contents = src;
     var sourceFile = new traceur.syntax.SourceFile(name, contents);
     project.addFile(sourceFile);
-    this.compiler = new traceur.codegeneration.Compiler(reporter, project);
-    var res = this.compiler.compileFile_(sourceFile);
-    if (reporter.currentErrorIndicators) {
-      return reporter.currentErrorIndicators;
-    } else {
-      return res;
+
+    this.reporter = new traceur.util.ErrorReporter();
+    this.reporter.reportMessageInternal = reportToPurple;
+    this.compiler = new traceur.codegeneration.Compiler(this.reporter, project);
+    this.compiler.parseFile_(sourceFile);
+    this.compiler.analyzeFile_(sourceFile);
+    this.compiler.transformFile_(sourceFile);
+
+    if (this.compiler.hadError_()) {
+      return null;
     }
+    return this.compiler.results_;
   };
   
   thePurple.registerPart(thePurple.compileFeatureByTraceur);

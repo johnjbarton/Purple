@@ -244,6 +244,11 @@ dojo.addOnLoad(function(){
   editor__._sourceChange = function(name, src, startDamage, endDamage) {
     return this.someListeners("onSourceChange", arguments);
   };
+  // name: a key given to setContent,
+  // index: offset to the first char of a line just revealed.
+  editor__._lineRevealed = function(name, index) {
+    return this.someListeners("onLineRevealed", arguments);
+  }
     
   // indicator: {token: string, tooltip: string, line: number, column: number 
   editor__.reportError = function(indicator) {
@@ -254,8 +259,31 @@ dojo.addOnLoad(function(){
   
   editor__.showValue = function(value, line, col) {
     annotationFactory.showValue({value: value, line: line, column: col});
-  };
+  },
+  
+  // tokenRanges: [{start: index-into-src, end: index-into-src, tokenType: index-into-compiler.api.TokenTypes}]
+  editor__.showTokenTypes = function(tokenRanges) {
+    this.tokenStyles = [];
+    tokenRanges.forEach(function adapt(tokenRange) {
+      var orionStyle = this.ecmaToOrionTokenTypes[tokenRange.tokenType];
+      if (orionStyle) {
+        this.tokenStyles.push({start: tokenRange.start, end: tokenRange.end, style: orionStyle});
+      }
+    });
+  },
 
+  // index by compiler.api.TokenTypes, output Orion class
+  editor__.ecmaToOrionTokenTypes = [
+    {},                                      // IdentifierName
+    {styleClass: "token_bracket_outline"},   // Punctuator
+    {},                                      // NumericLiteral
+    {styleClass: "token_string"},            // StringLiteral
+    {},                                      // RegularExpressionLiteral
+	{styleClass: "token_comment"},           // Comment
+	{styleClass: "token_keyword"},           // ReservedWord
+	{},                                      // Experimental
+	{},                                      // Error
+	],
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   editorFeatureByOrion.initialize = function(thePurple) {
@@ -269,9 +297,7 @@ dojo.addOnLoad(function(){
   };
     
   editorFeatureByOrion.disconnect = function(thePurple) {
-    var view = editor.getTextView();
-    view.removeEventListener("ModelChanged", this, this.onModelChanged, "no data");
-    view.removeEventListener("LineStyle", this, this._onLineStyle, "no data");
+    editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion.onModelChanged, "no data");
   };
     
   editorFeatureByOrion.destroy = function(thePurple) {
@@ -291,8 +317,13 @@ dojo.addOnLoad(function(){
   
   editorFeatureByOrion._onLineStyle = function(event) {
       //e.ranges = this._getStyles(e.lineText, e.lineStart);
+      // Pass source range to compiler, get back things that we need to build styles
       console.log("_onLineStyle called", event);
-      return [];
+      // The goofy API here is because I want the interaction to be async eventually and for the compiler to only
+      // know about events and the editor API.
+      this._lineRevealed(this.sourceName, event.lineStart);
+      
+      return this.tokenStyles;
       //styles.push({start: tokenStart, end: scanner.getOffset() + offset, style: style});
   };
   
