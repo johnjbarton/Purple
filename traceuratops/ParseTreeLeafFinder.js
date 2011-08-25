@@ -102,7 +102,20 @@ thePurple.ParseTreeLeafFinder = (function() {
       }
       this.nestingStack.push(tree);
       var name = getTreeNameForType(tree.type);
+      console.log(this.nestingStack.length+": visitAny "+name);
       var found = this['visit' + name](tree);
+      if (found) {
+        return found;
+      }
+      // check the enclosing production after the childern
+      if (this.checkMark(tree)) {  // then 
+        Object.keys(tree).forEach( function findToken(key) {
+          if (tree[key] instanceof Token) {
+            console.log("Found Token in enclosing production "+key, tree[key]);
+          }
+        });
+        return true;
+      }
       this.nestingStack.pop();
       return found; 
     },
@@ -688,6 +701,12 @@ thePurple.ParseTreeLeafFinder = (function() {
       return this.checkMark(tree.identifierToken);
     }, 
     /**
+     * @param {traceur.syntax.trees.LiteralExpression} tree
+     */
+    visitLiteralExpression: function(tree) {
+      return this.checkMark(tree.literalToken);
+    }, 
+    /**
      * @param {traceur.syntax.trees.BreakStatement} tree
      */
     visitBreakStatement: function(tree) {
@@ -769,7 +788,7 @@ thePurple.ParseTreeLeafFinder = (function() {
     checkMark: function(treeOrToken) {
       if (treeOrToken && this.isOverMark(treeOrToken)) {
         this.pathToIndex = this.nestingStack.slice(0); // clone one level deep
-        console.log("ParseTreeLeafFinder found mark "+this.mark, this.pathToIndex);
+        console.log("ParseTreeLeafFinder found mark "+this.mark+" at depth "+this.pathToIndex.length, this.pathToIndex);
         return true;
       }
     },
