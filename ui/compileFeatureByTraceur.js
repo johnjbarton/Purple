@@ -11,6 +11,7 @@
   'use strict';
   
   var thePurple = window.purple;
+  var ParseTreeStyler = thePurple.ParseTreeStyler;
 
   //---------------------------------------------------------------------------------------
   // Private 
@@ -207,25 +208,16 @@
     // else ignore empty buffers
   };
   
-  compiler__.onLineRevealed = function(name, index, tokenStyles) {
+  compiler__.onLineRevealed = function(name, beginLine, endLine, tokenStyles) {
     var tokenRanges = [];
     if (this.compiler) {
        var file = this.compiler.project_.getFile(name)
        var tree = this.compiler.project_.getParseTree(file);
-       var path = thePurple.ParseTreeLeafFinder.getParseTreePathByIndex(tree, index);
+       var path = thePurple.ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
        if (path && path.length) {
          var treeAtIndex = path.pop();
-         var loc = treeAtIndex.location;
-         // tokenRanges: [{start: index-into-src, end: index-into-src, tokenType: index-into-compiler.api.TokenTypes}]
-         var tokenRanges = [];
-         var ecmaType = 'unknown';
-         if (treeAtIndex.identifierToken) {
-           ecmaType = 'IdentifierName';
-         } else {
-           console.log("Traceur token unknown for "+treeAtIndex.type);
-         }
-         console.log("onLineRevealed "+ecmaType);
-         tokenRanges.push({start: loc.start.offset, end: loc.end.offset, tokenType: ecmaType}); 
+         var styler = new ParseTreeStyler(treeAtIndex);
+         var tokenRanges = styler.getTokenRangesAround(beginLine, endLine);
          this.editor.convertTokenTypes(tokenRanges, tokenStyles);
        }
     }

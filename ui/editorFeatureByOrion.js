@@ -232,17 +232,17 @@ dojo.addOnLoad(function(){
   // Implement features.editor
   
   // index by compiler.api.TokenTypes, output Orion class
-  var ecmaToOrionTokenTypes = [
-    {},                                      // IdentifierName
-    {styleClass: "token_bracket_outline"},   // Punctuator
-    {},                                      // NumericLiteral
-    {styleClass: "token_string"},            // StringLiteral
-    {},                                      // RegularExpressionLiteral
-	{styleClass: "token_comment"},           // Comment
-	{styleClass: "token_keyword"},           // ReservedWord
-	{},                                      // Experimental
-	{},                                      // Error
-	];
+  var ecmaToOrionTokenTypes = {
+    'IdentifierName':           {},        
+    'Punctuator':               {styleClass: "token_bracket_outline"},
+    'NumericLiteral':           {},
+    'StringLiteral':            {styleClass: "token_string"},
+    'RegularExpressionLiteral': {},
+	'Comment':                  {styleClass: "token_comment"},
+	'ReservedWord':             {styleClass: "token_keyword"},
+	'Experimental':             {},
+	'Error':                    {},   
+	};
 	
   // Errors reported but not used by the highlighter yet.
   editor__._unclaimedIndicators = []; 
@@ -328,8 +328,9 @@ dojo.addOnLoad(function(){
       // The goofy API here is because I want the interaction to be async eventually and for the compiler to only
       // know about events and the editor API.
       this.tokenStyles = [];
-      this._lineRevealed(this.sourceName, event.lineStart, this.tokenStyles);
-      return this.tokenStyles;
+      var lineEnd = editor.getTextView().getModel().getLineEnd(event.lineIndex);
+      this._lineRevealed(this.sourceName, event.lineStart, lineEnd, this.tokenStyles);
+      event.ranges = this.tokenStyles;
   };
   
   thePurple.registerPart(editorFeatureByOrion);
