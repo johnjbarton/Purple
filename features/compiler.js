@@ -8,12 +8,12 @@
     name: "compiler",
     api: {
       // EcmaScript 5: 7.5 Tokens
-	  TokenTypes = [
+	  TokenTypes: [
 	    'IdentifierName', 
 	    'Punctuator', 
 	    'NumericLiteral', 
 	    'StringLiteral', 
-	    'RegularExpressionLiteral'
+	    'RegularExpressionLiteral',
 	    'Comment', //  7.4 Comments
 	    'ReservedWord', //  7.6.1 Keywords, FutureReservedWord, NullLiteral, BooleanLiteral
 	    'Experimental', // valid token not in ES5
