@@ -13,6 +13,9 @@ src/
           trees/
             Each branch is {type: string, location: SourceRange, properties-for-children: tree}
           
+          util/
+            SourceRange start is inclusive/end is exclusive
+            SourcePosition line, col, offset all zero based, but the toString() adds 1          
            
 demo/
    classifier.js Categorizes tokens eg for colorization. Can be incremental

@@ -728,11 +728,11 @@ thePurple.ParseTreeLeafFinder = (function() {
     //      behind     0      ahead
     getDistanceToMark: function(treeOrToken) {
       var range = treeOrToken.location;
-      var distanceBehind = range.start.offset - this.mark;
+      var distanceBehind = range.start.offset - this.mark; // start is inclusive
       if (distanceBehind > 0) {
         return -distanceBehind;
       }
-      var distanceAhead = this.mark - range.end.offset;
+      var distanceAhead = this.mark - (range.end.offset - 1);  // end is exclusive
       if (distanceAhead > 0) {
         return distanceAhead;
       } 

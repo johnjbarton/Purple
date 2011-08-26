@@ -38,7 +38,7 @@ thePurple.ParseTreeStyler = (function() {
     
     styleBlock: function(tree, beginLine, endLine) {
       this.appendPunctuator(tree.location.start.offset, beginLine, endLine);
-      this.appendPunctuator(tree.location.end.offset, beginLine, endLine);
+      this.appendPunctuator(tree.location.end.offset - 1, beginLine, endLine);  // end exclusive
     },
     
     appendPunctuator: function(point, beginLine, endLine) {
