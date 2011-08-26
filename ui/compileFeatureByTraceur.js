@@ -140,6 +140,21 @@
     "%s is not defined": function(format, args, message) {
       return {token: 'undefined', tooltip: message};
     },
+    "'identifier' expected": function(format, args, message) {
+      return {token: "identifier", tooltip: "expected", join: true};
+    },
+    "'(' expected": function(format, args, message) {
+      return {token: "(", tooltip: "expected", join: true};
+    },
+    "')' expected": function(format, args, message) {
+      return {token: ")", tooltip: "expected", join: true};
+    },
+    "'{' expected": function(format, args, message) {
+      return {token: "{", tooltip: "expected", join: true};
+    },
+    "'}' expected": function(format, args, message) {
+      return {token: "}", tooltip: "expected", join: true};
+    },
   };
 
   function reportToPurple(location, kind, format, args) {
@@ -157,7 +172,7 @@
         format = location + ': ' + message;
       }
       console.log("Unknown Traceur error: "+format);
-      indicator = {token: 'error', tooltip: message};
+      indicator = {token: format, tooltip: message};
     }
 	indicator.line = location.line;
 	indicator.column = location.column;
@@ -202,7 +217,22 @@
         var value = evaluate(res);
         this.editor.showValue(value, 1, 1);
       } else {
-        this.editor.reportError(this.reporter.errorIndicators[0]);
+        var indicators = this.reporter.errorIndicators;
+        var summary;
+        indicators.forEach(function summarizeErrors(indicator) {
+          if (!summary)  {
+            summary = indicator;
+          } else {
+            if (summary.line === indicator.line) {
+	          if (indicator.join) {
+    	        summary.token += indicator.token;
+        	  } // else first one wins
+        	} else {
+        	  this.editor.reportError(summary);
+        	}
+          }
+        });
+        this.editor.reportError(summary);
       } 
     }
     // else ignore empty buffers
