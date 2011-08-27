@@ -1,7 +1,7 @@
 {
-  "name": "PurplePackagedApp",
+  "name": "Purple: A Web Page, QueryPoint Debugger",
   "version": "0.1",
-  "description": "Purple Integrated with Chrome",
+  "description": "A Web Page Debugger Using QueryPoints in a Parse-Rerun-Break Loop; Powered By Traceur and Orion",
   "app": {
     "launch": {
        "local_path": "ppa.html"
