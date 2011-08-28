@@ -16,14 +16,45 @@ html, body, iframe {
   margin: 0px;
   border: 0px;
 }
+#thePurple {
+  visibility: hidden; /* Hide while loading purple, until web app selected */
+}
+.centerbox {
+  /* basic styling */
+  width: 100%;
+  height: 128px;
+  font-size: 14px;
+  border: 1px solid #555;
+  background : #642d8b;
+
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+  -webkit-box-pack: center;
+  -webkit-box-align: center;
+ 
+  display: -moz-box;
+  -moz-box-orient: horizontal;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+  
+  display: box;
+  box-orient: horizontal;
+  box-pack: center;
+  box-align: center;
+}
+
+
 </style>
 </head>
-<!--            REMINDER: this file is loaded from local file system     -->
+<!--            REMINDER: this file is loaded from local file system         -->
 <body>
+<div class='centerbox' id='loader'>
 <form>
-<input id="webAppURL" name="webAppURL" type='text' value="http://">
-</form>
 <button id='loadWebApp'>Load Web Application</button>
-<iframe src="http://orionhub.org/file/Fu/purple.html"></iframe> 
+<input id="webAppURL" name="webAppURL" type='text' size='128' value="http://">
+</form>
+</div>
+<iframe id='intro' src="introduction.html"></iframe>
+<iframe id='thePurple' src="http://orionhub.org/file/Fu/purple.html"></iframe> 
 </body>
 </html>
