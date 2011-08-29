@@ -3,6 +3,9 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
+(function() {
+  "use strict;"
+
 var WebAppManager = (function () {
 
   var WebAppManager = {
@@ -38,16 +41,27 @@ var WebAppManager = (function () {
     });
     console.log("Called windows.create for "+url, createData);
   };
+  
+  // Call sync with 'load' event, but win may not be usable yet
+  WebAppManager.setDevTool = function(win) {
+    this.devToolWindow = win;
+    win.document.addEventListener('load', WebAppManager.onDevToolLoad, false);
+  };
+  
+  WebAppManager.onDevToolLoad = function() {
+//    win.removeEventListener('load', WebAppManager.onDevToolLoad, false);
+console.log("onDevToolLoad", arguments);
+    WebAppManager.startProxy();
+  }
+  
+  WebAppManager.startProxy = function() {
+    this.proxy = new MessageProxy(this.devToolWindow);
+  }
+  
   return WebAppManager;
 }());
 
-function loadWebApp(event) {
-  var urlInput = document.getElementById('webAppURL');
-  var url = urlInput.value;
-  WebAppManager.loadTargetApp(url);
-  turnOnPurple();
-  return false;
-}
+
 
 function turnOnPurple() {
   var intro = document.getElementById('intro');
@@ -65,13 +79,23 @@ function wireButton() {
     urlInput.value = history[history.length - 1];
   }
 }
-
+window.onDevToolLoad = WebAppManager.onDevTooLoad;
 function appendPurple() {
   var iframe = document.createElement('iframe');
   iframe.setAttribute('id', 'thePurple');
   iframe.setAttribute('src', "http://orionhub.org/file/Fu/purple.html");
   iframe.setAttribute('style', 'display: none;'); // don't show while loading
+  iframe.setAttribute('onload', 'window.onDevToolLoad();'); // JavaScript
   document.body.appendChild(iframe);
+  WebAppManager.setDevTool(iframe.contentWindow);
+}
+
+function loadWebApp(event) {
+  var urlInput = document.getElementById('webAppURL');
+  var url = urlInput.value;
+  WebAppManager.loadTargetApp(url);
+  turnOnPurple();
+  return false;
 }
 
 function onWindowLoad(event) {
@@ -82,3 +106,24 @@ function onWindowLoad(event) {
 
 window.addEventListener('load', onWindowLoad, false);
 
+//--------------------------------------------------------------------------------------
+// MessageProxy
+
+function MessageProxy(win) {
+  this.otherWindow = win;
+  this.targetOrigin = win.location.toString();
+  this.channel = new MessageChannel();
+  this.channel.port1.onmessage = this.onMessage;
+  this.otherWindow.postMessage('hello', this.targetOrigin, [this.channel.port2]);
+}
+
+MessageProxy.prototype = {
+  post: function(data) {
+    this.otherWindow.postMessage(data);
+  },
+  tsop: function(event) {
+    console.log("MessageProxy.tsop ", event);
+  }
+};
+
+}());
