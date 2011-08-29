@@ -31,10 +31,12 @@ var WebAppManager = (function () {
       focused: false,
       type: 'normal',
     };
+    console.log("Calling windows.create for "+url, createData);
     chrome.windows.create(createData, function onCreated(win) {
       console.log("created window for web app "+url, win);
       WebAppManager.updateHistory(url);
     });
+    console.log("Called windows.create for "+url, createData);
   };
   return WebAppManager;
 }());
@@ -43,17 +45,40 @@ function loadWebApp(event) {
   var urlInput = document.getElementById('webAppURL');
   var url = urlInput.value;
   WebAppManager.loadTargetApp(url);
+  turnOnPurple();
+  return false;
 }
 
-function wireButton(event) {
-  window.removeEventListener('load', wireButton, false);
+function turnOnPurple() {
+  var intro = document.getElementById('intro');
+  intro.style.display = 'none';
+  var thePurple = document.getElementById('thePurple');
+  thePurple.style.display = 'block';
+}
+
+function wireButton() {
   var button = document.getElementById('loadWebApp');
   button.addEventListener('click', loadWebApp, true);
   var history = WebAppManager.getHistoryOfURLs();
   if (history.length) {
     var urlInput = document.getElementById('webAppURL');
-    urlInput.value = WebAppManager.history[history.length - 1];
+    urlInput.value = history[history.length - 1];
   }
 }
 
-window.addEventListener('load', wireButton, false);
+function appendPurple() {
+  var iframe = document.createElement('iframe');
+  iframe.setAttribute('id', 'thePurple');
+  iframe.setAttribute('src', "http://orionhub.org/file/Fu/purple.html");
+  iframe.setAttribute('style', 'display: none;'); // don't show while loading
+  document.body.appendChild(iframe);
+}
+
+function onWindowLoad(event) {
+  window.removeEventListener('load', onWindowLoad, false);
+  wireButton();
+  appendPurple();
+}
+
+window.addEventListener('load', onWindowLoad, false);
+
