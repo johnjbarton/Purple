@@ -16,9 +16,7 @@ html, body, iframe {
   margin: 0px;
   border: 0px;
 }
-#thePurple {
-  visibility: hidden; /* Hide while loading purple, until web app selected */
-}
+
 .centerbox {
   /* basic styling */
   width: 100%;
@@ -49,12 +47,9 @@ html, body, iframe {
 <!--            REMINDER: this file is loaded from local file system         -->
 <body>
 <div class='centerbox' id='loader'>
-<form>
 <button id='loadWebApp'>Load Web Application</button>
 <input id="webAppURL" name="webAppURL" type='text' size='128' value="http://">
-</form>
 </div>
 <iframe id='intro' src="introduction.html"></iframe>
-<iframe id='thePurple' src="http://orionhub.org/file/Fu/purple.html"></iframe> 
 </body>
 </html>
