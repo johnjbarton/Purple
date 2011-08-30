@@ -6,6 +6,9 @@
 (function() {
   "use strict;"
 
+var MonitorChrome = window.MonitorChrome;
+
+
 var WebAppManager = (function () {
 
   var WebAppManager = {
@@ -47,8 +50,8 @@ var WebAppManager = (function () {
   
   WebAppManager.registerProxy = function(proxy) {
     this.proxy = proxy;  // multiple proxies later?
-    MonitorNavigation.hookWebNavigation(this.proxy);
-    MonitorNavigation.connect();
+    MonitorChrome.WebNavigation.hookWebNavigation(this.proxy);
+    MonitorChrome.WebNavigation.connect();
   }
   
   return WebAppManager;
@@ -141,31 +144,6 @@ function listenForPurple() {
 }
 
 listenForPurple();
-
-//-------------------------------------------------------------------------------------
-// MonitorNavigation
-
-var MonitorNavigation = {
-   events: Object.keys(chrome.experimental.webNavigation) // all for now
-};
-
-MonitorNavigation.onEvent = function(proxy, name, details) {
-  proxy.send({name: name, details: details});
-};
-
-MonitorNavigation.hookWebNavigation = function(proxy) {
-  this.events.forEach(function delegate(eventName) {
-    MonitorNavigation[eventName] = MonitorNavigation.onEvent.bind(MonitorNavigation, proxy, eventName);
-  });
-};
-
-MonitorNavigation.connect = function() {
-  this.events.forEach(function addListeners(event) {
-    if (event[0] === 'o' && event[1] === 'n') {
-      chrome.experimental.webNavigation[event].addListener(MonitorNavigation[event].bind(MonitorNavigation));
-    }
-  });
-};
 
 
 
