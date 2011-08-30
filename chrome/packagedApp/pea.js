@@ -45,22 +45,14 @@ var WebAppManager = (function () {
   // Call sync with 'load' event, but win may not be usable yet
   WebAppManager.setDevTool = function(win) {
     this.devToolWindow = win;
-    win.document.addEventListener('load', WebAppManager.onDevToolLoad, false);
   };
   
-  WebAppManager.onDevToolLoad = function() {
-//    win.removeEventListener('load', WebAppManager.onDevToolLoad, false);
-console.log("onDevToolLoad", arguments);
-    WebAppManager.startProxy();
-  }
-  
-  WebAppManager.startProxy = function() {
-    this.proxy = new MessageProxy(this.devToolWindow);
+  WebAppManager.registerProxy = function(proxy) {
+    this.proxy = proxy;  // multiple proxies later?
   }
   
   return WebAppManager;
 }());
-
 
 
 function turnOnPurple() {
@@ -111,24 +103,51 @@ function onWindowLoad(event) {
 window.addEventListener('load', onWindowLoad, false);
 
 //--------------------------------------------------------------------------------------
-// MessageProxy
+// MessageProxy 
+// thePurple in an iframe sends 'IAmPurple' on load
 
-function MessageProxy(win) {
+function MessageProxy(win, origin) {
   this.otherWindow = win;
-  this.targetOrigin = win.location.toString();
-  this.channel = new MessageChannel();
-  this.channel.port1.onmessage = this.onMessage;
-  this.otherWindow.postMessage('hello', this.targetOrigin, [this.channel.port2]);
+  this.targetOrigin = origin;
 }
 
 MessageProxy.prototype = {
-  post: function(data) {
+  connect: function() {
+    this.channel = new MessageChannel();
+    this.channel.port1.onmessage = this.recv.bind(this);
+    this.otherWindow.postMessage('heardPurple', "*");
+    try {
+      var portArray = new Array();
+      portArray[0] = this.channel.port2;
+      console.log("portArray "+typeof(portArray)+" instanceof  Array"+(portArray instanceof Array));
+      this.otherWindow.postMessage('helloPurple', portArray, this.targetOrigin);
+    } catch(exc) {
+      console.error(exc);
+    }
+  },
+  send: function(data) {
     this.otherWindow.postMessage(data);
   },
-  tsop: function(event) {
-    console.log("MessageProxy.tsop ", event);
+  recv: function(event) {
+    console.log("MessageProxy.recv ", event);
   }
 };
+
+function heardPurple(event) {
+  console.log("heardPurple", arguments);
+  if (event.data.indexOf('IAmPurple') === 0) {  // later we append version numbers
+    window.removeEventListener('message', heardPurple, false);
+    var proxy = new MessageProxy(event.source, event.origin);
+    WebAppManager.registerProxy(proxy);  
+    proxy.connect();
+  }
+}
+
+function listenForPurple() {
+  window.addEventListener('message', heardPurple, false);
+}
+
+listenForPurple();
 
 //-------------------------------------------------------------------------------------
 // MonitorNavigation
@@ -145,7 +164,7 @@ var MonitorNavigation = {
 };
 
 MonitorNavigation.onEvent = function(name, details) {
-  console.log(name, details);
+  //console.log(name, details);
 };
 
 MonitorNavigation.funnel = function() {
@@ -157,16 +176,11 @@ MonitorNavigation.funnel = function() {
 MonitorNavigation.connect = function() {
   this.events = Object.keys(chrome.experimental.webNavigation); // all for now
   this.events.forEach(function addListeners(event) {
-    chrome.experimental.webNavigation[event].addListener(MonitorNavigation[event].bind(MonitorNavigation));
+    if (event[0] === 'o' && event[1] === 'n') {
+      chrome.experimental.webNavigation[event].addListener(MonitorNavigation[event].bind(MonitorNavigation));
+    }
   });
 };
-
-MonitorNavigation.onSpecialCompleteListener = function(url, callback) {
-  MonitorNavigation.onSpecialCompleted = function(details) {
-    
-  }
-  chrome.experimental.webNavigation.onCompleted.addListener(MonitorNavigation.onSpecialCompleted);
-}
 
 MonitorNavigation.funnel();
 
