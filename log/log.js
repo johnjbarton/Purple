@@ -15,10 +15,11 @@
   var log__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
   
   log__.initialize = function() {
+    this.messages = [];
     this.channel = {
       name: 'IAmPurple',
       version: 1,
-      recv: log__.post
+      recv: log__.post.bind(log__)
     };
     Browser.connect(this.channel);
   };
@@ -30,8 +31,9 @@
   thePurple.registerPart(log__);
   
   // -----------------------------------------------------------------------------------
-   log__.post = function(message) {
-     console.log("log got "+message);
+   log__.post = function(event) {
+     this.messages.push(event.data);
+     console.log(this.messages.length+":", event.data);
    };
   
 }());
