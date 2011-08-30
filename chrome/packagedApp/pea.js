@@ -79,13 +79,16 @@ function wireButton() {
     urlInput.value = history[history.length - 1];
   }
 }
-window.onDevToolLoad = WebAppManager.onDevTooLoad;
+
+function startMonitors() {
+  MonitorNavigation.connect();
+}
+
 function appendPurple() {
   var iframe = document.createElement('iframe');
   iframe.setAttribute('id', 'thePurple');
   iframe.setAttribute('src', "http://orionhub.org/file/Fu/purple.html");
   iframe.setAttribute('style', 'display: none;'); // don't show while loading
-  iframe.setAttribute('onload', 'window.onDevToolLoad();'); // JavaScript
   document.body.appendChild(iframe);
   WebAppManager.setDevTool(iframe.contentWindow);
 }
@@ -101,6 +104,7 @@ function loadWebApp(event) {
 function onWindowLoad(event) {
   window.removeEventListener('load', onWindowLoad, false);
   wireButton();
+  startMonitors();
   appendPurple();
 }
 
@@ -125,5 +129,45 @@ MessageProxy.prototype = {
     console.log("MessageProxy.tsop ", event);
   }
 };
+
+//-------------------------------------------------------------------------------------
+// MonitorNavigation
+
+var MonitorNavigation = {
+  events: [
+    "onBeforeNavigate", 
+    "onBeforeRetarget",
+    "onCommitted",
+    "onCompleted",
+    "onDOMContentLoaded",
+    "onErrorOccurred"
+    ]
+};
+
+MonitorNavigation.onEvent = function(name, details) {
+  console.log(name, details);
+};
+
+MonitorNavigation.funnel = function() {
+  this.events.forEach(function delegate(eventName) {
+    MonitorNavigation[eventName] = MonitorNavigation.onEvent.bind(MonitorNavigation, eventName);
+  });
+};
+
+MonitorNavigation.connect = function() {
+  this.events = Object.keys(chrome.experimental.webNavigation); // all for now
+  this.events.forEach(function addListeners(event) {
+    chrome.experimental.webNavigation[event].addListener(MonitorNavigation[event].bind(MonitorNavigation));
+  });
+};
+
+MonitorNavigation.onSpecialCompleteListener = function(url, callback) {
+  MonitorNavigation.onSpecialCompleted = function(details) {
+    
+  }
+  chrome.experimental.webNavigation.onCompleted.addListener(MonitorNavigation.onSpecialCompleted);
+}
+
+MonitorNavigation.funnel();
 
 }());
