@@ -47,6 +47,8 @@ var WebAppManager = (function () {
   
   WebAppManager.registerProxy = function(proxy) {
     this.proxy = proxy;  // multiple proxies later?
+    MonitorNavigation.hookWebNavigation(this.proxy);
+    MonitorNavigation.connect();
   }
   
   return WebAppManager;
@@ -70,9 +72,6 @@ function wireButton() {
   }
 }
 
-function startMonitors() {
-  MonitorNavigation.connect();
-}
 
 function appendPurple() {
   var iframe = document.createElement('iframe');
@@ -94,7 +93,6 @@ function loadWebApp(event) {
 function onWindowLoad(event) {
   window.removeEventListener('load', onWindowLoad, false);
   wireButton();
-  startMonitors();
   appendPurple();
 }
 
@@ -135,7 +133,6 @@ function heardProxyClientHello(event) {
     var proxy = new MessageProxy(event.source, event.origin);
     WebAppManager.registerProxy(proxy);  
     proxy.connect(event.data);
-    proxy.send("WooHoo");
   }
 }
 
@@ -149,28 +146,20 @@ listenForPurple();
 // MonitorNavigation
 
 var MonitorNavigation = {
-  events: [
-    "onBeforeNavigate", 
-    "onBeforeRetarget",
-    "onCommitted",
-    "onCompleted",
-    "onDOMContentLoaded",
-    "onErrorOccurred"
-    ]
+   events: Object.keys(chrome.experimental.webNavigation) // all for now
 };
 
-MonitorNavigation.onEvent = function(name, details) {
-  //console.log(name, details);
+MonitorNavigation.onEvent = function(proxy, name, details) {
+  proxy.send({name: name, details: details});
 };
 
-MonitorNavigation.hookWebNavigation = function() {
+MonitorNavigation.hookWebNavigation = function(proxy) {
   this.events.forEach(function delegate(eventName) {
-    MonitorNavigation[eventName] = MonitorNavigation.onEvent.bind(MonitorNavigation, eventName);
+    MonitorNavigation[eventName] = MonitorNavigation.onEvent.bind(MonitorNavigation, proxy, eventName);
   });
 };
 
 MonitorNavigation.connect = function() {
-  this.events = Object.keys(chrome.experimental.webNavigation); // all for now
   this.events.forEach(function addListeners(event) {
     if (event[0] === 'o' && event[1] === 'n') {
       chrome.experimental.webNavigation[event].addListener(MonitorNavigation[event].bind(MonitorNavigation));
@@ -178,6 +167,6 @@ MonitorNavigation.connect = function() {
   });
 };
 
-MonitorNavigation.hookWebNavigation();
+
 
 }());
