@@ -194,8 +194,7 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  thePurple.compileFeatureByTraceur = new thePurple.PurplePart();
-  var compiler__ = thePurple.compileFeatureByTraceur;
+  var compiler__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
     
   compiler__.connect = function(thePurple){
     this.editor = thePurple.getFeature('editor');
@@ -274,6 +273,6 @@
     return this.compiler.results_;
   };
   
-  thePurple.registerPart(thePurple.compileFeatureByTraceur);
+  thePurple.registerPart(compiler__);
 
 })();
