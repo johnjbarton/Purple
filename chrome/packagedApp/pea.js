@@ -12,7 +12,6 @@ var MonitorChrome = window.MonitorChrome;
 var WebAppManager = (function () {
 
   var WebAppManager = {
-    purpleTargetID: 6565259,
   };
 
   WebAppManager.getHistoryOfURLs = function() {
@@ -28,18 +27,33 @@ var WebAppManager = (function () {
     window.localStorage.setItem(url, "");
   };
 
+  WebAppManager.debuggerError = function(error) {
+    if (error) {
+	  console.error(error);
+	} else {
+	  console.error("debuggerError with no chrome.extension.lastError");
+	}
+  };
+
+  WebAppManager.registerWebApp = function(url, win) {
+    WebAppManager.updateHistory(url);
+    this.win = win;
+    this.tabId = win.tabs[0].id;
+    this.debugger = new MonitorChrome.Debugger(this.proxy, this.tabId, this.debuggerError);
+    this.debugger.connect();
+  };
+
   WebAppManager.loadTargetApp = function(url) {
     // random int between purple and 2 * purple
     var targetID = Math.floor(WebAppManager.purpleTargetID * (Math.random() + 1.0) );
     var createData = {
       url: url,
-//      tabId: WebAppManager.purpleTargetID, 
       focused: false,
       type: 'normal',
     };
     chrome.windows.create(createData, function onCreated(win) {
       console.log("created window for web app "+url, win);
-      WebAppManager.updateHistory(url);
+      WebAppManager.registerWebApp(url, win);
     });
   };
   
