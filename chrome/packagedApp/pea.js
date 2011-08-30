@@ -34,12 +34,10 @@ var WebAppManager = (function () {
       focused: false,
       type: 'normal',
     };
-    console.log("Calling windows.create for "+url, createData);
     chrome.windows.create(createData, function onCreated(win) {
       console.log("created window for web app "+url, win);
       WebAppManager.updateHistory(url);
     });
-    console.log("Called windows.create for "+url, createData);
   };
   
   // Call sync with 'load' event, but win may not be usable yet
@@ -112,39 +110,37 @@ function MessageProxy(win, origin) {
 }
 
 MessageProxy.prototype = {
-  connect: function() {
+  connect: function(messageFromClient) {
     this.channel = new MessageChannel();
     this.channel.port1.onmessage = this.recv.bind(this);
-    this.otherWindow.postMessage('heardPurple', "*");
+    this.otherWindow.postMessage('heardProxyClientHello', "*");
     try {
-      var portArray = new Array();
-      portArray[0] = this.channel.port2;
-      console.log("portArray "+typeof(portArray)+" instanceof  Array"+(portArray instanceof Array));
-      this.otherWindow.postMessage('helloPurple', portArray, this.targetOrigin);
+      this.otherWindow.postMessage(messageFromClient, [this.channel.port2], this.targetOrigin);
     } catch(exc) {
       console.error(exc);
     }
   },
   send: function(data) {
-    this.otherWindow.postMessage(data);
+    this.channel.port1.postMessage(data);
   },
   recv: function(event) {
     console.log("MessageProxy.recv ", event);
   }
 };
 
-function heardPurple(event) {
-  console.log("heardPurple", arguments);
+function heardProxyClientHello(event) {
+  console.log("heardProxyClientHello", arguments);
   if (event.data.indexOf('IAmPurple') === 0) {  // later we append version numbers
-    window.removeEventListener('message', heardPurple, false);
+    window.removeEventListener('message', heardProxyClientHello, false);
     var proxy = new MessageProxy(event.source, event.origin);
     WebAppManager.registerProxy(proxy);  
-    proxy.connect();
+    proxy.connect(event.data);
+    proxy.send("WooHoo");
   }
 }
 
 function listenForPurple() {
-  window.addEventListener('message', heardPurple, false);
+  window.addEventListener('message', heardProxyClientHello, false);
 }
 
 listenForPurple();
@@ -167,7 +163,7 @@ MonitorNavigation.onEvent = function(name, details) {
   //console.log(name, details);
 };
 
-MonitorNavigation.funnel = function() {
+MonitorNavigation.hookWebNavigation = function() {
   this.events.forEach(function delegate(eventName) {
     MonitorNavigation[eventName] = MonitorNavigation.onEvent.bind(MonitorNavigation, eventName);
   });
@@ -182,6 +178,6 @@ MonitorNavigation.connect = function() {
   });
 };
 
-MonitorNavigation.funnel();
+MonitorNavigation.hookWebNavigation();
 
 }());
