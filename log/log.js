@@ -8,6 +8,7 @@
   'use strict';
   var thePurple = window.purple;
   var Browser = thePurple.Browser;
+  var Renderer = {};
 
   //------------------------------------------------------------------------------------
   // Implement PurplePart
@@ -34,6 +35,20 @@
    log__.post = function(event) {
      this.messages.push(event.data);
      console.log(this.messages.length+":", event.data);
+   };
+   
+   log__.render = function(data) {
+     if (data.source) {
+       var renderer = Renderer[data.source];
+       if (renderer) {
+         console.log(this.messages.length+": ", renderer(event.data));
+       } else {
+         console.log(this.messages.length+": "+data.source+"?", event.data);
+       }
+     } else {
+       console.log(this.messages.length+":", event.data);
+     }
+     
    };
   
 }());
