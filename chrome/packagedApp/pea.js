@@ -38,7 +38,7 @@ var WebAppManager = (function () {
   WebAppManager.registerWebApp = function(url, win) {
     WebAppManager.updateHistory(url);
     this.win = win;
-    this.tabId = win.tabs[0].id;
+    this.tabId = win.tabs[0].id; 
     this.debugger = new MonitorChrome.Debugger(this.proxy, this.tabId, this.debuggerError);
     this.debugger.connect();
   };
@@ -58,15 +58,13 @@ var WebAppManager = (function () {
   };
   
   // Call sync with 'load' event, but win may not be usable yet
-  WebAppManager.setDevTool = function(win) {
+  WebAppManager.setDevTool = function(url, win) {
+    this.devToolURL = url;
     this.devToolWindow = win;
+    var splits = url.split('/');
+    var clientOrigin = splits.slice(0, 3).join('/');
+    MonitorChrome.listenForClient(clientOrigin);
   };
-  
-  WebAppManager.registerProxy = function(proxy) {
-    this.proxy = proxy;  // multiple proxies later?
-    MonitorChrome.WebNavigation.hookWebNavigation(this.proxy);
-    MonitorChrome.WebNavigation.connect();
-  }
   
   return WebAppManager;
 }());
@@ -89,14 +87,13 @@ function wireButton() {
   }
 }
 
-
-function appendPurple() {
+function appendPurple(url) {
   var iframe = document.createElement('iframe');
   iframe.setAttribute('id', 'thePurple');
-  iframe.setAttribute('src', "http://orionhub.org/file/Fu/purple.html");
+  iframe.setAttribute('src', url);
   iframe.setAttribute('style', 'display: none;'); // don't show while loading
   document.body.appendChild(iframe);
-  WebAppManager.setDevTool(iframe.contentWindow);
+  WebAppManager.setDevTool(url, iframe.contentWindow);
 }
 
 function loadWebApp(event) {
@@ -110,55 +107,9 @@ function loadWebApp(event) {
 function onWindowLoad(event) {
   window.removeEventListener('load', onWindowLoad, false);
   wireButton();
-  appendPurple();
+  appendPurple("http://orionhub.org/file/Fu/purple.html");
 }
 
 window.addEventListener('load', onWindowLoad, false);
-
-//--------------------------------------------------------------------------------------
-// MessageProxy 
-// thePurple in an iframe sends 'IAmPurple' on load
-
-function MessageProxy(win, origin) {
-  this.otherWindow = win;
-  this.targetOrigin = origin;
-}
-
-MessageProxy.prototype = {
-  connect: function(messageFromClient) {
-    this.channel = new MessageChannel();
-    this.channel.port1.onmessage = this.recv.bind(this);
-    this.otherWindow.postMessage('heardProxyClientHello', "*");
-    try {
-      this.otherWindow.postMessage(messageFromClient, [this.channel.port2], this.targetOrigin);
-    } catch(exc) {
-      console.error(exc);
-    }
-  },
-  send: function(data) {
-    this.channel.port1.postMessage(data);
-  },
-  recv: function(event) {
-    console.log("MessageProxy.recv ", event);
-  }
-};
-
-function heardProxyClientHello(event) {
-  console.log("heardProxyClientHello", arguments);
-  if (event.data.indexOf('IAmPurple') === 0) {  // later we append version numbers
-    window.removeEventListener('message', heardProxyClientHello, false);
-    var proxy = new MessageProxy(event.source, event.origin);
-    WebAppManager.registerProxy(proxy);  
-    proxy.connect(event.data);
-  }
-}
-
-function listenForPurple() {
-  window.addEventListener('message', heardProxyClientHello, false);
-}
-
-listenForPurple();
-
-
 
 }());
