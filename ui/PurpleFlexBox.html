@@ -1,0 +1,137 @@
+<html>
+<head>
+<style>
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  }
+  
+iframe {
+  width: 100%;
+  height: 100%;
+}
+#purpleRoot {
+  height: 100%;
+}
+#inner {
+  background-color: #642d8b;
+}
+
+/* hbox and vbox classes from http://infrequently.org/2009/08/css-3-progress/ */
+ 
+.hbox {
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	-webkit-box-align: stretch;
+ 
+	display: -moz-box;
+	-moz-box-orient: horizontal;
+	-moz-box-align: stretch;
+ 
+	display: box;
+	box-orient: horizontal;
+	box-align: stretch;
+} 
+
+.vbox {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-box-align: stretch;
+ 
+	display: -moz-box;
+	-moz-box-orient: vertical;
+	-moz-box-align: stretch;
+ 
+	display: box;
+	box-orient: vertical;
+	box-align: stretch;
+}
+
+.spacer {
+	-webkit-box-flex: 1;
+	-moz-box-flex: 1;
+	box-flex: 1;
+}
+ 
+.reverse {
+	-webkit-box-direction: reverse;
+	-moz-box-direction: reverse;
+	box-direction: reverse;
+}
+ 
+.boxFlex0 {
+	-webkit-box-flex: 0;
+	-moz-box-flex: 0;
+	box-flex: 0;
+}
+ 
+.boxFlex1, .boxFlex {
+	-webkit-box-flex: 1;
+	-moz-box-flex: 1;
+	box-flex: 1;
+}
+ 
+.boxFlex2 {
+	-webkit-box-flex: 2;
+	-moz-box-flex: 2;
+	box-flex: 2;
+}
+ 
+.boxGroup1 {
+	-webkit-box-flex-group: 1;
+	-moz-box-flex-group: 1;
+	box-flex-group: 1;
+}
+ 
+.boxGroup2 {
+	-webkit-box-flex-group: 2;
+	-moz-box-flex-group: 2;
+	box-flex-group: 2;
+}
+ 
+.start {
+	-webkit-box-pack: start;
+	-moz-box-pack: start;
+	box-pack: start;
+}
+ 
+.end {
+	-webkit-box-pack: end;
+	-moz-box-pack: end;
+	box-pack: end;
+}
+ 
+.center {
+	-webkit-box-pack: center;
+	-moz-box-pack: center;
+	box-pack: center;
+	-webkit-box-align: center;
+}
+
+#poweredBy {
+   background-color: #642d8b; /* royal purple */
+   width: 100%;  /* set the width so the contained items have something to center within */
+}
+</style>
+
+
+</head>
+<body>
+<div id='purpleRoot' class='vbox'>
+<div id='inner' class='hbox boxFlex1'>
+ <div class='vbox boxFlex1'>
+  <iframe src="http://chromium.org"></iframe>
+ </div>
+</div>
+<div id="poweredBy" class='hbox center boxFlex0'>
+   <a href="http://www.eclipse.org/orion/">
+	<img src="../orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
+		Powered by Orion</a>
+		and 
+		<a href="http://code.google.com/p/traceur-compiler/">
+		Traceur</a>
+</div> 
+</div>
+</body>
+</html>
