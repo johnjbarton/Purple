@@ -9,19 +9,22 @@
 window.MonitorChrome = window.MonitorChrome || {};
 var MonitorChrome = window.MonitorChrome;
 
-MonitorChrome.listenForClient = function(clientOrigin) {
+MonitorChrome.listenForClient = function(clientOrigin, tabId, errback) {
   function heardProxyClientHello(event) {
     // Someone has sent a message
     console.log("heardProxyClientHello", arguments);
     if (event.origin === clientOrigin) { // then the sender is our code
+      window.removeEventListener('message', heardProxyClientHello, false);
+  
       var splits = event.data.split(' ');
       var clientName = splits[0];
       var clientVersion = splits[1];  // later we check version numbers
-      window.removeEventListener('message', heardProxyClientHello, false);
+      
       // send back a channel connector
       var proxy = new ProxyChannel(event.source, event.origin);
       proxy.connect(event.data);
-      MonitorChrome.registerProxy(clientName, clientVersion, proxy);  
+      MonitorChrome.registerProxy(clientName, clientVersion, proxy);
+      MonitorChrome.registerTab(proxy, tabId, errback);
     }
   }
   // Wait for the client to connect
@@ -34,8 +37,8 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
   MonitorChrome.WebNavigation.connect();
 }
 
-MonitorChrome.registerTab = function(tabId, debuggerErrorCallback) {
-    this.debugger = new MonitorChrome.Debugger(this.proxy, tabId, debuggerErrorCallback);
+MonitorChrome.registerTab = function(proxy, tabId, debuggerErrorCallback) {
+    this.debugger = new MonitorChrome.Debugger(proxy, tabId, debuggerErrorCallback);
     this.debugger.connect();
 };
 
