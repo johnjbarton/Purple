@@ -34,6 +34,11 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
   MonitorChrome.WebNavigation.connect();
 }
 
+MonitorChrome.registerTab = function(tabId, debuggerErrorCallback) {
+    this.debugger = new MonitorChrome.Debugger(this.proxy, tabId, debuggerErrorCallback);
+    this.debugger.connect();
+};
+
 //--------------------------------------------------------------------------------------
 // ProxyChannel, the extension half of the channel, sender of chrome events
  

@@ -38,9 +38,8 @@ var WebAppManager = (function () {
   WebAppManager.registerWebApp = function(url, win) {
     WebAppManager.updateHistory(url);
     this.win = win;
-    this.tabId = win.tabs[0].id; 
-    this.debugger = new MonitorChrome.Debugger(this.proxy, this.tabId, this.debuggerError);
-    this.debugger.connect();
+    this.tabId = win.tabs[0].id;
+    MonitorChrome.registerTab(this.tabId, WebAppManager.debuggerError);
   };
 
   WebAppManager.loadTargetApp = function(url) {
