@@ -105,7 +105,13 @@ function loadWebApp(event) {
 
 function onWindowLoad(event) {
   window.removeEventListener('load', onWindowLoad, false);
-  wireButton();
+  var myURL = window.location.toString();
+  var targetURL = myURL.split('#')[1];
+  if (!targetURL) {
+    wireButton();
+  } else {
+    setTimeout(WebAppManager.loadTargetApp(targetURL);
+  }
   appendPurple("http://orionhub.org/file/Fu/purple.html");
 }
 

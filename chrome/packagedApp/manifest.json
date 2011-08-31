@@ -2,11 +2,7 @@
   "name": "Purple: A Web Page, QueryPoint Debugger",
   "version": "0.1",
   "description": "A Web Page Debugger Using QueryPoints in a Parse-Rerun-Break Loop; Powered By Traceur and Orion",
-  "app": {
-    "launch": {
-       "local_path": "ppa.html"
-     }
-  },
+  "background_page" : "background.html",
   "icons": {
      "16": "Purple16x16.png", 
      "128": "Purple128x128.png" 
@@ -14,6 +10,7 @@
   "permissions" :
     [
       "experimental",
-      "tabs"
+      "tabs",
+      "contextMenus"
     ]
 }

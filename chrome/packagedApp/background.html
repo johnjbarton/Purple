@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!--
+// Purple Extension 
+//  part of the Purple project
+// Copyright 2011 Google Inc. 
+// see Purple/license.txt for BSD license
+// johnjbarton@google.com
+// Modified form http://src.chromium.org/viewvc/chrome/trunk/src/chrome/common/extensions/docs/examples/extensions/imageinfo/background.html?content-type=text/plain
+// on 31AUG11
+-->
+<html>
+  <head>
+  </head>
+  <body>
+    <script>
+      /**
+       * Returns a handler which will open a new window when activated.
+       */
+      function getClickHandler() {
+        return function(info, tab) {
+
+          // The srcUrl property is only available for image elements.
+          var url = 'ppa.html#' + tab.url;
+
+          // Create a new window to the info page.
+          chrome.windows.create({ url: url, width: 520, height: 660 });
+        };
+      };
+
+      /**
+       * Create a context menu which will only show up on all pages
+       */
+      chrome.contextMenus.create({
+        "title" : "Purple",
+        "type" : "normal",
+        "contexts" : ["page"],
+        "onclick" : getClickHandler()
+      });
+    </script>
+  </body>
+</html>
