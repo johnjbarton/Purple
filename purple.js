@@ -12,6 +12,15 @@
  
   var thePurple = window.purple;
   
+  function unGetterify(obj) {
+    var un = {};
+    var props = Object.keys(obj);
+    props.forEach(function unOne(prop) {
+      un[prop] = obj[prop];
+    });
+    return un;
+  }
+  
   //-------------------------------------------------------------------------
   // Reporting functions that can later be optioned-off 
   thePurple.error = function() {
@@ -76,7 +85,7 @@
         try {
           return listener[method].apply(listener, args);
         } catch (exc) {
-          thePurple.error("Purple: someListeners "+method+" to listener threw "+exc, {listener: listener, exc: exc});
+          thePurple.error("Purple: someListeners "+method+" to listener threw "+exc, {listener: listener, exc: unGetterify(exc)});
         }
       } else {
         theUnheardOf.push(listener);
