@@ -1,12 +1,7 @@
-html, body {
+html, body, iframe {
   height: 100%;
   margin: 0px;  /* kill off any margin so we control */
 } 
-
-iframe {
-  -moz-box-flex: 1; /* https://bugzilla.mozilla.org/show_bug.cgi?id=681050 */
-  -webkit-box-flex: 1; 
-}
 
 #poweredBy > * {
   background-color: #642d8b;
@@ -27,44 +22,16 @@ iframe {
 }
 
 .purpleNode {
-  display: box;
-  display: -webkit-box;
-  display: -moz-box;
   
-  box-pack: start;
-  -webkit-box-pack: start;
-  -moz-box-pack: start;
-
-  box-align: stretch;
-  -webkit-box-align: stretch;
-  -mox-box-align: stretch;
 }
 
 .purpleRow {
-  box-orient: horizontal;
-  -webkit-box-orient: horizontal;
-  -moz-box-orient: horizontal;
-  
-  box-align: stretch;
-  -webkit-box-align: stretch;
-  -mox-box-align: stretch;
-  
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  box-flex: 1;
-  
   min-width: 640px;
   width: 100%;
 }
 
 .purpleColumn {
-  box-orient: vertical;
-  -webkit-box-orient: vertical;
-  -moz-box-orient: vertical;
-  
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  box-flex: 1;
+ 
 }
 
 .purpleCell {
@@ -75,11 +42,6 @@ iframe {
   border: 1px solid #642d8b;
 }
 
-.purpleRow > .center {
-	-webkit-box-pack: center;
-	-moz-box-pack: center;
-	box-pack: center;
-}
 
 
 #poweredBy {
