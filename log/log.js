@@ -23,6 +23,7 @@
       version: 1,
       recv: log__.post.bind(log__)
     };
+    console.log("Calling Browser.connect");
     Browser.connect(this.channel);
   };
   
@@ -35,6 +36,11 @@
   // -----------------------------------------------------------------------------------
    log__.post = function(event) {
      this.messages.push(event.data);
+     var logElement = document.getElementById('log');
+     var entry = document.createElement('div');
+     var text = this.messages.length+": "+event.data.source;
+     entry.innerHTML = text;
+     logElement.appendChild(entry);
      console.log(this.messages.length+": "+event.data.source, event.data);
    };
    
