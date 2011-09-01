@@ -25,7 +25,11 @@ function getOrigin(url) {
 
 function startMonitor(url, tabId, errback) {
   var clientOrigin = getOrigin(url);
-  MonitorChrome.listenForClient(clientOrigin, tabId, errback);
+  MonitorChrome.connect(clientOrigin, tabId, errback);
+};
+
+function stopMonitor(errback) {
+  MonitorChrome.disconnect(errback);
 };
   
 function appendPurple(url) {
@@ -45,6 +49,12 @@ function onWindowLoad(event) {
   appendPurple(purpleURL);
 }
 
+function onWindowUnload(event) {
+  window.removeEventListener('unload', onWindowUnload, false);
+  stopMonitor(debuggerError);
+}
+
 window.addEventListener('load', onWindowLoad, false);
+window.addEventListener('unload', onWindowUnload, false);
 
 }());

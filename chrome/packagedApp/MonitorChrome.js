@@ -6,10 +6,13 @@
 
 (function () {
 
+//-----------------------------------------------------------------------------------
+// MonitorChrome, container to start/stop all event listners and connection to client 
+
 window.MonitorChrome = window.MonitorChrome || {};
 var MonitorChrome = window.MonitorChrome;
 
-MonitorChrome.listenForClient = function(clientOrigin, tabId, errback) {
+MonitorChrome.connect = function(clientOrigin, tabId, errback) {
   function heardProxyClientHello(event) {
     // Someone has sent a message
     console.log("heardProxyClientHello", arguments);
@@ -21,10 +24,10 @@ MonitorChrome.listenForClient = function(clientOrigin, tabId, errback) {
       var clientVersion = splits[1];  // later we check version numbers
       
       // send back a channel connector
-      var proxy = new ProxyChannel(event.source, event.origin);
-      proxy.connect(event.data);
-      MonitorChrome.registerProxy(clientName, clientVersion, proxy);
-      MonitorChrome.registerTab(proxy, tabId, errback);
+      MonitorChrome.proxy = new ProxyChannel(event.source, event.origin);
+      MonitorChrome.proxy.connect(event.data);
+      MonitorChrome.registerProxy(clientName, clientVersion, MonitorChrome.proxy);
+      MonitorChrome.registerTab(MonitorChrome.proxy, tabId, errback);
     }
   }
   // Wait for the client to connect
@@ -38,12 +41,18 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
 }
 
 MonitorChrome.registerTab = function(proxy, tabId, debuggerErrorCallback) {
-    this.debugger = new MonitorChrome.Debugger(proxy, tabId, debuggerErrorCallback);
-    this.debugger.connect();
+    MonitorChrome.Debugger.initialize(proxy, tabId, debuggerErrorCallback);
+    MonitorChrome.Debugger.connect();
+};
+
+MonitorChrome.disconnect = function(errback) {
+  MonitorChrome.Debugger.disconnect();
+  this.proxy.disconnect();
 };
 
 //--------------------------------------------------------------------------------------
 // ProxyChannel, the extension half of the channel, sender of chrome events
+// http://dev.w3.org/html5/postmsg/
  
 
 function ProxyChannel(win, origin) {
@@ -61,6 +70,9 @@ ProxyChannel.prototype = {
       console.error(exc);
     }
   },
+  disconnect: function() {
+    this.channel.port1.close();
+  },
   send: function(data) {
     this.channel.port1.postMessage(data);
   },
@@ -70,6 +82,8 @@ ProxyChannel.prototype = {
 };
 
 //---------------------------------------------------------------------------------------
+// WebNavigation http://code.google.com/chrome/extensions/dev/experimental.webNavigation.html
+
 
 var WebNavigation = MonitorChrome.WebNavigation = {
    events: Object.keys(chrome.experimental.webNavigation) // all for now
@@ -93,7 +107,12 @@ WebNavigation.connect = function() {
   });
 };
 
-var Debugger = MonitorChrome.Debugger = function(proxy, tabId, handleError){
+//--------------------------------------------------------------------------------------
+// Debugger http://code.google.com/chrome/extensions/experimental.debugger.html
+
+var Debugger = MonitorChrome.Debugger = {};
+
+Debugger.initialize = function(proxy, tabId, handleError){
   this.proxy = proxy;
   this.tabId = tabId; // eg from chrome.windows.create() callback
   this.reportError = function () {
@@ -103,20 +122,23 @@ var Debugger = MonitorChrome.Debugger = function(proxy, tabId, handleError){
   };
 };
 
-Debugger.prototype.connect = function() {
+Debugger.connect = function() {
   chrome.experimental.debugger.attach(this.tabId, this.reportError);
   chrome.experimental.debugger.onEvent.addListener(this.onEvent.bind(this));
+  console.log("Debugger.connect to tab "+this.tabId);
 };
 
-Debugger.prototype.disconnect = function() {
+Debugger.disconnect = function() {
   chrome.experimental.debugger.detach(this.tabId, this.reportError);
+  console.log("Debugger.disconnect from tab "+this.tabId);
 };
 
-Debugger.prototype.onEvent = function(tabId, method, params) {
+Debugger.onEvent = function(tabId, method, params) {
+  console.log("Debugger.onEvent "+method);
   this.proxy.send({source: "debugger", name: method, params: params}); 
 };
 
-Debugger.prototype.onDetach = function(tabId) {
+Debugger.onDetach = function(tabId) {
   this.proxy.send({source: "debugger", name: "detach"}); 
 };
 
