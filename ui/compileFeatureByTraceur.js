@@ -203,7 +203,9 @@
   }
   
   compiler__.disconnect = function(thePurple) {
-    this.editor.removeListener(this);
+    if (this.editor) {
+      this.editor.removeListener(this);
+    } // else we never connected
   };
   
   // -----------------------------------------------------------------------------------
