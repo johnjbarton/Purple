@@ -11,15 +11,7 @@
 (function purpleFrameworkEnclosure() {
  
   var thePurple = window.purple;
-  
-  function unGetterify(obj) {
-    var un = {};
-    var props = Object.keys(obj);
-    props.forEach(function unOne(prop) {
-      un[prop] = obj[prop];
-    });
-    return un;
-  }
+  var Assembly = thePurple.Assembly;
   
   //-------------------------------------------------------------------------
   // Reporting functions that can later be optioned-off 
@@ -52,54 +44,7 @@
     onDevToolEvent: function(event) { },
   };
 
-  thePurple._container = {
-    parts: [],
-  };
- 
-  thePurple.registerPart = function(purplePart) {
-    if (purplePart) {
-	  this._container.parts.push(purplePart);   
-	} else {
-	  thePurple.error("Purple: register falsy part");
-	}
-  };
-
-  thePurple.unregisterPart = function(purplePart) {
-    var index = this._container.parts.indexOf(purplePart);
-    if (index === -1) {
-      thePurple.log("Purple: unregisterPart called for part not regisitered", {thePurple: thePurple, part: purplePart});
-      return;
-    }
-    this._container.parts.slice(index, 1);   
-  };
-
-  thePurple.someListeners = function(listeners, method, args) {
-    if (!method) {
-      thePurple.error("Purple: someListeners with no method name");
-      return;
-    }
-    args = args || [];
-    var theUnheardOf = [];
-    listeners.some(function oneDispatch(listener) {
-      if (listener[method] && typeof (listener[method] === 'function') ) {
-        try {
-          return listener[method].apply(listener, args);
-        } catch (exc) {
-          thePurple.error("Purple: someListeners "+method+" to listener threw "+exc, {listener: listener, exc: unGetterify(exc)});
-        }
-      } else {
-        theUnheardOf.push(listener);
-      }
-    });
-    if (theUnheardOf.length) {
-      thePurple.warn("Purple: some listeners do not implement "+method, theUnheardOf);
-    }
-  };
-  
-  thePurple.someParts = function(method, args) {
-    return thePurple.someListeners(thePurple._container.parts, method, args);
-  };
-  
+  Assembly.addPartContainer(thePurple);  
   
   thePurple.preInitialize = [];   // system-level init
   thePurple.postDestroy = [];

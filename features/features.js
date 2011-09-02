@@ -1,3 +1,4 @@
+// A Purple Feature is a dynamic version of an interface
 // See licence.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
@@ -8,7 +9,7 @@
   thePurple.Feature = function() {
   };
   
-  thePurple.Feature.prototype = {
+  thePurple.Feature.prototype = {  //TODO Assmebly.
     _listeners: [],
     
     addListener: function(listener) {
@@ -36,7 +37,7 @@
   };
 
 
-  thePurple._features = {};  
+  thePurple._features = {};  // TODO OO Features
   
   // name: a property of thePurple._features
   // implementation: an object with function properties matching |feature.api|
@@ -77,6 +78,14 @@
     }
   };
    
+  thePurple.getFeatureAPI = function(name) {
+    if (!thePurple._features.hasOwnProperty(name)) {
+      thePurple.error("Purple: no feature named "+name);
+    } else {
+      return thePurple._features[name].api;
+	}    
+  };
+  
   thePurple.unimplementFeature = function(name, implementation) {
     if (!thePurple._features.hasOwnProperty(name)) {
       thePurple.error("Purple: attempt to unimplement an unknown feature "+name);

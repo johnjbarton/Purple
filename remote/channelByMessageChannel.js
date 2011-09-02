@@ -5,7 +5,31 @@
 
 
 (function() {
-  var thePurple = window.purple;
+  var thePurple = window.purple; 
+  var Assembly = thePurple.Assembly;
+  var channelByMessageChannel = new thePurple.Feature();
+  var channel__ = channelByMessageChannel;
+  
+  //---------------------------------------------------------------------------------------------
+  // Implement PurplePart
+  channel__.initialize = function(thePurple) {
+    this.name ='IAmPurple';
+    this.version = 1;
+    console.log("Calling Browser.connect");
+    Browser.connect(this);
+    thePurple.implementFeature('channel', this);
+  };
+
+  channel__.destroy = function(thePurple) {
+    Browser.disconnect(this);
+  }
+  
+  Assembly.addPartContainer(channel__);  
+  
+  channel__.recv = function(message) {
+    this.someParts('recv', [message]);
+  }
+  
   thePurple.Browser = {};
   var Browser = thePurple.Browser;
   
