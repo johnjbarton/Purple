@@ -68,10 +68,10 @@ Flexor.flexibleBoxes = function(boxes) {
 
 // return the parent height minus all of the inflexible box heights
 Flexor.remainingHeight = function(boxes) {
-  var remainingHeight = boxes[0].parentNode.offsetHeight;
+  var remainingHeight = boxes[0].parentNode.getBoundingClientRect().height;
   boxes.forEach(function decrement(box) {
     if (!box.dataset.flexible) {
-      remainingHeight -= box.offsetHeight;
+      remainingHeight -= box.getBoundingClientRect().height;
     }
   });
   return remainingHeight;
