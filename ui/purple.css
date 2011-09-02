@@ -35,6 +35,7 @@ html, body, iframe {
 }
 
 .purpleCell {
+  height: 100%;
   padding: 1px;
   border: 1px solid #EEEEEE;
 }
@@ -47,6 +48,10 @@ html, body, iframe {
 #poweredBy {
    background-color: #642d8b; /* royal purple */
    width: 100%;  /* set the width so the contained items have something to center within */
+}
+
+#poweredBy img {
+  vertical-align: middle;
 }
 
 .purpleAnnotation {
