@@ -46,8 +46,10 @@ MonitorChrome.registerTab = function(proxy, tabId, debuggerErrorCallback) {
 };
 
 MonitorChrome.disconnect = function(errback) {
-  MonitorChrome.Debugger.disconnect();
-  this.proxy.disconnect();
+  if (this.proxy) {
+    MonitorChrome.Debugger.disconnect();
+    this.proxy.disconnect();
+  }  // else we never connected
 };
 
 //--------------------------------------------------------------------------------------
@@ -113,6 +115,11 @@ WebNavigation.connect = function() {
 var Debugger = MonitorChrome.Debugger = {};
 
 Debugger.initialize = function(proxy, tabId, handleError){
+  if(!proxy || !tabId || !handleError) {
+    var error = new Error("MonitorChrome.Debugger missing argument ");
+    console.log(error, arguments);
+    throw error;
+  }
   this.proxy = proxy;
   this.tabId = tabId; // eg from chrome.windows.create() callback
   this.reportError = function () {
