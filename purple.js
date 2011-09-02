@@ -13,15 +13,6 @@
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
-  function unGetterify(obj) {
-    var un = {};
-    var props = Object.keys(obj);
-    props.forEach(function unOne(prop) {
-      un[prop] = obj[prop];
-    });
-    return un;
-  }
-  
   //-------------------------------------------------------------------------
   // Reporting functions that can later be optioned-off 
   thePurple.error = function() {

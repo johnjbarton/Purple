@@ -10,6 +10,15 @@ window.purple = window.purple || {};
 var thePurple = window.purple;
 var Assembly = thePurple.Assembly = {};
  
+ function unGetterify(obj) {
+    var un = {};
+    var props = Object.keys(obj);
+    props.forEach(function unOne(prop) {
+      un[prop] = obj[prop];
+    });
+    return un;
+  }
+ 
 Assembly.addPartContainer = function(extendMe) {
 
   extendMe._partContainer = {
