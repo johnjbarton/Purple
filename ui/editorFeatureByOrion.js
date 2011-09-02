@@ -224,8 +224,7 @@ dojo.addOnLoad(function(){
   // Orion Editor API Implementation
   var thePurple = window.purple;
   
-  var editorFeatureByOrion = {};
-  editorFeatureByOrion = new thePurple.Feature();
+  var editorFeatureByOrion = new thePurple.Feature();
   var editor__ = editorFeatureByOrion;
   
   //--------------------------------------------------------------------------------------------------------
