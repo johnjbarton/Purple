@@ -19,7 +19,7 @@
       function getClickHandler() {
         return function(info, tab) {
 
-          var createData = {url: 'ppa.html#' + tab.id };
+          var createData = {url: 'ppa.html#' + tab.id, type: 'popup' };
 
           var width = parseInt(window.localStorage.getItem('windowWidth'));
           if (width) createData.width = width;
