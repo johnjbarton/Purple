@@ -38,7 +38,7 @@
     // end: deallocate internals
     destroy: function() { },
     // ------------------------------------------
-    // 3. Respond to new Features
+    // 3. Respond to new Features. Parts or Features depending on Features start/stop work 
     featureImplemented: function(feature) {},
     featureUnimplemented: function(feature) {},
   };

@@ -63,6 +63,7 @@
         thePurple.error("Purple: "+key+" not implemented for feature "+feature.name, implementation); 
       }
     });
+    thePurple.forEachPart('featureImplemented', feature);
   };
    
   thePurple.getFeature = function(name) {
@@ -96,6 +97,7 @@
       thePurple.error("Purple: attempt to unimplement an unimplemented feature");
     }
     delete feature.implementation;
+    thePurple.forEachPart('featureUnimplemented', feature);
   };
 
 
