@@ -25,6 +25,8 @@
     };
     console.log("Calling Browser.connect");
     Browser.connect(this.channel);
+    var logElement = document.getElementById('log');
+    logElement.style.overflowY = 'scroll';
   };
   
   log__.destory = function() {
