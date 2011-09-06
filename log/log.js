@@ -18,16 +18,23 @@
   
   log__.initialize = function() {
     this.messages = [];
-    this.channel = {
-      name: 'IAmPurple',
-      version: 1,
-      recv: log__.post.bind(log__)
-    };
-    console.log("Calling Browser.connect");
-    Browser.connect(this.channel);
     var logElement = document.getElementById('log');
     logElement.style.overflowY = 'scroll';
   };
+
+  log__.featureImplemented = function(feature) {
+    if (feature.name === 'channel') {
+      var channel = feature.implementation;
+      channel.registerPart(this);
+    }
+  }
+
+  log__.featureUnimplemented = function(feature) {
+    if (feature.name === 'channel') {
+      var channel = feature;
+      channel.unregisterPart(this);
+    }
+  }
   
   log__.destory = function() {
     Browser.disconnect(this.channel);
@@ -36,7 +43,7 @@
   thePurple.registerPart(log__);
   
   // -----------------------------------------------------------------------------------
-   log__.post = function(event) {
+   log__.recv = function(event) {
      this.messages.push(event.data);
      var logElement = document.getElementById('log');
      var entry = document.createElement('div');
