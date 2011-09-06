@@ -14,9 +14,12 @@
       //---------------------------
       // (register for) Events From channel
       
-      registerPart: function() {},
-      unregisterPart: function() {}
+      registerPart: function(part) {},
+      unregisterPart: function(part) {}
 
+    },
+    events: {
+      recv: function(message) {}
     }
   };
   

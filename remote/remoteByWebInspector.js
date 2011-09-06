@@ -10,14 +10,7 @@
   var remoteByWebInspector = new thePurple.Feature();
   var remote__ = remoteByWebInspector;
   
-  //---------------------------------------------------------------------------------------------
-  // Implement PurplePart
-  remote__.connect = function(thePurple) {
-    thePurple.implementFeature('remote', this);
-  };
-
-  
-  
+   
   
   // A left paren ( followed by any not-right paren ) followed by right paren
   var reParamList = /\(([^\)]*)\)/; 
@@ -38,7 +31,7 @@
   
   // build a JSON object for Remote Debugging 
   
-  function bindParams(domain, method, paramNames, argValues) {
+  function bindParams(paramNames, argValues) {
     var params = {};
     paramNames.forEach(function(name) {
       if (argValues.length) {
@@ -56,17 +49,46 @@
   }
   
   // Walk the remote API and implement each function to send over channel.
-  var api =  thePurple.getFeatureAPI("remote");
-  var domains = Object.keys(api);
-  domains.forEach(function buildDomain(domain) {
-    remote__[domain] = {};
-    var methods = Object.keys(api[domain]);
-    methods.forEach(function buildMethod(method) {
-      var params = getParamsFromAPI(api[domain][method]);
-      remote__[domain][method] = function() {
-        sendRemoteCommand(domain, method, params, arguments);
-      };
+  function buildImplementation() {
+    var api =  thePurple.getFeatureAPI("remote");
+    var domains = Object.keys(api);
+    domains.forEach(function buildDomain(domain) {
+      remote__[domain] = {};
+      var methods = Object.keys(api[domain]);
+      methods.forEach(function buildMethod(method) {
+        var params = getParamsFromAPI(api[domain][method]);
+        remote__[domain][method] = function() {
+          sendRemoteCommand(domain, method, params, arguments);
+        };
+      });
     });
-  });
+  }
+  
+  //---------------------------------------------------------------------------------------------
+  //
+  remote__.startDebugger = function() {
+    this.Debugger.enable();
+  };
+
+  //---------------------------------------------------------------------------------------------
+  // Implement PurplePart
+  remote__.initialize = function() {
+    buildImplementation();
+  };
+  
+  remote__.featureImplemented = function(feature) {
+    if (feature.name === 'channel') {
+	  thePurple.implementFeature('remote', this);
+	  this.startDebugger();
+	}
+  };
+  
+  remote__.featureUnimplemented = function(feature) {
+    if (feature.name === 'channel') {
+	  thePurple.unimplementFeature('remote', this);
+	}
+  };
+
+  thePurple.registerPart(remote__);
 
 }());

@@ -42,19 +42,19 @@ Assembly.addPartContainer = function(extendMe) {
     this._partContainer.parts.slice(index, 1);   
   };
 
-  extendMe.someListeners = function(listeners, method, args) {
+  extendMe._dispatchToListeners = function(iterator, listeners, method, args) {
     if (!method) {
-      console.error("Assembly: someListeners with no method name");
+      console.error("Assembly: "+iterator+"Listeners with no method name");
       return;
     }
     args = args || [];
     var theUnheardOf = [];
-    listeners.some(function oneDispatch(listener) {
+    listeners[iterator](function oneDispatch(listener) {
       if (listener[method] && typeof (listener[method] === 'function') ) {
         try {
           return listener[method].apply(listener, args);
         } catch (exc) {
-          console.error("Assembly: someListeners "+method+" to listener threw "+exc, {listener: listener, exc: unGetterify(exc)});
+          console.error("Assembly: "+iterator+" Listeners "+method+" to listener threw "+exc, {listener: listener, exc: unGetterify(exc)});
         }
       } else {
         theUnheardOf.push(listener);
@@ -64,10 +64,15 @@ Assembly.addPartContainer = function(extendMe) {
       console.warn("Assembly: some listeners do not implement "+method, theUnheardOf);
     }
   };
-  
+
   extendMe.someParts = function(method, args) {
-    return extendMe.someListeners(extendMe._partContainer.parts, method, args);
+    return extendMe._dispatchToListeners('some', extendMe._partContainer.parts, method, args);
   };
+
+  extendMe.forEachPart = function(method, args) {
+    return extendMe._dispatchToListeners('forEach', extendMe._partContainer.parts, method, args);
+  };
+
 };
 
 }());

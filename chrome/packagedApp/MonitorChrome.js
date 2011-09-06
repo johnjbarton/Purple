@@ -24,7 +24,9 @@ MonitorChrome.connect = function(clientOrigin, tabId, errback) {
       var clientVersion = splits[1];  // later we check version numbers
       
       // send back a channel connector
-      MonitorChrome.proxy = new ProxyChannel(event.source, event.origin);
+      
+      //MonitorChrome.proxy = new ProxyChannel(event.source, event.origin);
+      MonitorChrome.proxy = new ProxyPoster(event.source, event.origin);
       MonitorChrome.proxy.connect(event.data);
       MonitorChrome.registerProxy(clientName, clientVersion, MonitorChrome.proxy);
       MonitorChrome.registerTab(MonitorChrome.proxy, tabId, errback);
@@ -54,7 +56,7 @@ MonitorChrome.disconnect = function(errback) {
 
 //--------------------------------------------------------------------------------------
 // ProxyChannel, the extension half of the channel, sender of chrome events
-// http://dev.w3.org/html5/postmsg/
+// http://dev.w3.org/html5/postmsg/ MessageChannel version
  
 
 function ProxyChannel(win, origin) {
@@ -83,6 +85,40 @@ ProxyChannel.prototype = {
   }
 };
 
+//--------------------------------------------------------------------------------------
+// ProxyPoster, the extension half of the channel, sender of chrome events
+// http://dev.w3.org/html5/postmsg/  postMessage() version
+ 
+
+function ProxyPoster(win, origin) {
+  this.otherWindow = win;
+  this.targetOrigin = origin;
+}
+
+ProxyPoster.prototype = {
+  connect: function(messageFromClient) {
+    try {
+      this.onmessage = this.recv.bind(this);
+      window.addEventListener('message', this.onmessage, false);
+      this.send(messageFromClient);
+    } catch(exc) {
+      console.error(exc);
+    }
+  },
+  disconnect: function() {
+    window.removeEventListener('message', this.onmessage, false);
+  },
+  send: function(data) {
+    this.otherWindow.postMessage(data, this.targetOrigin);
+  },
+  recv: function(event) {
+    console.log("ProxyPoster.recv ", event);
+    var method = event.data.method;
+    if (method) {  
+      Debugger.send(event.data);  // hack
+    }
+  }
+};
 //---------------------------------------------------------------------------------------
 // WebNavigation http://code.google.com/chrome/extensions/dev/experimental.webNavigation.html
 
@@ -132,21 +168,27 @@ Debugger.initialize = function(proxy, tabId, handleError){
 Debugger.connect = function() {
   chrome.experimental.debugger.attach(this.tabId, this.reportError);
   chrome.experimental.debugger.onEvent.addListener(this.onEvent.bind(this));
-  console.log("Debugger.connect to tab "+this.tabId);
+  console.log("MonitorChrome: Debugger.connect to tab "+this.tabId);
 };
 
 Debugger.disconnect = function() {
   chrome.experimental.debugger.detach(this.tabId, this.reportError);
-  console.log("Debugger.disconnect from tab "+this.tabId);
+  console.log("MonitorChrome: Debugger.disconnect from tab "+this.tabId);
 };
 
 Debugger.onEvent = function(tabId, method, params) {
-  console.log("Debugger.onEvent "+method);
+  console.log("MonitorChrome: Debugger.onEvent "+method);
   this.proxy.send({source: "debugger", name: method, params: params}); 
 };
 
 Debugger.onDetach = function(tabId) {
   this.proxy.send({source: "debugger", name: "detach"}); 
+};
+
+Debugger.send = function(data) {
+  var method = data.method;
+  var params = data.params;
+  chrome.experimental.debugger.sendRequest(this.tabId, method, params, this.reportError);
 };
 
 }());

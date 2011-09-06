@@ -38,10 +38,9 @@
     // end: deallocate internals
     destroy: function() { },
     // ------------------------------------------
-    // 3. respond to UI events
-    onUserAction: function(action) { },
-    // 4. respond to devtools events
-    onDevToolEvent: function(event) { },
+    // 3. Respond to new Features. Parts or Features depending on Features start/stop work 
+    featureImplemented: function(feature) {},
+    featureUnimplemented: function(feature) {},
   };
 
   Assembly.addPartContainer(thePurple);  
@@ -53,13 +52,13 @@
     thePurple.preInitialize.forEach(function callEm(fnc) {
       fnc.apply(null, [thePurple]);
     });
-    thePurple.someParts('initialize', [thePurple]);
-    thePurple.someParts('connect', [thePurple]);
+    thePurple.forEachPart('initialize', [thePurple]);
+    thePurple.forEachPart('connect', [thePurple]);
   };
   
   thePurple.destroy = function() {
-    thePurple.someParts('disconnect', [thePurple]);
-    thePurple.someParts('destroy', [thePurple]);
+    thePurple.forEachPart('disconnect', [thePurple]);
+    thePurple.forEachPart('destroy', [thePurple]);
     thePurple.postDestroy.forEach(function callEm(fnc) {
       fnc.apply(null, [thePurple]);
     });
