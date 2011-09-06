@@ -31,7 +31,7 @@
   
   // build a JSON object for Remote Debugging 
   
-  function bindParams(domain, method, paramNames, argValues) {
+  function bindParams(paramNames, argValues) {
     var params = {};
     paramNames.forEach(function(name) {
       if (argValues.length) {
@@ -63,6 +63,12 @@
       });
     });
   }
+  
+  //---------------------------------------------------------------------------------------------
+  //
+  remote__.startDebugger = function() {
+    this.Debugger.enable();
+  };
 
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
@@ -73,6 +79,7 @@
   remote__.featureImplemented = function(feature) {
     if (feature.name === 'channel') {
 	  thePurple.implementFeature('remote', this);
+	  this.startDebugger();
 	}
   };
   
@@ -82,5 +89,6 @@
 	}
   };
 
+  thePurple.registerPart(remote__);
 
 }());
