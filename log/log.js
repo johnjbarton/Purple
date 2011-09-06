@@ -9,6 +9,14 @@
   var thePurple = window.purple;
   var Browser = thePurple.Browser;
   var Renderer = {
+    'debugger': function(data) {
+      var params = data.params ? Object.keys(data.params).join(',') : "";
+      return "debugger."+data.name+"("+params+")";
+    },
+    'webNavigation': function(data) {
+      var params = data.params ? Object.keys(data.params).join(',') : "";
+      return "webNavigation."+data.name+"("+params+")";
+    }
   };
 
   //------------------------------------------------------------------------------------
@@ -47,22 +55,21 @@
      this.messages.push(event.data);
      var logElement = document.getElementById('log');
      var entry = document.createElement('div');
-     var text = this.messages.length+": "+event.data.source;
+     var text = this.messages.length+": "+this.render(event.data);
      entry.innerHTML = text;
      logElement.appendChild(entry);
-     console.log(this.messages.length+": "+event.data.source, event.data);
    };
    
    log__.render = function(data) {
      if (data.source) {
        var renderer = Renderer[data.source];
        if (renderer) {
-         console.log(this.messages.length+": ", renderer(data));
+         return renderer(data);
        } else {
-         console.log(this.messages.length+": "+data.source+"?", data);
+         return data.source+"?";
        }
      } else {
-       console.log(this.messages.length+":", data);
+       return data.toString();
      }
      
    };
