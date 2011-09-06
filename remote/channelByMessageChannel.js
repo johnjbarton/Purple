@@ -17,7 +17,6 @@
     this.version = 1;
     console.log("Calling Browser.connect");
     Browser.connect(this);
-    thePurple.implementFeature('channel', this);
   };
 
   channel__.destroy = function(thePurple) {
@@ -53,6 +52,7 @@
         channel.port = event.ports[0];
         channel.port.onmessage = channel.recv.bind(channel);
         channel.send = function(message) { this.port.postMessage(message); };
+        thePurple.implementFeature('channel', channel);
       } else {
         console.error("connectToBrowser requires ports from proxy");
       }
@@ -75,5 +75,7 @@
   Browser.disconnect = function (channel) {
     channel.port.close();
   };
+  
+  thePurple.registerPart(channel__);
   
 }());
