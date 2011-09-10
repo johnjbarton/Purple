@@ -41,6 +41,13 @@
         "contexts" : ["page"],
         "onclick" : getClickHandler()
       });
+
+      function checkForOrion(details) {
+        var headers = details.responseHeaders;
+        // ??
+      }
+  
+      chrome.experimental.webRequest.onCompleted.addListener(checkForOrion, {types:['main_frame']}, ['responseHeaders']);
     </script>
   </body>
 </html>

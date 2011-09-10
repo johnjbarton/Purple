@@ -7,6 +7,10 @@
      "16": "Purple16x16.png", 
      "128": "Purple128x128.png" 
   },
+  "page_action": {
+    "default_icon": "orion16.png",
+    "default_title": "Edit in Orion"
+   },
   "permissions" :
     [
       "experimental",
