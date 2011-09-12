@@ -9,11 +9,11 @@
   //---------------------------------------------------------------------------------------------
   //
   jsEventHandler.startDebugger = function() {
-    this.Debugger.enable();
+    this.remote.Debugger.enable();
   };
   
   jsEventHandler.stopDebugger = function() {
-    this.Debugger.disable();
+    this.remote.Debugger.disable();
   };
 
   // Implement Remote.events
