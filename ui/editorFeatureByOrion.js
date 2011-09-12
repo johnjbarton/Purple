@@ -258,12 +258,12 @@ dojo.addOnLoad(function(){
   // startDamage: first pos of change (both old and new)
   // endDamage: last pos of change in *old* buffer 
   editorFeatureByOrion._sourceChange = function(name, src, startDamage, endDamage) {
-    return this.someListeners("onSourceChange", arguments);
+    return this.someParts("onSourceChange", arguments);
   };
   // name: a key given to setContent,
   // index: offset to the first char of a line just revealed.
   editorFeatureByOrion._lineRevealed = function(name, index) {
-    return this.someListeners("onLineRevealed", arguments);
+    return this.someParts("onLineRevealed", arguments);
   };
     
   // indicator: {token: string, tooltip: string, line: number, column: number 
