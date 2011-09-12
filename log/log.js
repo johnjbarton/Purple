@@ -39,7 +39,7 @@
 
   log__.featureUnimplemented = function(feature) {
     if (feature.name === 'channel') {
-      var channel = feature;
+      var channel = feature.implementation;
       channel.unregisterPart(this);
     }
   }
