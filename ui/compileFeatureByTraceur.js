@@ -196,16 +196,20 @@
   
   var compiler__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
     
-  compiler__.connect = function(thePurple){
-    this.editor = thePurple.getFeature('editor');
-    this.editor.setContent("purpleDemo.js", "purple");
-    this.editor.addListener(this);
+  compiler__.featureImplemented = function(feature){
+    if (feature.getName() === 'editor') {
+      this.editor = feature.getImplementation();
+      this.editor.setContent("purpleDemo.js", "purple");
+      this.editor.registerPart(this);
+    }
   }
   
-  compiler__.disconnect = function(thePurple) {
-    if (this.editor) {
-      this.editor.removeListener(this);
-    } // else we never connected
+  compiler__.featureUnimplemented = function(feature) {
+    if (feature.getName() === 'editor') {
+      if (this.editor) {
+        this.editor.unregisterPart(this);
+      } // else we never connected
+    }
   };
   
   // -----------------------------------------------------------------------------------
