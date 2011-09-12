@@ -185,10 +185,15 @@ Debugger.onDetach = function(tabId) {
   this.proxy.send({source: "debugger", name: "detach"}); 
 };
 
+// callback for sendRequest
+Debugger.recv = function(result) {
+  this.proxy.send({source: "debugger", name: "response", result: result});
+}
+
 Debugger.send = function(data) {
   var method = data.method;
   var params = data.params;
-  chrome.experimental.debugger.sendRequest(this.tabId, method, params, this.reportError);
+  chrome.experimental.debugger.sendRequest(this.tabId, method, params, this.recv.bind(this));
 };
 
 }());
