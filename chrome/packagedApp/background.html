@@ -42,12 +42,55 @@
         "onclick" : getClickHandler()
       });
 
-      function checkForOrion(details) {
+      var editParametersByURL = {};
+      var tabIdByURL = {};
+
+      function checkForPageAction() {
+        var editableURLs = Object.keys(editParametersByURL);
+        editableURLs.forEach(function(url) {
+           var tabId = tabIdByURL[url];
+           if(tabId) {
+             chrome.pageAction.show(tabId);
+           }
+        });
+      }
+
+      function checkForEditHeader(details) {
+        delete editParametersByURL[details.url];
+
+        var editParams = {};
         var headers = details.responseHeaders;
-        // ??
+        headers.forEach(function findOrion(header) {
+          if (header.name === "X-Edit-Server") {
+            editParams.server = header.value;
+          } else if (header.name === "X-Edit-Token") {
+            editParams.token = header.value;
+          }
+        });
+        if (editParams.server) {
+          editParametersByURL[details.url] = editParams;
+        }
+        checkForPageAction();
       }
   
-      chrome.experimental.webRequest.onCompleted.addListener(checkForOrion, {types:['main_frame']}, ['responseHeaders']);
+
+      chrome.experimental.webRequest.onCompleted.addListener(checkForEditHeader, {types:['main_frame']}, ['responseHeaders']);
+
+      function onTabUpdated(tabId, changeInfo, tab) {
+        tabIdByURL[tab.url] = tab.id;
+        checkForPageAction();
+      }
+
+      chrome.tabs.onUpdated.addListener(onTabUpdated);
+
+      function launchEditAction(tab) {
+        var editParameters = editParametersByURL[tab.url];
+        if (editParameters) {
+          var url = editParameters.server + editParameters.token;
+          chrome.tabs.create({url: url});
+        }
+      }
+      chrome.pageAction.onClicked.addListener(launchEditAction);
     </script>
   </body>
 </html>
