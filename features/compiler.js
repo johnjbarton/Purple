@@ -4,7 +4,7 @@
 (function () {
   var thePurple = window.purple;
   
-  thePurple._features.compiler = {
+  thePurple._features.compiler = new thePurple.Feature({
     name: "compiler",
     api: {
       // EcmaScript 5: 7.5 Tokens
@@ -20,6 +20,6 @@
 	    'Error',
 	    ],
     },
-  };
+  });
   
 }());

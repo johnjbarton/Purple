@@ -4,7 +4,7 @@
 (function () {
   var thePurple = window.purple;
   
-  thePurple._features.channel = {
+  thePurple._features.channel = new thePurple.Feature({
     name: "channel",
     api: {
       //-------------------
@@ -21,6 +21,6 @@
     events: {
       recv: function(message) {}
     }
-  };
+  });
   
 }());

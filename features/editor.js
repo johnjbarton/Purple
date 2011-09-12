@@ -4,7 +4,7 @@
 (function () {
   var thePurple = window.purple;
   
-  thePurple._features.editor = {
+  thePurple._features.editor = new thePurple.Feature({
     name: "editor",
     api: {
       //-------------------
@@ -26,6 +26,6 @@
       _sourceChange: function(name, src, startDamage, endDamage) {}
 
     },
-  };
+  });
   
 }());

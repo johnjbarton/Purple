@@ -224,8 +224,7 @@ dojo.addOnLoad(function(){
   // Orion Editor API Implementation
   var thePurple = window.purple;
   
-  var editorFeatureByOrion = new thePurple.Feature();
-  var editor__ = editorFeatureByOrion;
+  var editorFeatureByOrion = {};
   
   //--------------------------------------------------------------------------------------------------------
   // Implement features.editor
@@ -244,9 +243,9 @@ dojo.addOnLoad(function(){
 	};
 	
   // Errors reported but not used by the highlighter yet.
-  editor__._unclaimedIndicators = []; 
+  editorFeatureByOrion._unclaimedIndicators = []; 
   
-  editor__.setContent = function(name, src) {
+  editorFeatureByOrion.setContent = function(name, src) {
     this.sourceName = name;  // TODO multiple editors
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
     editor.onInputChange(name, null, src);
@@ -258,35 +257,35 @@ dojo.addOnLoad(function(){
   // src: new buffer contents, 
   // startDamage: first pos of change (both old and new)
   // endDamage: last pos of change in *old* buffer 
-  editor__._sourceChange = function(name, src, startDamage, endDamage) {
+  editorFeatureByOrion._sourceChange = function(name, src, startDamage, endDamage) {
     return this.someListeners("onSourceChange", arguments);
   };
   // name: a key given to setContent,
   // index: offset to the first char of a line just revealed.
-  editor__._lineRevealed = function(name, index) {
+  editorFeatureByOrion._lineRevealed = function(name, index) {
     return this.someListeners("onLineRevealed", arguments);
-  }
+  };
     
   // indicator: {token: string, tooltip: string, line: number, column: number 
-  editor__.reportError = function(indicator) {
+  editorFeatureByOrion.reportError = function(indicator) {
     indicator.line = indicator.line + 1;
     indicator.column = indicator.column + 1;
     annotationFactory.showIndicator(indicator); 
   };
   
-  editor__.showValue = function(value, line, col) {
+  editorFeatureByOrion.showValue = function(value, line, col) {
     annotationFactory.showValue({value: value, line: line, column: col});
-  },
+  };
   
   // tokenRanges: [{start: index-into-src, end: index-into-src, tokenType: index-into-compiler.api.TokenTypes}]
-  editor__.convertTokenTypes = function(tokenRanges, tokenStyles) {
+  editorFeatureByOrion.convertTokenTypes = function(tokenRanges, tokenStyles) {
     tokenRanges.forEach(function adapt(tokenRange) {
       var orionStyle = ecmaToOrionTokenTypes[tokenRange.tokenType];
       if (orionStyle) {
         tokenStyles.push({start: tokenRange.start, end: tokenRange.end, style: orionStyle});
       }
     });
-  },
+  };
 
 
   //---------------------------------------------------------------------------------------------

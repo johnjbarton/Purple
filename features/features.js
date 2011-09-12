@@ -6,38 +6,34 @@
 
   var thePurple = window.purple;
 
-  thePurple.Feature = function() {
+  var Feature = thePurple.Feature = function(spec) {
+    this.name = spec.name,
+    this.api = spec.api;
+    this.events = spec.events;
+    this.types = spec.types;
   };
   
-  thePurple.Feature.prototype = {  //TODO Assmebly.
-    _listeners: [],
-    
-    addListener: function(listener) {
-      var index = this._listeners.indexOf(listener);
-      if (index === -1) {
-        this._listeners.push(listener);
-      } else {
-        thePurple.warn("Purple.Feature addListener already has listener", listener);
-      }
+  Feature.prototype = {
+    getName: function() {
+      return this.name;
     },
-    
-    removeListener: function(listener) {
-      var index = this._listeners.indexOf(listener);
-      if (index === -1) {
-        thePurple.warn("Purple.Feature removeListener already removed", listener);
-      } else {
-        this._listeners.slice(index, 1);
-      }
+    getAPI: function() {
+      return this.api;
     },
-     
-    someListeners: function(method, args) {
-     thePurple.someListeners(this._listeners, method, args);
+    getEvents: function() {
+      return this.events;
     },
-  
+    getTypes: function() {
+      return this.types;
+    },
+    getImplementation: function() {
+      return this.implementation;
+    }
   };
-
-
-  thePurple._features = {};  // TODO OO Features
+  
+  var Assembly = thePurple.Assembly;
+  
+  thePurple._features = {};  
   
   // name: a property of thePurple._features
   // implementation: an object with function properties matching |feature.api|
@@ -54,8 +50,8 @@
       return;
     }
     feature.implementation = implementation;
-    var api = Object.keys(feature.api);
-    api = api.concat(["addListener", "removeListener", "someListeners"]);
+    Assembly.addPartContainer(feature.implementation);  
+    var api = Object.keys(feature.getAPI());
     api.every(function copyFunction(key) {
       if (implementation[key]) {
         return true;
@@ -64,29 +60,17 @@
       }
     });
     thePurple.forEachPart('featureImplemented', [feature]);
+    console.log("Implemented "+name, feature);
   };
    
   thePurple.getFeature = function(name) {
     if (!thePurple._features.hasOwnProperty(name)) {
       thePurple.error("Purple: no feature named "+name);
     } else {
-      var impl = thePurple._features[name].implementation;
-      if (!impl) {
-        thePurple.error("Purple: feature "+name+" not implemented");
-      } else {
-        return impl;
-      }
+      return thePurple._features[name];
     }
   };
    
-  thePurple.getFeatureAPI = function(name) {
-    if (!thePurple._features.hasOwnProperty(name)) {
-      thePurple.error("Purple: no feature named "+name);
-    } else {
-      return thePurple._features[name].api;
-	}    
-  };
-  
   thePurple.unimplementFeature = function(name, implementation) {
     if (!thePurple._features.hasOwnProperty(name)) {
       thePurple.error("Purple: attempt to unimplement an unknown feature "+name);

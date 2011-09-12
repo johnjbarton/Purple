@@ -4,7 +4,7 @@
 (function () {
   var thePurple = window.purple;
   
-  thePurple._features.remote = {
+  thePurple._features.remote = new thePurple.Feature({
     name: "remote",
     api: {
       Console: {
@@ -28,7 +28,12 @@
         stepInto: function() {},
         stepOut: function() {},
         stepOver: function() {}
-      }
+      },
+      Timeline: {
+        start: function(maxCallStackDepth){}, // default 5
+        stop: function() {}
+      },
+      setResponseHandler: function (eventsHandlerObject) {} // implements events
     },
     events: {
       Debugger: {
@@ -37,6 +42,11 @@
         resumed: function() {},
         scriptFailedToParse: function(data, errorLine, errorMessage, firstLine, url) {},
         scriptParsed: function(endColumn, endLine, isContentScript, scriptId, startColumn, startLine, url) {}
+      },
+      Timeline: {
+        eventRecorded: function(record) {},
+        started: function() {},
+        stopped: function() {}
       }
     },
     types: {
@@ -55,8 +65,13 @@
       Scope: {
         object: 'Runtime.RemoteObject',
         'type': 'string'
+      },
+      TimelineEvent: {
+        children: '[TimelineEvent]',
+        data: 'object',
+        type: 'string'
       }
     }
-  };
+  });
   
 }());

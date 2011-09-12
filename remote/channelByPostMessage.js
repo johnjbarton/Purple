@@ -7,8 +7,7 @@
 (function() {
   var thePurple = window.purple; 
   var Assembly = thePurple.Assembly;
-  var channelByPostMessage = new thePurple.Feature();
-  var channel__ = channelByPostMessage;
+  var channel__ = {};
   
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
@@ -43,10 +42,7 @@
   Browser.connect = function connectToBrowser(channel) {
  
     function recvPort(event) {
-      // Apparently we cannot check event.origin === ourParentLocation 
-      var pLoc = window.parent.location;  // this is a bogus object.
-      var ourParentOrigin = pLoc.protocol+'//'+pLoc.host+(pLoc.port ? ":"+pLoc.port : "");
-      console.log("channel.recvPort ourOrigin: "+ourParentOrigin, event);
+      console.log("channelByPostMessage.recvPort "+event.origin, event);
       if (event.data.indexOf(channel.protocolName) !== 0) {
         return; // not for us
       }
