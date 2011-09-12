@@ -54,7 +54,7 @@ Assembly.addPartContainer = function(extendMe) {
         try {
           return listener[method].apply(listener, args);
         } catch (exc) {
-          console.error("Assembly: "+iterator+" Listeners "+method+" to listener threw "+exc, {listener: listener, exc: unGetterify(exc)});
+          console.error("Assembly: "+iterator+" Listeners "+method+" to listener threw "+exc, {listener: listener, stack: exc.stack});
         }
       } else {
         theUnheardOf.push(listener);
