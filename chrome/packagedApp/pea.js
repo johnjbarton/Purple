@@ -44,7 +44,7 @@ function onWindowLoad(event) {
   // Our URL is set by background.html, it appends the tabId that we will debug
   var myURL = window.location.toString();
   var tabId = parseInt(myURL.split('#')[1]);
-  var purpleURL = "http://orionhub.org/file/Fu/purple.html";
+  var purpleURL = "http://orionhub.org/file/Lb/purple.html";
   startMonitor(purpleURL, tabId, debuggerError);
   appendPurple(purpleURL);
 }
