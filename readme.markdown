@@ -30,4 +30,6 @@ Purple's editor comes from the Orion project:
   * http://wiki.eclipse.org/Orion
 The query-point debugging concepts build on the work of Salman Mirghasemi:
   * http://code.google.com/p/querypoint-debugging/
+The low-level events come from the Chrome browser's Web Inspector interoface:
+  * http://code.google.com/chrome/devtools/docs/remote-debugging.html
   
