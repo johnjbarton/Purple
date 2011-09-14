@@ -29,17 +29,9 @@
   // If any method returns a truthy value, the remainder are not notified.
   thePurple.PurplePart = function PurplePart() {};
   thePurple.PurplePart.prototype = {
-    // 1. allocate internal data structures
-    initialize: function() { },
-    // 2. add listeners to other Parts
-    connect: function(thePurple) { },
-    // end-1. remove listeners from other Parts
-    disconnect: function(thePurple) { },
-    // end: deallocate internals
-    destroy: function() { },
-    // ------------------------------------------
-    // 3. Respond to new Features. Parts or Features depending on Features start/stop work 
+    // Respond to new Features. Parts or Features depending on feature start work 
     featureImplemented: function(feature) {},
+    // Respond to Feature unload. Parts or Features depending on feature start work 
     featureUnimplemented: function(feature) {},
   };
 
@@ -52,13 +44,14 @@
     thePurple.preInitialize.forEach(function callEm(fnc) {
       fnc.apply(null, [thePurple]);
     });
-    thePurple.forEachPart('initialize', [thePurple]);
-    thePurple.forEachPart('connect', [thePurple]);
+      // A 'fake' feature standing for the HTML, so we can have all the features use the same API
+    thePurple.loadFeature = new thePurple.Feature({name: 'load'});
+
+    thePurple.forEachPart('featureImplemented', [thePurple.loadFeature]);
   };
   
   thePurple.destroy = function() {
-    thePurple.forEachPart('disconnect', [thePurple]);
-    thePurple.forEachPart('destroy', [thePurple]);
+    thePurple.forEachPart('featureUnimplemented', [thePurple.loadFeature]);
     thePurple.postDestroy.forEach(function callEm(fnc) {
       fnc.apply(null, [thePurple]);
     });
