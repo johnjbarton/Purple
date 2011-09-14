@@ -4,7 +4,29 @@
 (function () {
   var thePurple = window.purple;
   
-  var jsEventHandler = {};
+  var jsEventHandler = {
+    resources: [],
+    contentScripts: [],
+  };
+  
+  //---------------------------------------------------------------------------------------------
+  function Resource(url) {
+    this.url = url;
+  }
+  
+  Resource.prototype = {};
+  
+  function JavaScriptResource(url, isContentScript) {
+    this.url = url;
+    this.isContentScript = isContentScript;
+    this.scripts = {};
+  }
+  
+  JavaScriptResource.prototype = {};
+  
+  JavaScriptResource.prototype.appendScript = function(scriptId, startLine, startColumn, endLine, endColumn) {
+    this.scripts[scriptId] = [startLine, startColumn, endLine, endColumn];
+  };
   
   //---------------------------------------------------------------------------------------------
   //
@@ -14,6 +36,22 @@
   
   jsEventHandler.stopDebugger = function() {
     this.remote.Debugger.disable();
+  };
+  
+  jsEventHandler.getOrCreateJavaScriptResource = function(url, isContentScript) {
+    if (isContentScript) {
+      if ( this.contentScripts.hasOwnProperty(url) ) {
+        return this.contentScripts[url];
+      } else {
+        return (this.contentScripts[url] = new JavaScriptResource(url, isContentScript));
+      }
+    } else {
+      if ( this.resources.hasOwnProperty(url) ) {
+        return this.resources[url];
+      } else {
+        return (this.resources[url] = new JavaScriptResource(url, isContentScript));
+      }
+    }
   };
 
   // Implement Remote.events
@@ -32,7 +70,8 @@
           console.log("JavaScriptEventHandler", arguments);
         },
         scriptParsed: function(endColumn, endLine, isContentScript, scriptId, startColumn, startLine, url) {
-          console.log("JavaScriptEventHandler", arguments);
+           var res = jsEventHandler.getOrCreateJavaScriptResource(url, isContentScript);
+           res.appendScript(scriptId, startLine, startColumn, endLine, endColumn);
         }
       },
       Timeline: {
