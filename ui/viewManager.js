@@ -13,18 +13,19 @@
   
   var Manager__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
   
-  Manager__.initialize = function() {
-    this.setBoxSizes();
+  Manager__.featureImplemented = function(feature) {
+    if (feature.name === 'load') {
+      this.setBoxSizes();
+      window.addEventListener('resize', Manager__.setBoxSizes, true);
+    }
   };
 
-  Manager__.connect = function() {
-    window.addEventListener('resize', Manager__.setBoxSizes, true);
+  Manager__.featureUnimplemented = function(feature) {
+    if (feature.name === 'load') {
+      window.removeEventListener('resize', Manager__.setBoxSizes, true);
+    }
   };
 
-  Manager__.disconnect = function() {
-    window.removeEventListener('resize', Manager__.setBoxSizes, true);
-  };
-  
   Manager__.setBoxSizes = function() {
     var purpleRoot = window.document.getElementById('purpleRoot');
     var hboxes = Flexor.getChildernByClassName(purpleRoot, 'purpleHBox');

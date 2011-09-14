@@ -24,29 +24,25 @@
   
   var log__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
   
-  log__.initialize = function() {
-    this.messages = [];
-    var logElement = document.getElementById('log');
-    logElement.style.overflowY = 'scroll';
-  };
-
   log__.featureImplemented = function(feature) {
-    if (feature.name === 'channel') {
+    if (feature.name === 'load') {
+      this.messages = [];
+      var logElement = document.getElementById('log');
+      logElement.style.overflowY = 'scroll';
+    } else if (feature.name === 'channel') {
       var channel = feature.implementation;
       channel.registerPart(this);
     }
   }
 
   log__.featureUnimplemented = function(feature) {
-    if (feature.name === 'channel') {
+    if (feature.name === 'load') {
+      delete this.messages;
+    } else if (feature.name === 'channel') {
       var channel = feature.implementation;
       channel.unregisterPart(this);
     }
   }
-  
-  log__.destory = function() {
-    Browser.disconnect(this.channel);
-  };
   
   thePurple.registerPart(log__);
   

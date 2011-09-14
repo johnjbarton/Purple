@@ -290,22 +290,21 @@ dojo.addOnLoad(function(){
 
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  editorFeatureByOrion.initialize = function(thePurple) {
-    thePurple.implementFeature('editor', this);
-  };
-
-  editorFeatureByOrion.connect = function(thePurple) {
-    var view = editor.getTextView();
-    view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
-    view.addEventListener("LineStyle", this, this._onLineStyle);
-  };
-    
-  editorFeatureByOrion.disconnect = function(thePurple) {
-    editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion.onModelChanged, "no data");
+  editorFeatureByOrion.featureImplemented = function(feature) {
+    if (feature.name === 'load') {
+     var view = editor.getTextView();
+     view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
+     view.addEventListener("LineStyle", this, this._onLineStyle);
+     thePurple.implementFeature('editor', this);
+    }
   };
     
-  editorFeatureByOrion.destroy = function(thePurple) {
-    thePurple.unimplementFeature('editor', this);
+  editorFeatureByOrion.featureUnimplemented = function(feature) {
+    if (feature.name === 'load') {
+      thePurple.unimplementFeature('editor', this);
+      editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion._onModelChanged, "no data");
+      editor.getTextView().removeEventListener("LineStyle", editorFeatureByOrion, editorFeatureByOrion._onLineStyle, "no data");
+    }
   };
 
   //----------------------------

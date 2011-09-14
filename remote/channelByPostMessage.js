@@ -9,19 +9,7 @@
   var Assembly = thePurple.Assembly;
   var channel__ = {};
   
-  //---------------------------------------------------------------------------------------------
-  // Implement PurplePart
-  channel__.initialize = function(thePurple) {
-    this.protocolName ='IAmPurple';
-    this.version = 1;
-    console.log("Calling Browser.connect");
-    Browser.connect(this);
-  };
 
-  channel__.destroy = function(thePurple) {
-    Browser.disconnect(this);
-  }
-  
   Assembly.addPartContainer(channel__);  
   
   channel__.recv = function(message) {
@@ -83,6 +71,24 @@
       channel.port.close();
     } else {
       window.removeEventListener('message', channel.onmessage, false);
+    }
+  };
+  
+  //---------------------------------------------------------------------------------------------
+  // Implement PurplePart
+  channel__.featureImplemented = function(feature) {
+    console.log("channel featureImplement called with feature", feature);
+    if (feature.name === 'load') {
+      this.protocolName ='IAmPurple';
+      this.version = 1;
+      console.log("Calling Browser.connect");
+      Browser.connect(this);
+    }
+  };
+
+  channel__.featureUnimplemented = function(feature) {
+    if (feature.name === 'load') {
+      Browser.disconnect(this);
     }
   };
   
