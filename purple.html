@@ -66,17 +66,24 @@
         <script type="text/javascript" src="lib/nodelist/nodelist.js"></script>
         <script type="text/javascript" src="ui/flexor.js"></script>
         <script type="text/javascript" src="ui/viewManager.js"></script>
+        <script type="text/javascript" src="ui/part.js"></script>
         <script type="text/javascript" src="log/js/JavaScriptEventHandler.js"></script>
 </head>
 <body>
 <div id="purpleRoot" class="purpleVBox">
  <div id='purpleTop' class='purpleHBox'>
-   <div id='purpleControl' class='purpleCell'>
+   <span id='purpleControl' class='purpleCell'>
      Purple
-   </div>
+   </span>
+   <span id='resources.button' class='purpleCell purpleButton'>
+     <span class="nls" id='resources.description'>Resources</span>
+     <span id='resources.total'>0</span>
+   </span>
  </div>
  <div class="purpleHBox" data-flexible="100">
-    <div id="log" class='purpleCell'></div>
+    <div id="log" class='purpleCell'>
+    <iframe seamless id="resources.iframe" src="ui/resources/index.html"></iframe>
+    </div>
  </div>
  <div class="purpleHBox " data-flexible="100">
     <!-- From Orion embeddededitor -->
