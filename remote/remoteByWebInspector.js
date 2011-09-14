@@ -72,7 +72,7 @@
     return function (objFromJSON) {
       var args = [];
       for (var i = 0; i < handler.parameters.length; i++) {
-        args[i] = objFromJSON[handler[i]];
+        args[i] = objFromJSON[handler.parameters[i]];
       }
       handler.apply(null, args);
     };
