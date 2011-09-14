@@ -1,20 +1,9 @@
 html, body, iframe {
   height: 100%;
+  width: 100%;
   margin: 0px;  /* kill off any margin so we control */
+  border: none;
 } 
-
-#poweredBy > * {
-  background-color: #642d8b;
-} 
-/*
-.editor {
-  display: block;
-  font-family: monospace;
-  width: 80%;
-  height: 300px;
-}
-*/
-
 
 #purpleRoot {
   height: 100%;  /* Outer most flexbox needs guidance */
@@ -35,6 +24,7 @@ html, body, iframe {
 }
 
 .purpleCell {
+  cursor: pointer;
   height: 100%;
   padding: 1px;
   border: 1px solid #EEEEEE;
@@ -43,7 +33,16 @@ html, body, iframe {
   border: 1px solid #642d8b;
 }
 
+.purpleButton:hover {
+  background-color: #642d8b; /* royal purple */
+  color: white;
+  font-weight: bold;
+}
 
+
+#poweredBy > * {
+  background-color: #642d8b;
+} 
 
 #poweredBy {
    background-color: #642d8b; /* royal purple */
