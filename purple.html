@@ -8,7 +8,6 @@
 <html>
 <head>
 <title>Purple: parse, re-run, break loop experiment</title>
-<script src="traceur/trunk/src/traceur.js"></script>
 <link  rel="stylesheet" type="text/css" href="ui/purple.css">
 <link  rel="stylesheet" type="text/css" href="ui/alexRussellFlexbox.css">
 <!-- From Orion embeddededitor -->
@@ -16,7 +15,7 @@
 		<meta http-equiv="Content-Language" content="en-us">
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     	<title>Embedded Orion Editor</title>
-    	<link rel="stylesheet" type="text/css" href="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/embeddededitor.css" />
+    	<link rel="stylesheet" type="text/css" href="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/embeddededitor.css" />
 		
 		<script type="text/javascript">
 			var djConfig = {
@@ -35,38 +34,39 @@
 	    </script>
 	
 		<!-- Web Editor -->
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/keyBinding.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textModel.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textView.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/undoStack.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textStyler.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/contentAssist.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/htmlGrammar.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/textMateStyler.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
+		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/keyBinding.js"></script>
+		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textModel.js"></script>
+		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textView.js"></script>
+		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.js"></script>
+		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/undoStack.js"></script>
+		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textStyler.js"></script>
+	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js"></script>
+	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/contentAssist.js"></script>
+	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/htmlGrammar.js"></script>
+	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/textMateStyler.js"></script>
+	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
+	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
 <!-- End from Orion embeddededitor -->
 <!-- Purple-integration -->
         <script type="text/javascript" src="lib/Assembly.js"></script>
         <script type="text/javascript" src="lib/purple.js"></script>
-        <script type="text/javascript" src="features/features.js"></script>
-        <script type="text/javascript" src="features/editor.js"></script>
-        <script type="text/javascript" src="features/compiler.js"></script>
-        <script type="text/javascript" src="features/channel.js"></script>
-        <script type="text/javascript" src="features/remote.js"></script>
-        <script type="text/javascript" src="traceuratops/ParseTreeLeafFinder.js"></script>
-        <script type="text/javascript" src="traceuratops/ParseTreeStyler.js"></script>
-        <script type="text/javascript" src="traceuratops/compileFeatureByTraceur.js"></script>
-        <script type="text/javascript" src="remote/channelByPostMessage.js"></script>
-        <script type="text/javascript" src="remote/remoteByWebInspector.js"></script>
-        <script type="text/javascript" src="ui/editorFeatureByOrion.js"></script>
+        <script type="text/javascript" src="lib/features.js"></script>
+        <script type="text/javascript" src="editor/editor.js"></script>
+        <script type="text/javascript" src="browser/channel.js"></script>
+        <script type="text/javascript" src="browser/remote.js"></script>
+        <script type="text/javascript" src="compiler/traceur/trunk/src/traceur.js"></script>
+        <script type="text/javascript" src="compiler/compiler.js"></script>
+        <script type="text/javascript" src="compiler/traceuratops/ParseTreeLeafFinder.js"></script>
+        <script type="text/javascript" src="compiler/traceuratops/ParseTreeStyler.js"></script>
+        <script type="text/javascript" src="compiler/traceuratops/compileFeatureByTraceur.js"></script>
+        <script type="text/javascript" src="browser/channelByPostMessage.js"></script>
+        <script type="text/javascript" src="browser/remoteByWebInspector.js"></script>
+        <script type="text/javascript" src="editor/editorFeatureByOrion.js"></script>
         <script type="text/javascript" src="log/log.js"></script>
-        <script type="text/javascript" src="nodelist/nodelist.js"></script>
+        <script type="text/javascript" src="lib/nodelist/nodelist.js"></script>
         <script type="text/javascript" src="ui/flexor.js"></script>
         <script type="text/javascript" src="ui/viewManager.js"></script>
-        <script type="text/javascript" src="ui/js/JavaScriptEventHandler.js"></script>
+        <script type="text/javascript" src="log/js/JavaScriptEventHandler.js"></script>
 </head>
 <body>
 <div id="purpleRoot" class="purpleVBox">
@@ -90,7 +90,7 @@
     <div class='purpleHBox'></div>
     <div class='purpleHBox'>
     <a href="http://www.eclipse.org/orion/">
-	<img id='OrionLogo' src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
+	<img id='OrionLogo' src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/images/skinnyheaderlogo.png" alt="Orion">
 		Powered by Orion</a>
 		and 
 		<a href="http://code.google.com/p/traceur-compiler/">
