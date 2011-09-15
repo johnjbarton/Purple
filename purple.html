@@ -75,15 +75,20 @@
    <span id='purpleControl' class='purpleCell'>
      Purple
    </span>
+   <span id='log.button' class='purpleCell purpleButton'>
+     <span class="nls" id='log.description'>Log</span>
+     <span id='log.total'>0</span>
+   </span>
    <span id='resources.button' class='purpleCell purpleButton'>
      <span class="nls" id='resources.description'>Resources</span>
      <span id='resources.total'>0</span>
    </span>
  </div>
  <div class="purpleHBox" data-flexible="100">
-    <div id="log" class='purpleCell'>
-    <iframe seamless id="resources.iframe" src="ui/resources/index.html"></iframe>
-    </div>
+   <div id="log" class='purpleCell'>
+     <iframe seamless class="purplePart" id="resources.iframe" src="ui/resources/index.html"></iframe>
+     <iframe seamless class="purplePart tippedPurple" id="log.iframe" src="ui/log/index.html"></iframe>
+   </div>
  </div>
  <div class="purpleHBox " data-flexible="100">
     <!-- From Orion embeddededitor -->

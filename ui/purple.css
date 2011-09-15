@@ -39,6 +39,13 @@ html, body, iframe {
   font-weight: bold;
 }
 
+.purplePart {
+  display: none;
+}
+.tippedPurple {
+  display: block; 
+}
+
 
 #poweredBy > * {
   background-color: #642d8b;
