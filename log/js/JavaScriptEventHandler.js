@@ -4,20 +4,33 @@
 (function () {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
+
+  var Resources = new thePurple.PurplePart('resources');
+  
+  Resources.resources = [];
+  Resources.resourcesByURL = {}; // a Resource or an array of
+  
+  Assembly.addPartContainer(Resources);
+
+  Resources.append = function(url, resource) {
+    this.resourcesByURL[url] = resource;
+    this.resources.push(resource);
+    this.toEachPart('modelChange', [{mutation: 'add', propertyName: url, value: resource}]);
+    return resource;
+  };
+
+  Resources.get = function(url) {
+    if ( this.resourcesByURL.hasOwnProperty(url) ) {
+      return this.resourcesByURL[url];
+    }
+  };
+  
+  thePurple.registerPart(Resources);
   
   var jsEventHandler = new thePurple.PurplePart('jsEventHandler');
   
-  jsEventHandler.resources = [];
-  jsEventHandler.resourcesByURL = {}; // a Resource or an array of
-  
-  Assembly.addPartContainer(jsEventHandler); 
-  
+    
   //---------------------------------------------------------------------------------------------
-  function Resource(url) {
-    this.url = url;
-  }
-  
-  Resource.prototype = {};
   
   function JavaScriptResource(url, isContentScript) {
     this.url = url;
@@ -41,19 +54,12 @@
     this.remote.Debugger.disable();
   };
   
-  jsEventHandler.addResource = function(url, resource) {
-    this.resourcesByURL[url] = resource;
-    this.resources.push(resource);
-    this.toEachPart('modelChange', [{mutation: 'add', propertyName: url, value: resource}]);
-    return resource;
-  };
-  
   jsEventHandler.getOrCreateJavaScriptResource = function(url, isContentScript) {
-    if ( this.resourcesByURL.hasOwnProperty(url) ) {
-      return this.resourcesByURL[url];
-    } else {
-      return this.addResource(url, new JavaScriptResource(url, isContentScript));
+    var resource = Resources.get(url);
+    if (!resource) {
+      resource = Resources.append(url, new JavaScriptResource(url, isContentScript));
     }
+    return resource;
   };
 
   // Implement Remote.events
