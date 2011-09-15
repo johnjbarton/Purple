@@ -4,7 +4,7 @@
 (function () {
   var thePurple = window.purple;
   
-  thePurple._features.remote = new thePurple.Feature({
+  var remote = new thePurple.Feature({
     name: "remote",
     api: {
       Console: {
@@ -73,5 +73,7 @@
       }
     }
   });
+  
+  thePurple.Features.registerPart(remote);
   
 }());

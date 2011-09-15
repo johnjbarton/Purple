@@ -224,7 +224,7 @@ dojo.addOnLoad(function(){
   // Orion Editor API Implementation
   var thePurple = window.purple;
   
-  var editorFeatureByOrion = {};
+  var editorFeatureByOrion = new thePurple.PurplePart('editor');
   
   //--------------------------------------------------------------------------------------------------------
   // Implement features.editor
@@ -258,12 +258,12 @@ dojo.addOnLoad(function(){
   // startDamage: first pos of change (both old and new)
   // endDamage: last pos of change in *old* buffer 
   editorFeatureByOrion._sourceChange = function(name, src, startDamage, endDamage) {
-    return this.someParts("onSourceChange", arguments);
+    return this.toSomeParts("onSourceChange", arguments);
   };
   // name: a key given to setContent,
   // index: offset to the first char of a line just revealed.
   editorFeatureByOrion._lineRevealed = function(name, index) {
-    return this.someParts("onLineRevealed", arguments);
+    return this.toSomeParts("onLineRevealed", arguments);
   };
     
   // indicator: {token: string, tooltip: string, line: number, column: number 

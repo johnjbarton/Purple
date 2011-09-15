@@ -26,7 +26,7 @@
   Assembly.addPartContainer(channel__);  
   
   channel__.recv = function(message) {
-    this.someParts('recv', [message]);
+    this.toSomeParts('recv', [message]);
   }
   
   thePurple.Browser = {};

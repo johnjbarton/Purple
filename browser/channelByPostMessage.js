@@ -7,13 +7,13 @@
 (function() {
   var thePurple = window.purple; 
   var Assembly = thePurple.Assembly;
-  var channel__ = {};
+  var channel__ = new thePurple.PurplePart('channel');
   
 
   Assembly.addPartContainer(channel__);  
   
   channel__.recv = function(message) {
-    this.someParts('recv', [message]);
+    this.toSomeParts('recv', [message]);
   }
   
   thePurple.Browser = {};

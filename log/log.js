@@ -22,7 +22,7 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var log__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
+  var log__ =  new thePurple.PurplePart('log');  // the __ bit just makes the method names stand out.
   
   log__.featureImplemented = function(feature) {
     if (feature.name === 'load') {

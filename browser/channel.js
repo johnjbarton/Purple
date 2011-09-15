@@ -4,7 +4,7 @@
 (function () {
   var thePurple = window.purple;
   
-  thePurple._features.channel = new thePurple.Feature({
+  var channel = new thePurple.Feature({
     name: "channel",
     api: {
       //-------------------
@@ -22,5 +22,7 @@
       recv: function(message) {}
     }
   });
+  
+  thePurple.Features.registerPart(channel);
   
 }());

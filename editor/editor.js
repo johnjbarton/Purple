@@ -4,7 +4,7 @@
 (function () {
   var thePurple = window.purple;
   
-  thePurple._features.editor = new thePurple.Feature({
+  var editor = new thePurple.Feature({
     name: "editor",
     api: {
       //-------------------
@@ -27,5 +27,7 @@
 
     },
   });
+  
+  thePurple.Features.registerPart(editor);
   
 }());

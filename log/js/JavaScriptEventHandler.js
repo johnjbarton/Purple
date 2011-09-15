@@ -3,11 +3,14 @@
 
 (function () {
   var thePurple = window.purple;
+  var Assembly = thePurple.Assembly;
   
-  var jsEventHandler = {
-    resources: [],
-    contentScripts: [],
-  };
+  var jsEventHandler = new thePurple.PurplePart('jsEventHandler');
+  
+  jsEventHandler.resources = [];
+  jsEventHandler.resourcesByURL = {}; // a Resource or an array of
+  
+  Assembly.addPartContainer(jsEventHandler); 
   
   //---------------------------------------------------------------------------------------------
   function Resource(url) {
@@ -38,19 +41,18 @@
     this.remote.Debugger.disable();
   };
   
+  jsEventHandler.addResource = function(url, resource) {
+    this.resourcesByURL[url] = resource;
+    this.resources.push(resource);
+    this.toEachPart('modelChange', [{mutation: 'add', propertyName: url, value: resource}]);
+    return resource;
+  };
+  
   jsEventHandler.getOrCreateJavaScriptResource = function(url, isContentScript) {
-    if (isContentScript) {
-      if ( this.contentScripts.hasOwnProperty(url) ) {
-        return this.contentScripts[url];
-      } else {
-        return (this.contentScripts[url] = new JavaScriptResource(url, isContentScript));
-      }
+    if ( this.resourcesByURL.hasOwnProperty(url) ) {
+      return this.resourcesByURL[url];
     } else {
-      if ( this.resources.hasOwnProperty(url) ) {
-        return this.resources[url];
-      } else {
-        return (this.resources[url] = new JavaScriptResource(url, isContentScript));
-      }
+      return this.addResource(url, new JavaScriptResource(url, isContentScript));
     }
   };
 

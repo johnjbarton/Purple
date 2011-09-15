@@ -11,7 +11,7 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var Manager__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
+  var Manager__ =  new thePurple.PurplePart('viewManager');  // the __ bit just makes the method names stand out.
   
   Manager__.featureImplemented = function(feature) {
     if (feature.name === 'load') {

@@ -7,11 +7,9 @@
 (function () {
   var thePurple = window.purple;
   
-  var remote__ = {
-    jsonHandlers: {}, // by domain and function name
-  };
+  var remote__ = new thePurple.PurplePart('remote');
   
-   
+  remote__.jsonHandlers = {}; // by domain and function name
   
   // A left paren ( followed by any not-right paren ) followed by right paren
   var reParamList = /\(([^\)]*)\)/; 
@@ -53,7 +51,7 @@
   
   // Walk the remote API and implement each function to send over channel.
   function buildImplementation() {
-    var remote =  thePurple.getFeature("remote");
+    var remote =  thePurple.Features.getPartByName("remote");
     var api = remote.getAPI();
     var domains = Object.keys(api);
     domains.forEach(function buildSend(domain) {
@@ -80,7 +78,7 @@
   
   remote__.setResponseHandlers = function (responseHandlerObject) {
     this.responseHandlerObject = responseHandlerObject;  // {Debugger:{functions}, Console:{functions}}
-    var remote =  thePurple.getFeature("remote");
+    var remote =  thePurple.Features.getPartByName("remote");
     var events = remote.getEvents();
     var domainNames = Object.keys(events);
     domainNames.forEach(function buildDomainResponse(domainName) {

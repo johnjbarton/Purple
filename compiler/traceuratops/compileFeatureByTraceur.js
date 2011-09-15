@@ -194,7 +194,7 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var compiler__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
+  var compiler__ =  new thePurple.PurplePart('compiler');  // the __ bit just makes the method names stand out.
     
   compiler__.featureImplemented = function(feature){
     if (feature.getName() === 'editor') {

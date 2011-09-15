@@ -51,7 +51,7 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var partUI__ =  new thePurple.PurplePart();  // the __ bit just makes the method names stand out.
+  var partUI__ =  new thePurple.PurplePart('partUI');  // the __ bit just makes the method names stand out.
   
   partUI__.featureImplemented = function(feature) {
     if (feature.name === 'load') {
