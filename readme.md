@@ -33,3 +33,13 @@ The query-point debugging concepts build on the work of Salman Mirghasemi:
 The low-level events come from the Chrome browser's Web Inspector interoface:
   * http://code.google.com/chrome/devtools/docs/remote-debugging.html
   
+Dev Install:
+
+1. Get an account on http://orionhub.org (or install Orion)
+2. clone this reprository 
+3. Apply these instructions: 
+  http://wiki.eclipse.org/Orion/How_Tos/Developing_Chrome_extensions_in_Orion
+to purple/chrome/extension directory, but after step 2, unzip the files.
+4. Edit the extension file ppa.html to change the purple URL to your repro. You need to change the two letters between '/file/' and '/purple.html'.
+5. Load/reload the extension.
+6. Right click on a page to see purple in the context menu. 
