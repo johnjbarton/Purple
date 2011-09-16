@@ -6,6 +6,10 @@ function onMessage(event) {
   console.log("ui/resources.onMessage:", event);
 }
 window.addEventListener('message', onMessage, false);
+
+window.thePurple = window.parent.thePurple;
+
+
 </script>
 </head>
 <body>
