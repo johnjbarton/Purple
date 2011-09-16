@@ -1,0 +1,20 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../ui/part.css" />
+<script>
+function onMessage(event) {
+  console.log("ui/resources.onMessage:", event);
+}
+window.addEventListener('message', onMessage, false);
+
+window.purple = window.parent.purple;
+
+</script>
+<script type="text/javascript" src="log.js"></script>
+</head>
+<body>
+<div id="log">
+No Log Entries
+</div>
+</body>
+</html>
