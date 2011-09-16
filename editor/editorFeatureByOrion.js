@@ -110,7 +110,7 @@ dojo.addOnLoad(function(){
     "/orion/textview/rulers.css", 
     "/examples/textview/textstyler.css", 
     "/examples/editor/htmlStyles.css",
-    "ui/purple.css"];
+    "../ui/purple.css"];
     
   var textViewFactory = function() {
     return new orion.textview.TextView({

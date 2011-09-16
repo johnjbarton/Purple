@@ -1,0 +1,58 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../ui/part.css" />
+<script>
+window.purple = window.parent.purple;
+console.log("editor iframe start");
+window.onload = function() {
+  console.log("editor iframe load");
+}
+</script>
+<!-- From Orion embeddededitor -->
+		<meta name="copyright" content="Copyright (c) IBM Corporation and others 2010." >
+		<meta http-equiv="Content-Language" content="en-us">
+		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    	<title>Embedded Orion Editor</title>
+    	<link rel="stylesheet" type="text/css" href="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/embeddededitor.css" />
+		
+		<script type="text/javascript">
+			var djConfig = {
+				isDebug:false,
+				parseOnLoad:true
+			};
+		</script>
+		<script>
+			// temporary
+	    	var __originalDefine = window.define;
+	    </script>
+	    <script type="text/javascript" src="/org.dojotoolkit/dojo/dojo.js.uncompressed.js"></script>
+		<script>
+			// temporary
+	    	window.define = __originalDefine;
+	    </script>
+
+		<!-- Web Editor -->
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/keyBinding.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textModel.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textView.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/undoStack.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textStyler.js"></script>
+	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js"></script>
+	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/contentAssist.js"></script>
+	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/htmlGrammar.js"></script>
+	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/textMateStyler.js"></script>
+	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
+	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
+<!-- End from Orion embeddededitor -->
+        <script type="text/javascript" src="editor.js"></script>
+        <script type="text/javascript" src="editorFeatureByOrion.js"></script>
+
+</head>
+<body>
+    <!-- From Orion embeddededitor -->
+    <div id="editor"></div>
+	<div id="contentassist" class="contentassist"></div> 
+    <!-- End embeddededitor -->
+</body>
+</html>
