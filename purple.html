@@ -8,50 +8,16 @@
 <html>
 <head>
 <title>Purple: parse, re-run, break loop experiment</title>
+
+<link  rel="stylesheet" type="text/css" href="ui/part.css">
 <link  rel="stylesheet" type="text/css" href="ui/purple.css">
 <link  rel="stylesheet" type="text/css" href="ui/alexRussellFlexbox.css">
-<!-- From Orion embeddededitor -->
-		<meta name="copyright" content="Copyright (c) IBM Corporation and others 2010." >
-		<meta http-equiv="Content-Language" content="en-us">
-		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    	<title>Embedded Orion Editor</title>
-    	<link rel="stylesheet" type="text/css" href="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/embeddededitor.css" />
-		
-		<script type="text/javascript">
-			var djConfig = {
-				isDebug:false,
-				parseOnLoad:true
-			};
-		</script>
-		<script>
-			// temporary
-	    	var __originalDefine = window.define;
-	    </script>
-	    <script type="text/javascript" src="/org.dojotoolkit/dojo/dojo.js.uncompressed.js"></script>
-		<script>
-			// temporary
-	    	window.define = __originalDefine;
-	    </script>
 	
-		<!-- Web Editor -->
-		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/keyBinding.js"></script>
-		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textModel.js"></script>
-		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textView.js"></script>
-		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.js"></script>
-		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/undoStack.js"></script>
-		<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textStyler.js"></script>
-	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js"></script>
-	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/contentAssist.js"></script>
-	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/htmlGrammar.js"></script>
-	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/textMateStyler.js"></script>
-	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
-	 	<script src="editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
-<!-- End from Orion embeddededitor -->
 <!-- Purple-integration -->
-        <script type="text/javascript" src="lib/Assembly.js"></script>
         <script type="text/javascript" src="lib/purple.js"></script>
+        <script type="text/javascript" src="lib/Assembly.js"></script>
+        <script type="text/javascript" src="lib/models.js"></script>
         <script type="text/javascript" src="lib/features.js"></script>
-        <script type="text/javascript" src="editor/editor.js"></script>
         <script type="text/javascript" src="browser/channel.js"></script>
         <script type="text/javascript" src="browser/remote.js"></script>
         <script type="text/javascript" src="compiler/traceur/trunk/src/traceur.js"></script>
@@ -61,7 +27,6 @@
         <script type="text/javascript" src="compiler/traceuratops/compileFeatureByTraceur.js"></script>
         <script type="text/javascript" src="browser/channelByPostMessage.js"></script>
         <script type="text/javascript" src="browser/remoteByWebInspector.js"></script>
-        <script type="text/javascript" src="editor/editorFeatureByOrion.js"></script>
         <script type="text/javascript" src="log/log.js"></script>
         <script type="text/javascript" src="lib/nodelist/nodelist.js"></script>
         <script type="text/javascript" src="ui/flexor.js"></script>
@@ -91,10 +56,9 @@
    </div>
  </div>
  <div class="purpleHBox " data-flexible="100">
-    <!-- From Orion embeddededitor -->
-    <div class="purpleCell" id="editor"></div>
-	<div id="contentassist" class="contentassist"></div> 
-    <!-- End embeddededitor -->
+   <div class="purpleCell">
+     <iframe seamless class="purplePart displayedPurple" id="editor.iframe" src="editor/index.html"></iframe>
+   </div>
  </div>
 
   <div id='poweredBy' class='center purpleHBox'>
