@@ -45,6 +45,9 @@ html, body, iframe {
 .tippedPurple {
   display: block; 
 }
+.displayedPurple {
+  display: block;
+}
 
 
 #poweredBy > * {
