@@ -15,7 +15,7 @@
   Resources.append = function(url, resource) {
     this.resourcesByURL[url] = resource;
     this.resources.push(resource);
-    this.toEachPart('modelChange', [{mutation: 'add', propertyName: url, value: resource}]);
+    this.toEachPart('change', [{mutation: 'add', propertyName: url, value: resource}]);
     return resource;
   };
 
