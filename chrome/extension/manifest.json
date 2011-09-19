@@ -16,5 +16,6 @@
       "experimental",
       "tabs",
       "contextMenus"
-    ]
+    ],
+   "options_page": "options.html"
 }

@@ -1,0 +1,51 @@
+<html>
+<head><title>Purple Extension Options</title></head>
+<style>
+body {
+  font-family:Verdana,Geneva,sans-serif;
+}
+</style>
+
+<script type="text/javascript">
+
+// Saves options to localStorage.
+function save_options() {
+  var messageClientURL = document.getElementById("messageClientURL");
+  var url = messageClientURL.value;
+  localStorage["messageClientURL"] = url;
+
+  // Update status to let user know options were saved.
+  var status = document.getElementById("status");
+  status.innerHTML = "Options Saved.";
+  setTimeout(function() {
+    status.innerHTML = "";
+  }, 750);
+}
+
+// Restores messageClientURL box state to saved value from localStorage.
+function restore_options() {
+  var url = localStorage["messageClientURL"];
+  if (!url) {
+    return;
+  }
+  var messageClientURL = document.getElementById("messageClientURL");
+  messageClientURL.value = url;
+}
+
+</script>
+
+<body onload="restore_options()">
+
+<p>
+In this prototype, Purple is a Web Application running in an iframe in an extension.
+Events from the Chrome browser are handled by the extension then sent by postMessage() to the iframe. Commands from the iframe sent by postMessage() to the extension which sends them to Chrome.
+Until we  have a deployed version of Purple you will need to set the URL below to point to your git clone file <code>purple.html</code>
+</p>
+
+Development Tool URL:
+<input id="messageClientURL" type='url' size='80' />
+<br>
+<button onclick="save_options()">Save</button>
+<div id="status"></div>
+</body>
+</html>
