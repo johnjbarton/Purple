@@ -8,11 +8,31 @@ function onMessage(event) {
 window.addEventListener('message', onMessage, false);
 
 window.purple = window.parent.purple;
+var thePurple = window.purple;
 
+var resourceViewer = {
+  initialize: function(resources) {
+    this.resources = resources;
+    document.getElementById('out').innerHTML = "Initialized";    
+  },
+  change: function(details) {
+    document.getElementById('out').innerHTML = "Changed";
+  }
+};
+
+function listenToResources() {
+  var resources = thePurple.getPartByName('resources');
+  resourceViewer.initialize(resources);
+  resources.registerPart(resourcesViewer);
+}
+
+window.addEventListener('load', listenToResources, false);
 
 </script>
 </head>
 <body>
+<div id="out">
 No resources
+</div>
 </body>
 </html>
