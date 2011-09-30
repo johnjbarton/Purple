@@ -12,6 +12,7 @@
   background-image:      -o-linear-gradient(top, #FFFFFF, #E0E0E0); 
   background-image:         linear-gradient(top, #FFFFFF, #E0E0E0); /* standard, but currently unimplemented */
   padding: 5px;
+  overflow: hidden;
 }
 
 .purpleToolbar > * { /* Any thing in the toolbar */
