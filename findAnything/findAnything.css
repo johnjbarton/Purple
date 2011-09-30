@@ -1,0 +1,14 @@
+/* See license.txt, BSD
+   Copyright 2011 Google, Inc. author: johnjbarton@google.com
+*/
+
+.purpleToolbar > * { /* Any thing in the toolbar */
+  height: 24px;
+}
+
+#findAnythingInput {
+  border: 2px solid #B3B3B3;
+  border-radius: 5px;
+}
+
+  

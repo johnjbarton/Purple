@@ -1,0 +1,27 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../ui/part.css" />
+<link rel="stylesheet" type="text/css" href="findAnything.css" />
+<script>
+window.purple = window.parent.purple;
+var thePurple = window.purple;
+if (typeof require !== "undefined") {
+  debugger;
+}
+</script>
+<script type="text/javascript" src="../lib/requirejs/require.js"></script>
+<script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
+
+<script>
+require(['findAnything'], function init(findAnything) {
+  findAnything.initialize();
+  findAnything.update();
+});
+</script>
+</head>
+<body>
+<div id="search">
+No resources
+</div>
+</body>
+</html>
