@@ -59,10 +59,11 @@
 
 #findAnythingBackground {
   height: 24px;
-  position: absolute;
-  left: 24px;
+  position: absolute; /* within container findAnything */
+  left: 24px;         /* must be with of findAnythingIcon */
   bottom: 0px;
 }
+
 #findAnythingBackground input {
   position: absolute;
 }
@@ -78,6 +79,16 @@ div#findAnythingNotify {
   z-index: 2;
   color: silver;
 }
+
+input#findAnythingInput {
+  z-index: 3; /* must be on top to get the input events */
+  background: none repeat scroll 0% 0% transparent; /* Let the completion/notification show through */
+}
+
+input#findAnythingInput:focus {
+  outline: none;
+}
+
 
 .purpleButton {
   border-radius: 5px;
