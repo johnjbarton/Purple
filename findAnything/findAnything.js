@@ -16,6 +16,7 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
                IMG({'id': 'findAnythingIcon', 'class':'findAnythingIcon omniboxLikeLeft', 'src':'../ui/icons/o2_http_query.png'} ),
                DIV({'id':'findAnythingBackground'},
                  INPUT({'id':'findAnythingCompletion', 'value':'.js'}),
+                 DIV({'id':'findAnythingNotify'}, '.js    26 js, 3 css, 1 html, 205 logs'),
                  INPUT({'id':'findAnythingInput', 'value':'.js'})
                )
              )
@@ -42,6 +43,7 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       this.setWidth('findAnythingBackground', availableWidth);
       this.setWidth('findAnythingCompletion', availableWidth);
       this.setWidth('findAnythingInput', availableWidth);
+      //this.setWidth('findAnythingNotify', availableWidth);
     },
     setWidth: function(id, availableWidth) {
       var elt =  document.getElementById(id);

@@ -38,29 +38,14 @@
   height: 24px;
 }
 
-.omniboxLike input div {
+.omniboxLike input, div {
   height: 24px;
-  width: 300px;
   font-size: 13px;
   border-style: none;
-  /* top: -7px; /* xxxjjb I have no idea why this is needed */
   padding 2px;
 }
-
-#findAnythingBackground {
-  position: relative;
-  height: 24px;
-}
-#findAnythingCompletion {
-  position: absolute;
-  z-index: 1;
-  color: silver;
-  bottom: 0;
-}
-
-#findAnythingInput {
-  position: absolute;
-  bottom: 0;
+#findAnything {
+   position: relative; /* establish a container for positioning */
 }
 
 .findAnythingIcon {
@@ -70,6 +55,28 @@
 .findAnythingIcon > img { /* Where page actions live */
   height: 16px;
   width: 16px;
+}
+
+#findAnythingBackground {
+  height: 24px;
+  position: absolute;
+  left: 24px;
+  bottom: 0px;
+}
+#findAnythingBackground input {
+  position: absolute;
+}
+#findAnythingCompletion {
+  z-index: 1;
+  color: silver;
+}
+
+div#findAnythingNotify {
+  position: absolute;
+  right: 0px;
+  bottom: -5px; /* I believe this is (24px - 13px)/2 == (height - fontsize)/2 */
+  z-index: 2;
+  color: silver;
 }
 
 .purpleButton {
