@@ -38,21 +38,12 @@
 <body>
 <div id="purpleRoot" class="purpleVBox">
  <div id='purpleTop' class='purpleHBox'>
-   <span id='purpleControl' class='purpleCell'>
-     Purple
-   </span>
-   <span id='log.button' class='purpleCell purpleButton'>
-     <span class="nls" id='log.description'>Log</span>
-     <span id='log.total'>0</span>
-   </span>
-   <span id='resources.button' class='purpleCell purpleButton'>
-     <span class="nls" id='resources.description'>Resources</span>
-     <span id='resources.total'>0</span>
-   </span>
+   <div id='purpleControl' class='purpleCell'>
+        <iframe seamless class="purplePart displayedPurple" id="searchIframe" src="findAnything/index.html"></iframe>
+   </div>
  </div>
  <div class="purpleHBox" data-flexible="100">
    <div class='purpleCell'>
-     <iframe seamless class="purplePart" id="resources.iframe" src="findAnything/index.html"></iframe>
      <iframe seamless class="purplePart tippedPurple" id="log.iframe" src="log/index.html"></iframe>
    </div>
  </div>
