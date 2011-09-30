@@ -6,6 +6,11 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
   
   var anyThingBar = {
     initialize: function() {
+      this.buildDomplate();
+      this.renderDomplate();
+      this.addListeners();
+    },
+    buildDomplate: function() {
       with (DOMPLATE.tags) {
         this.template = DOMPLATE.domplate({
           tag: DIV({'id': 'findAnythingToolbar','class':'purpleToolbar'},
@@ -21,20 +26,24 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
                )
              )
            ),
-          capitalize: function(str) {
-            return str.toUpperCase();
-          }
         });
       }    
     },
-    update: function() {
+    renderDomplate: function() {
       var html = this.template.tag.render({
         preButtons: [],
       });
   
-      document.getElementsByTagName('body')[0].innerHTML = html;
+      var body = document.getElementsByTagName('body')[0];
+      body.innerHTML = html;
       this.resize();
     },
+    
+    addListeners: function () {
+      var body = document.getElementsByTagName('body')[0];
+      window.addEventListener('resize', this.resize.bind(this), true);
+    },
+    
     resize: function () {
       var toolbar = document.getElementById('findAnythingToolbar');
       var availableWidth = toolbar.offsetWidth;
