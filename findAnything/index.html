@@ -13,9 +13,14 @@ if (typeof require !== "undefined") {
 <script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
 
 <script>
+  window.addEventListener('load', function() {
+    console.log("load findAnything iframe");
+      }, false);
 require(['findAnything'], function init(findAnything) {
-  findAnything.initialize();
-  findAnything.update();
+    console.log("initialize findAnything");
+    findAnything.initialize();
+    findAnything.update();
+
 });
 </script>
 </head>

@@ -14,7 +14,10 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
              ),
              DIV({'id': 'findAnything', 'class':'omniboxLikeLeft omniboxLike omniboxLikeRight'}, 
                IMG({'id': 'findAnythingIcon', 'class':'findAnythingIcon omniboxLikeLeft', 'src':'../ui/icons/o2_http_query.png'} ),
-               INPUT({'id':'findAnythingInput', 'value':'.js'})                       
+               DIV({'id':'findAnythingBackground'},
+                 INPUT({'id':'findAnythingCompletion', 'value':'.js'}),
+                 INPUT({'id':'findAnythingInput', 'value':'.js'})
+               )
              )
            ),
           capitalize: function(str) {
@@ -33,11 +36,16 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
     },
     resize: function () {
       var toolbar = document.getElementById('findAnythingToolbar');
-      var input =  document.getElementById('findAnythingInput');
       var availableWidth = toolbar.offsetWidth;
       // remove the width of childern TODO
       availableWidth -= 24*4;
-      input.style.width = availableWidth +"px";
+      this.setWidth('findAnythingBackground', availableWidth);
+      this.setWidth('findAnythingCompletion', availableWidth);
+      this.setWidth('findAnythingInput', availableWidth);
+    },
+    setWidth: function(id, availableWidth) {
+      var elt =  document.getElementById(id);
+      elt.style.width = availableWidth +"px";
     }
   };
   
