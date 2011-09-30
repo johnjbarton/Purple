@@ -8,11 +8,14 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
     initialize: function() {
       with (DOMPLATE.tags) {
         this.template = DOMPLATE.domplate({
-          tag: DIV({'id': 'findAnythingToolbar','class':'purpleToolbar', 'style': "color: purple;"},
+          tag: DIV({'id': 'findAnythingToolbar','class':'purpleToolbar'},
              FOR('preButton', '$preButtons', 
                TAG("$buttonTag", {button: "$button"})
              ),
-             INPUT({'id':'findAnythingInput'})          
+             DIV({'id': 'findAnything', 'class':'omniboxLikeLeft omniboxLike omniboxLikeRight'}, 
+               IMG({'id': 'findAnythingIcon', 'class':'findAnythingIcon omniboxLikeLeft', 'src':'../ui/icons/o2_http_query.png'} ),
+               INPUT({'id':'findAnythingInput', 'value':'.js'})                       
+             )
            ),
           capitalize: function(str) {
             return str.toUpperCase();
@@ -31,11 +34,10 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
     resize: function () {
       var toolbar = document.getElementById('findAnythingToolbar');
       var input =  document.getElementById('findAnythingInput');
-      var availableWidth = toolbar.width;
+      var availableWidth = toolbar.offsetWidth;
       // remove the width of childern TODO
       availableWidth -= 24*4;
       input.style.width = availableWidth +"px";
-      input.style.left = 24*2+"px";
     }
   };
   
