@@ -4,13 +4,15 @@
 
 define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) {
   
-  var anyThingBar = {
-    initialize: function() {
+  var anyThingBar = new thePurple.PurplePart('findAnything');
+
+    anyThingBar.initialize = function() {
       this.buildDomplate();
       this.renderDomplate();
       this.addListeners();
-    },
-    buildDomplate: function() {
+    };
+    
+    anyThingBar.buildDomplate = function() {
       with (DOMPLATE.tags) {
         this.template = DOMPLATE.domplate({
           tag: DIV({'id': 'findAnythingToolbar','class':'purpleToolbar'},
@@ -28,8 +30,9 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
            ),
         });
       }    
-    },
-    renderDomplate: function() {
+    };
+    
+    anyThingBar.renderDomplate = function() {
       var html = this.template.tag.render({
         preButtons: [],
       });
@@ -37,14 +40,15 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       var body = document.getElementsByTagName('body')[0];
       body.innerHTML = html;
       this.resize();
-    },
+    };
     
-    addListeners: function () {
+    anyThingBar.addListeners = function () {
       window.addEventListener('resize', this.resize, true);
       
-    },
-    
-    resize: function () {
+    };
+    // ------------------------------------------------------------------------
+    // Output
+    anyThingBar.resize = function () {
       var toolbar = document.getElementById('findAnythingToolbar');
       var availableWidth = toolbar.offsetWidth;
       // remove the width of childern TODO
@@ -53,31 +57,61 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       this.setWidth('findAnythingCompletion', availableWidth);
       this.setWidth('findAnythingInput', availableWidth);
       //this.setWidth('findAnythingNotify', availableWidth);
-    },
-    setWidth: function(id, availableWidth) {
+    };
+    
+    anyThingBar.setWidth = function(id, availableWidth) {
       var elt =  document.getElementById(id);
       elt.style.width = availableWidth +"px";
-    }
-  };
+    };
+    
+    // -------------------------------------------------------------------------
+    // Input
+    anyThingBar.eventsToElements = {
+      keypress: makeListener('#findAnythingInput', function(event) {
+        console.log("findAnything.keypress ", event.charCode);
+      }.bind(anyThingBar)),
+    };
   
-  
-  
-  function listen(eventSelectorPairs, handlers) {
-    Object.keys(eventSelectorPairs).forEach(function on(prop) {
-      var selector = eventSelectorPairs[prop];
-      var elt = document.querySelector(selector);
-      var handler = handlers[prop];
-      if (!handler.isBound) {
-        handlers[prop] = handler.bind(handlers);
-        handlers[prop].isBound = handler;
-        handler = handlers[prop];
-      }
-      elt.addEventListener(prop, handler, false);
-    });
+  anyThingBar.featureImplemented = function(feature) {
+    if (feature.name === 'load') {
+      anyThingBar.initialize();
+      anyThingBar.removeListeners = addListeners(anyThingBar.eventsToElements);
+    } 
+  }
+
+  anyThingBar.featureUnimplemented = function(feature) {
+    if (feature.name === 'load') {
+      anyThingBar.removeListeners();
+    } 
   }
   
-  listen({'resize': 'body'}, anyThingBar);
+  thePurple.registerPart(anyThingBar);
   
+  function makeListener(selector, handler) {
+    handler.selector = selector;
+    return handler;
+  }
+  
+  function addListeners(eventHandlers) {
+    Object.keys(eventHandlers).forEach(function on(prop) {
+      var handler = eventHandlers[prop];
+      var selector = handler.selector;
+      var elt = document.querySelector(selector);
+      elt.addEventListener(prop, handler, false);
+      handler.element = elt;
+    });
+    return unlisten(eventHandlers);
+  }
+  
+  function removeListeners(eventHandlers) {
+    return function() {
+       Object.keys(eventHandlers).forEach(function off(prop) {
+         var handler = eventHandlers[prop];
+         var elt = handler.element;
+         elt.removeEventListener(prop, handler, false);
+       });
+    }
+  }
   
   return anyThingBar;
 });

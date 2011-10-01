@@ -15,10 +15,10 @@ if (typeof require !== "undefined") {
 <script>
   window.addEventListener('load', function() {
     console.log("load findAnything iframe");
-      }, false);
+  }, false);
+
 require(['findAnything'], function init(findAnything) {
-    console.log("initialize findAnything");
-    findAnything.initialize();
+    console.log("findAnything compiled");
 
 });
 </script>
