@@ -74,8 +74,6 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
   
   anyThingBar.featureImplemented = function(feature) {
     if (feature.name === 'load') {
-      anyThingBar.initialize();
-      anyThingBar.removeListeners = addListeners(anyThingBar.eventsToElements);
     } 
   }
 
@@ -86,6 +84,15 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
   }
   
   thePurple.registerPart(anyThingBar);
+  
+  anyThingBar.onUnload = (function() {
+      window.removeEventListener('unload', anyThingBar.onUnload, false);
+      anyThingBar.removeListeners();
+  }).bind(anyThingBar);
+  window.addEventListener('unload', anyThingBar.onLoad, false);
+
+   anyThingBar.initialize();
+   anyThingBar.removeListeners = addListeners(anyThingBar.eventsToElements);
   
   function makeListener(selector, handler) {
     handler.selector = selector;
@@ -100,11 +107,11 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       elt.addEventListener(prop, handler, false);
       handler.element = elt;
     });
-    return unlisten(eventHandlers);
+    return makeRemoveListeners(eventHandlers);
   }
   
-  function removeListeners(eventHandlers) {
-    return function() {
+  function makeRemoveListeners(eventHandlers) {
+    return function removeListeners() {
        Object.keys(eventHandlers).forEach(function off(prop) {
          var handler = eventHandlers[prop];
          var elt = handler.element;
