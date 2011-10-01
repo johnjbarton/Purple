@@ -21,7 +21,7 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
                IMG({'id': 'findAnythingIcon', 'class':'findAnythingIcon omniboxLikeLeft', 'src':'../ui/icons/o2_http_query.png'} ),
                DIV({'id':'findAnythingBackground'},
                  INPUT({'id':'findAnythingCompletion', 'value':'.js'}),
-                 DIV({'id':'findAnythingNotify'}, '.js    26 js, 3 css, 1 html, 205 logs'),
+                 DIV({'id':'findAnythingNotify'}, 'Resource and event counts here'),
                  INPUT({'id':'findAnythingInput', 'value':'.js'})
                )
              )
@@ -40,8 +40,8 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
     },
     
     addListeners: function () {
-      var body = document.getElementsByTagName('body')[0];
-      window.addEventListener('resize', this.resize.bind(this), true);
+      window.addEventListener('resize', this.resize, true);
+      
     },
     
     resize: function () {
@@ -59,6 +59,25 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       elt.style.width = availableWidth +"px";
     }
   };
+  
+  
+  
+  function listen(eventSelectorPairs, handlers) {
+    Object.keys(eventSelectorPairs).forEach(function on(prop) {
+      var selector = eventSelectorPairs[prop];
+      var elt = document.querySelector(selector);
+      var handler = handlers[prop];
+      if (!handler.isBound) {
+        handlers[prop] = handler.bind(handlers);
+        handlers[prop].isBound = handler;
+        handler = handlers[prop];
+      }
+      elt.addEventListener(prop, handler, false);
+    });
+  }
+  
+  listen({'resize': 'body'}, anyThingBar);
+  
   
   return anyThingBar;
 });
