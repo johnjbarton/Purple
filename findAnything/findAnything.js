@@ -9,7 +9,6 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
     anyThingBar.initialize = function() {
       this.buildDomplate();
       this.renderDomplate();
-      this.addListeners();
     };
     
     anyThingBar.buildDomplate = function() {
@@ -42,10 +41,6 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       this.resize();
     };
     
-    anyThingBar.addListeners = function () {
-      window.addEventListener('resize', this.resize, true);
-    };
-
     // ------------------------------------------------------------------------
     // Output
     anyThingBar.resize = function () {
@@ -62,13 +57,23 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       var elt =  document.getElementById(id);
       elt.style.width = availableWidth +"px";
     };
+
+
     
     // -------------------------------------------------------------------------
     // Input
+
+    anyThingBar.makeListener = function(selector, handler) {
+      var boundHandler = handler.bind(this);
+      boundHandler.selector = selector;
+      return boundHandler;
+    }
+
     anyThingBar.eventsToElements = {
-      keypress: makeListener('#findAnythingInput', function(event) {
+      keypress: anyThingBar.makeListener('#findAnythingInput', function(event) {
         console.log("findAnything.keypress ", event.charCode);
-      }.bind(anyThingBar)),
+      }),
+      resize: anyThingBar.makeListener(window, anyThingBar.resize),
     };
   
   thePurple.registerPart(anyThingBar);
@@ -82,18 +87,19 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
   anyThingBar.initialize();
   anyThingBar.removeListeners = addListeners(anyThingBar.eventsToElements);
   
-  function makeListener(selector, handler) {
-    handler.selector = selector;
-    return handler;
-  }
-  
   function addListeners(eventHandlers) {
     Object.keys(eventHandlers).forEach(function on(prop) {
       var handler = eventHandlers[prop];
       var selector = handler.selector;
-      var elt = document.querySelector(selector);
-      elt.addEventListener(prop, handler, false);
-      handler.element = elt;
+      if (typeof selector === 'string') {
+        var elt = document.querySelector(selector);
+        elt.addEventListener(prop, handler, false);
+        handler.element = elt;
+      } else {
+        selector.addEventListener(prop, handler, false);
+        handler.element = selector;
+      }
+
     });
     return makeRemoveListeners(eventHandlers);
   }
