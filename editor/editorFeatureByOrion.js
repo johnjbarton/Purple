@@ -290,8 +290,8 @@ dojo.addOnLoad(function(){
 
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  editorFeatureByOrion.featureImplemented = function(feature) {
-    if (feature.name === 'load') {
+  editorFeatureByOrion.partAdded = function(partInfo) {
+    if (partInfo.value === this) {
      var view = editor.getTextView();
      view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
      view.addEventListener("LineStyle", this, this._onLineStyle);
@@ -299,8 +299,8 @@ dojo.addOnLoad(function(){
     }
   };
     
-  editorFeatureByOrion.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
+  editorFeatureByOrion.partRemoved = function(partInfo) {
+    if (partInfo.value === this) {
       thePurple.unimplementFeature('editor', this);
       editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion._onModelChanged, "no data");
       editor.getTextView().removeEventListener("LineStyle", editorFeatureByOrion, editorFeatureByOrion._onLineStyle, "no data");

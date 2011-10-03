@@ -12,20 +12,20 @@
   
   var log__ =  new thePurple.PurplePart('log');  // the __ bit just makes the method names stand out.
   
-  log__.featureImplemented = function(feature) {
-    if (feature.name === 'load') {
+  log__.featureImplemented = function(partInfo) {
+    if (partInfo.value === this) {
       this.messages = [];
-    } else if (feature.name === 'channel') {
-      var channel = feature.implementation;
+    } else if (partInfo.name === 'channel') {
+      var channel = partInfo.implementation;
       channel.registerPart(this);
     }
   };
 
-  log__.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
+  log__.featureUnimplemented = function(partInfo) {
+    if (partInfo.value === this) {
       delete this.messages;
-    } else if (feature.name === 'channel') {
-      var channel = feature.implementation;
+    } else if (partInfo.name === 'channel') {
+      var channel = partInfo.implementation;
       channel.unregisterPart(this);
     }
   };
