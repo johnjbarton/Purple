@@ -44,8 +44,8 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
     
     anyThingBar.addListeners = function () {
       window.addEventListener('resize', this.resize, true);
-      
     };
+
     // ------------------------------------------------------------------------
     // Output
     anyThingBar.resize = function () {
@@ -56,7 +56,6 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       this.setWidth('findAnythingBackground', availableWidth);
       this.setWidth('findAnythingCompletion', availableWidth);
       this.setWidth('findAnythingInput', availableWidth);
-      //this.setWidth('findAnythingNotify', availableWidth);
     };
     
     anyThingBar.setWidth = function(id, availableWidth) {
@@ -72,17 +71,6 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       }.bind(anyThingBar)),
     };
   
-  anyThingBar.featureImplemented = function(feature) {
-    if (feature.name === 'load') {
-    } 
-  }
-
-  anyThingBar.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
-      anyThingBar.removeListeners();
-    } 
-  }
-  
   thePurple.registerPart(anyThingBar);
   
   anyThingBar.onUnload = (function() {
@@ -91,8 +79,8 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
   }).bind(anyThingBar);
   window.addEventListener('unload', anyThingBar.onLoad, false);
 
-   anyThingBar.initialize();
-   anyThingBar.removeListeners = addListeners(anyThingBar.eventsToElements);
+  anyThingBar.initialize();
+  anyThingBar.removeListeners = addListeners(anyThingBar.eventsToElements);
   
   function makeListener(selector, handler) {
     handler.selector = selector;
