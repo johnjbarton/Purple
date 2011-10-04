@@ -74,6 +74,7 @@
     }
   });
   
-  thePurple.Features.registerPart(remote);
+  var Features = thePurple.getPartByName('Features');
+  Features.registerPart(remote);
   
 }());

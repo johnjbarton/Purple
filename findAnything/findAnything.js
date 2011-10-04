@@ -58,8 +58,6 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       elt.style.width = availableWidth +"px";
     };
 
-
-    
     // -------------------------------------------------------------------------
     // Input
 

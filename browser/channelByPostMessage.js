@@ -48,7 +48,7 @@
           channel.source.postMessage(message, channel.origin); 
         };
       }
-      thePurple.implementFeature('channel', channel);
+      channel.features.push('channel');
     }  
     
     function requestPort() {

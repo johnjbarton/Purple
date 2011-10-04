@@ -51,7 +51,8 @@
   
   // Walk the remote API and implement each function to send over channel.
   function buildImplementation() {
-    var remote =  thePurple.Features.getPartByName("remote");
+    var Features = thePurple.getPartByName('Features');
+    var remote =  Features.getPartByName("remote");
     var api = remote.getAPI();
     var domains = Object.keys(api);
     domains.forEach(function buildSend(domain) {
@@ -78,7 +79,8 @@
   
   remote__.setResponseHandlers = function (responseHandlerObject) {
     this.responseHandlerObject = responseHandlerObject;  // {Debugger:{functions}, Console:{functions}}
-    var remote =  thePurple.Features.getPartByName("remote");
+    var Features = thePurple.getPartByName('Features');
+    var remote =  Features.getPartByName("remote");
     var events = remote.getEvents();
     var domainNames = Object.keys(events);
     domainNames.forEach(function buildDomainResponse(domainName) {
@@ -136,11 +138,11 @@
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  remote__.featureImplemented = function(feature) {
-    if (feature.name === 'channel') {
-      this.channel = feature.getImplementation();
+  remote__.partAdded = function(partInfo) {
+    if (partInfo.hasFeature('channel')) {
+      this.channel = partInfo.value;
       buildImplementation();
-	  thePurple.implementFeature('remote', this);
+      this.features.push('remote');
       this.channel.registerPart(this);
 	}
   };
@@ -148,7 +150,6 @@
   remote__.featureUnimplemented = function(feature) {
     if (feature.name === 'channel') {
       this.channel.unregisterPart(this);
-	  thePurple.unimplementFeature('remote', this);
 	  delete this.channel;
 	}
   };
