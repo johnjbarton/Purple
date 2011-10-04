@@ -41,6 +41,6 @@ Dev Install:
   http://wiki.eclipse.org/Orion/How_Tos/Developing_Chrome_extensions_in_Orion
 to purple/chrome/extension directory, but after step 2, unzip the files.
 4. On the chrome://extensions page, under the Purple extension, select 'options'.
-5. Input the URL to purple.html in your clone. On orionhub this will be something like http://orionhub.org/file/XX/purple.html, where XX is a code for your clone.
+5. Input the URL to Purple/index.html in your clone. On orionhub this will be something like http://orionhub.org/file/XX/index.html, where XX is a code for your clone.
 6. Save the URL. 
 7. Right click on a page to see purple in the context menu. 
