@@ -6,6 +6,7 @@
 
 (function () {
   var thePurple = window.purple;
+  var Assembly = thePurple.Assembly;
   
   var remote__ = new thePurple.PurplePart('remote');
   
@@ -109,8 +110,8 @@
   //---------------------------------------------------------------------------------------------
   // Implement ChannelPart
   // 
-
-  remote__.recv = function(message) {
+  remote__.channelPart = {};
+  remote__.channelPart.recv = function(message) {
     console.log("remote.recv", message);
     var data = message.data;
     if (data.source && data.name) {
@@ -143,17 +144,19 @@
       this.channel = partInfo.value;
       buildImplementation();
       this.features.push('remote');
-      this.channel.registerPart(this);
+      this.channel.registerPart(this.channelPart);
 	}
   };
   
   remote__.partRemoved = function(partInfo) {
     if (this.channel && this.channel === partInfo.value) {
-      this.channel.unregisterPart(this);
+      this.channel.unregisterPart(this.channelPart);
 	  delete this.channel;
 	}
   };
 
+  Assembly.addPartContainer(remote__);
+  remote__.implementsFeature('remote');
   thePurple.registerPart(remote__);
 
 }());

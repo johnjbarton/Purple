@@ -12,9 +12,11 @@
 /*jslint devel:true*/
 
 window.purple = window.purple || {};
+var thePurple = window.purple;
+var Assembly = thePurple.Assembly; 
 
 // See org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js  
-window.purple.AnnotationFactory = (function() {
+thePurple.AnnotationFactory = (function() {
   function AnnotationFactory() {
   }
   AnnotationFactory.prototype = {
@@ -82,7 +84,7 @@ window.purple.AnnotationFactory = (function() {
 
 
 // Syntax highlighting is triggered by an editor callback 'lineStyle' event
-window.purple.ErrorStyler = (function () {
+thePurple.ErrorStyler = (function () {
   function ErrorStyler(view) {
 	view.addEventListener("LineStyle", this, this._onLineStyle);
   }
@@ -138,7 +140,7 @@ dojo.addOnLoad(function(){
         if (splits.length > 0) {
           switch(extension) {
             case "js":
-              this.stylers[extension] = new window.purple.ErrorStyler(textView);
+              this.stylers[extension] = new thePurple.ErrorStyler(textView);
               break;
             case "java":
               this.stylers[extension] = new examples.textview.TextStyler(textView, "java");
@@ -156,7 +158,7 @@ dojo.addOnLoad(function(){
     }
   };
   
-  var annotationFactory = new window.purple.AnnotationFactory();
+  var annotationFactory = new thePurple.AnnotationFactory();
 
   function save(editor) {
     editor.onInputChange(null, null, null, true);
@@ -222,9 +224,8 @@ dojo.addOnLoad(function(){
   
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
-  var thePurple = window.purple;
   
-  var editorFeatureByOrion = new thePurple.PurplePart('editor');
+  var editorFeatureByOrion = new thePurple.PurplePart('editorByOrion');
   
   //--------------------------------------------------------------------------------------------------------
   // Implement features.editor
@@ -329,6 +330,8 @@ dojo.addOnLoad(function(){
       event.ranges = this.tokenStyles;
   };
   
+  Assembly.addPartContainer(editorFeatureByOrion);
+  editorFeatureByOrion.implementsFeature('editor');
   thePurple.registerPart(editorFeatureByOrion);
   
   window.onbeforeunload = function() {
