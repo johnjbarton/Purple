@@ -48,22 +48,6 @@
     }
   }
 
-  //------------------------------------------------------------------------------------
-  // Implement PurplePart
   
-  var partUI__ =  new thePurple.PurplePart('partUI');  // the __ bit just makes the method names stand out.
-  
-  partUI__.featureImplemented = function(feature) {
-    if (feature.name === 'load') {
-      listenToButtons();
-    }
-  };
-
-  partUI__.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
-    }  
-  };
-  
-  thePurple.registerPart(partUI__);
   
 }());
