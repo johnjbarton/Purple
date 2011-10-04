@@ -295,7 +295,6 @@ dojo.addOnLoad(function(){
      var view = editor.getTextView();
      view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
      view.addEventListener("LineStyle", this, this._onLineStyle);
-     thePurple.implementFeature('editor', this);
     }
   };
     

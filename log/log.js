@@ -12,7 +12,7 @@
   
   var log__ =  new thePurple.PurplePart('log');  // the __ bit just makes the method names stand out.
   
-  log__.featureImplemented = function(partInfo) {
+  log__.partAdded = function(partInfo) {
     if (partInfo.value === this) {
       this.messages = [];
     } else if (partInfo.name === 'channel') {
@@ -21,7 +21,7 @@
     }
   };
 
-  log__.featureUnimplemented = function(partInfo) {
+  log__.partRemoved = function(partInfo) {
     if (partInfo.value === this) {
       delete this.messages;
     } else if (partInfo.name === 'channel') {

@@ -13,16 +13,16 @@
   
   var filter__ =  new thePurple.PurplePart('logFilter');  // the __ bit just makes the method names stand out.
   
-  filter__.featureImplemented = function(feature) {
-    if (feature.name === 'log') {
+  filter__.partAdded = function(partInfo) {
+    if (partInfo.value.hasFeature('log')) {
       this.filteredMessages = [];
-      this.sourceLog = feature.implementation;
+      this.sourceLog = partInfo.value;
       this.sourceLog.registerPart(this);
     } 
   };
 
-  filter__.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
+  filter__.partRemoved = function(partInfo) {
+    if (this.sourceLog && this.sourceLog === partInfo.value) {
       delete this.filteredMessages;
       delete this.sourceLog;
     } 

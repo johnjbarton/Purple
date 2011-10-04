@@ -24,17 +24,17 @@
   
   var logViewport__ =  new thePurple.PurplePart('log');  // the __ bit just makes the method names stand out.
   
-  logViewport__.featureImplemented = function(feature) {
-    if (feature.name === 'logFilter') {
+  logViewport__.partAdded = function(partInfo) {
+    if (partInfo.value.hasFeature('logFilter')) {
       this.messagesInViewport = [];
-      this.sourceLog = feature.implementation;
+      this.sourceLog = partInfo.value;
       this.initializeUI();
       this.update();
     } 
   };
 
-  logViewport__.featureUnimplemented = function(feature) {
-    if (feature.name === 'logFilter') {
+  logViewport__.partRemoved = function(partInfo) {
+    if (this.sourceLog && this.sourceLog === partInfo.value) {
       delete this.messagesInViewport;
     } 
   };

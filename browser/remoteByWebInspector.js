@@ -139,7 +139,7 @@
   // Implement PurplePart
   
   remote__.partAdded = function(partInfo) {
-    if (partInfo.hasFeature('channel')) {
+    if (partInfo.value.hasFeature('channel')) {
       this.channel = partInfo.value;
       buildImplementation();
       this.features.push('remote');
@@ -147,8 +147,8 @@
 	}
   };
   
-  remote__.featureUnimplemented = function(feature) {
-    if (feature.name === 'channel') {
+  remote__.partRemoved = function(partInfo) {
+    if (this.channel && this.channel === partInfo.value) {
       this.channel.unregisterPart(this);
 	  delete this.channel;
 	}

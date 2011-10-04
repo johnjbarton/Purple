@@ -21,7 +21,8 @@
 	    ],
     },
   });
-  
-  thePurple.Features.registerPart(compiler);
+
+  var Features = thePurple.getPartByName('Features');  
+  Features.registerPart(compiler);
   
 }());
