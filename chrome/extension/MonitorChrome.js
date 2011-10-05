@@ -122,9 +122,10 @@ ProxyPoster.prototype = {
 //---------------------------------------------------------------------------------------
 // WebNavigation http://code.google.com/chrome/extensions/dev/experimental.webNavigation.html
 
+var chromeWebNavigation = chrome.experimental.webNavigation || chrome.webNavigation;
 
 var WebNavigation = MonitorChrome.WebNavigation = {
-   events: Object.keys(chrome.experimental.webNavigation) // all for now
+   events: Object.keys(chromeWebNavigation) // all for now
 };
 
 WebNavigation.onEvent = function(proxy, name, details) {
@@ -140,7 +141,7 @@ WebNavigation.hookWebNavigation = function(proxy) {
 WebNavigation.connect = function() {
   this.events.forEach(function addListeners(event) {
     if (event[0] === 'o' && event[1] === 'n') {
-      chrome.experimental.webNavigation[event].addListener(WebNavigation[event].bind(WebNavigation));
+      chromeWebNavigation[event].addListener(WebNavigation[event].bind(WebNavigation));
     }
   });
 };
