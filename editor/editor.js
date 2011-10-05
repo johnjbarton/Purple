@@ -3,8 +3,9 @@
 
 (function () {
   var thePurple = window.purple;
+  var Feature = thePurple.Feature;
   
-  var editor = new thePurple.Feature({
+  var editor = thePurple.extend(Object.create(Feature.methods), {
     name: "editor",
     api: {
       //-------------------
@@ -25,7 +26,7 @@
       // endDamage: last pos of change in *old* buffer 
       _sourceChange: function(name, src, startDamage, endDamage) {}
 
-    },
+    }
   });
   
   var Features = thePurple.getPartByName('Features');
