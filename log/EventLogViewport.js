@@ -3,7 +3,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-(function() {
+define([], function() {
   
   'use strict';
   var thePurple = window.purple;
@@ -22,10 +22,10 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var logViewport__ =  new thePurple.PurplePart('log');  // the __ bit just makes the method names stand out.
+  var EventLogViewport =  new thePurple.PurplePart('EventLogViewport');  // 
   
-  logViewport__.partAdded = function(partInfo) {
-    if (partInfo.value.hasFeature('logFilter')) {
+  EventLogViewport.partAdded = function(partInfo) {
+    if (partInfo.value.hasFeature('')) {
       this.messagesInViewport = [];
       this.sourceLog = partInfo.value;
       this.initializeUI();
@@ -33,30 +33,30 @@
     } 
   };
 
-  logViewport__.partRemoved = function(partInfo) {
+  EventLogViewport.partRemoved = function(partInfo) {
     if (this.sourceLog && this.sourceLog === partInfo.value) {
       delete this.messagesInViewport;
     } 
   };
   
-  thePurple.registerPart(logViewport__);
+  thePurple.registerPart(EventLogViewport);
   
   // -----------------------------------------------------------------------------------
-  logViewport__.initializeUI = function () {
+  EventLogViewport.initializeUI = function () {
     var logElement = document.getElementById('log');
     logElement.style.overflowY = 'scroll';
   };
 
-  logViewport__.dataAppended = function(data) {
+  EventLogViewport.dataAppended = function(data) {
     // if the viewport is looking at the bottom
     this.update();
   };
   
-  logViewport__.update = function() {
+  EventLogViewport.update = function() {
   
   };
   
-  logViewport__.render = function(data) {
+  EventLogViewport.render = function(data) {
     if (data.source) {
       var renderer = Renderer[data.source];
       if (renderer) {
@@ -69,4 +69,6 @@
     }
   };
   
-}());
+  return EventLogViewport;
+  
+});
