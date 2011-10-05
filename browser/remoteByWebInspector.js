@@ -110,7 +110,7 @@
   //---------------------------------------------------------------------------------------------
   // Implement ChannelPart
   // 
-  remote__.channelPart = {};
+  remote__.channelPart = new thePurple.PurplePart('remoteByWebInspectorChannelPart');
   remote__.channelPart.recv = function(message) {
     console.log("remote.recv", message);
     var data = message.data;
