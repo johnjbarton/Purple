@@ -1,0 +1,31 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../ui/part.css" />
+<link rel="stylesheet" type="text/css" href="findAnything.css" />
+<script>
+window.purple = window.parent.purple;
+var thePurple = window.purple;
+if (typeof require !== "undefined") {
+  debugger;
+}
+</script>
+<script type="text/javascript" src="../lib/requirejs/require.js"></script>
+<script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
+
+<script>
+  window.addEventListener('load', function() {
+    console.log("load findAnything iframe");
+  }, false);
+
+require(['findAnything'], function init(findAnything) {
+    console.log("findAnything compiled");
+
+});
+</script>
+</head>
+<body>
+<div id="search">
+No resources
+</div>
+</body>
+</html>

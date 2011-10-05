@@ -28,6 +28,7 @@
     },
   });
   
-  thePurple.Features.registerPart(editor);
+  var Features = thePurple.getPartByName('Features');
+  Features.registerPart(editor);
   
 }());

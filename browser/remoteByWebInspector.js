@@ -6,6 +6,7 @@
 
 (function () {
   var thePurple = window.purple;
+  var Assembly = thePurple.Assembly;
   
   var remote__ = new thePurple.PurplePart('remote');
   
@@ -51,7 +52,8 @@
   
   // Walk the remote API and implement each function to send over channel.
   function buildImplementation() {
-    var remote =  thePurple.Features.getPartByName("remote");
+    var Features = thePurple.getPartByName('Features');
+    var remote =  Features.getPartByName("remote");
     var api = remote.getAPI();
     var domains = Object.keys(api);
     domains.forEach(function buildSend(domain) {
@@ -78,7 +80,8 @@
   
   remote__.setResponseHandlers = function (responseHandlerObject) {
     this.responseHandlerObject = responseHandlerObject;  // {Debugger:{functions}, Console:{functions}}
-    var remote =  thePurple.Features.getPartByName("remote");
+    var Features = thePurple.getPartByName('Features');
+    var remote =  Features.getPartByName("remote");
     var events = remote.getEvents();
     var domainNames = Object.keys(events);
     domainNames.forEach(function buildDomainResponse(domainName) {
@@ -107,8 +110,8 @@
   //---------------------------------------------------------------------------------------------
   // Implement ChannelPart
   // 
-
-  remote__.recv = function(message) {
+  remote__.channelPart = {};
+  remote__.channelPart.recv = function(message) {
     console.log("remote.recv", message);
     var data = message.data;
     if (data.source && data.name) {
@@ -136,23 +139,24 @@
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  remote__.featureImplemented = function(feature) {
-    if (feature.name === 'channel') {
-      this.channel = feature.getImplementation();
+  remote__.partAdded = function(partInfo) {
+    if (partInfo.value.hasFeature('channel')) {
+      this.channel = partInfo.value;
       buildImplementation();
-	  thePurple.implementFeature('remote', this);
-      this.channel.registerPart(this);
+      this.features.push('remote');
+      this.channel.registerPart(this.channelPart);
 	}
   };
   
-  remote__.featureUnimplemented = function(feature) {
-    if (feature.name === 'channel') {
-      this.channel.unregisterPart(this);
-	  thePurple.unimplementFeature('remote', this);
+  remote__.partRemoved = function(partInfo) {
+    if (this.channel && this.channel === partInfo.value) {
+      this.channel.unregisterPart(this.channelPart);
 	  delete this.channel;
 	}
   };
 
+  Assembly.addPartContainer(remote__);
+  remote__.implementsFeature('remote');
   thePurple.registerPart(remote__);
 
 }());

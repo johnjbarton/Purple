@@ -13,15 +13,19 @@
   
   var Manager__ =  new thePurple.PurplePart('viewManager');  // the __ bit just makes the method names stand out.
   
-  Manager__.featureImplemented = function(feature) {
-    if (feature.name === 'load') {
+  Manager__.addListeners = function() {
       this.setBoxSizes();
       window.addEventListener('resize', Manager__.setBoxSizes, true);
+  };
+  
+  Manager__.partAdded = function(partInfo) {
+    if (partInfo.value === this) {
+      window.addEventListener('load', Manager__.addListeners.bind(this), false);
     }
   };
 
-  Manager__.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
+  Manager__.partRemoved = function(partInfo) {
+    if (partInfo.value === this) {
       window.removeEventListener('resize', Manager__.setBoxSizes, true);
     }
   };

@@ -1,0 +1,101 @@
+/* See license.txt, BSD
+   Copyright 2011 Google, Inc. author: johnjbarton@google.com
+*/
+
+.purpleToolbar {
+  background-color: gray;  /* fallback color if gradients are not supported */
+
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#E0E0E0)); 
+  background-image: -webkit-linear-gradient(top, #FFFFFF, #E0E0E0); 
+  background-image:    -moz-linear-gradient(top, #FFFFFF, #E0E0E0); 
+  background-image:     -ms-linear-gradient(top, #FFFFFF, #E0E0E0); 
+  background-image:      -o-linear-gradient(top, #FFFFFF, #E0E0E0); 
+  background-image:         linear-gradient(top, #FFFFFF, #E0E0E0); /* standard, but currently unimplemented */
+  padding: 5px;
+  overflow: hidden;
+}
+
+.purpleToolbar > * { /* Any thing in the toolbar */
+  height: 24px;
+  padding 5px;
+}
+
+.omniboxLikeLeft {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.omniboxLikeRight {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px; 
+}
+
+.omniboxLike {
+  border: 1px solid #bcbcbc;
+  box-shadow: inset 0 1px #f2f2f2;
+  border-bottom: 2px groove;
+  font-size: 13px;
+  background-color: white;
+  height: 24px;
+}
+
+.omniboxLike input, div {
+  height: 24px;
+  font-size: 13px;
+  border-style: none;
+  padding 2px;
+}
+#findAnything {
+   position: relative; /* establish a container for positioning */
+}
+
+.findAnythingIcon {
+  width: 24px;
+}
+
+.findAnythingIcon > img { /* Where page actions live */
+  height: 16px;
+  width: 16px;
+}
+
+#findAnythingBackground {
+  height: 24px;
+  position: absolute; /* within container findAnything */
+  left: 24px;         /* must be with of findAnythingIcon */
+  bottom: 0px;
+}
+
+#findAnythingBackground input {
+  position: absolute;
+}
+#findAnythingCompletion {
+  z-index: 1;
+  color: silver;
+}
+
+div#findAnythingNotify {
+  position: absolute;
+  right: 0px;
+  bottom: -5px; /* I believe this is (24px - 13px)/2 == (height - fontsize)/2 */
+  z-index: 2;
+  color: silver;
+}
+
+input#findAnythingInput {
+  z-index: 3; /* must be on top to get the input events */
+  background: none repeat scroll 0% 0% transparent; /* Let the completion/notification show through */
+}
+
+input#findAnythingInput:focus {
+  outline: none;
+}
+
+
+.purpleButton {
+  border-radius: 5px;
+}
+.purpleButton > img { /* where browser actions live */
+  height: 19px;
+  width: 19px;
+}
+  

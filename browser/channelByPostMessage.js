@@ -8,7 +8,6 @@
   var thePurple = window.purple; 
   var Assembly = thePurple.Assembly;
   var channel__ = new thePurple.PurplePart('channel');
-  
 
   Assembly.addPartContainer(channel__);  
   
@@ -49,7 +48,7 @@
           channel.source.postMessage(message, channel.origin); 
         };
       }
-      thePurple.implementFeature('channel', channel);
+      channel.features.push('channel');
     }  
     
     function requestPort() {
@@ -76,9 +75,8 @@
   
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  channel__.featureImplemented = function(feature) {
-    console.log("channel featureImplement called with feature", feature);
-    if (feature.name === 'load') {
+  channel__.partAdded = function(addedPartInfo) {
+    if (addedPartInfo.value === this) {
       this.protocolName ='IAmPurple';
       this.version = 1;
       console.log("Calling Browser.connect");
@@ -86,12 +84,13 @@
     }
   };
 
-  channel__.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
+  channel__.partRemoved = function(addedPartInfo) {
+    if (addedPartInfo === this) {
       Browser.disconnect(this);
     }
   };
   
+  channel__.implementsFeature('channel');
   thePurple.registerPart(channel__);
   
 }());

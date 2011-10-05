@@ -49,6 +49,9 @@ html, body, iframe {
   display: block;
 }
 
+#searchIframe {
+  height: 34px; /* 24px bar plus 5px border; this value should be pumped up from iframe */
+}
 
 #poweredBy > * {
   background-color: #642d8b;

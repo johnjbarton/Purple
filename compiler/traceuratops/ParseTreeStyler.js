@@ -12,7 +12,8 @@ var thePurple = window.purple;
 thePurple.ParseTreeStyler = (function() {
   'use strict';
   
-  var TokenTypes = thePurple.Features.getPartByName('compiler').api.TokenTypes;
+  var Features = thePurple.getPartByName('Features');
+  var TokenTypes = Features.getPartByName('compiler').api.TokenTypes;
   var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
   
   function ParseTreeStyler(tree) {

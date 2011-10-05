@@ -16,6 +16,7 @@
 <!-- Purple-integration -->
         <script type="text/javascript" src="lib/purple.js"></script>
         <script type="text/javascript" src="lib/Assembly.js"></script>
+        <script type="text/javascript" src="lib/part.js"></script>
         <script type="text/javascript" src="lib/models.js"></script>
         <script type="text/javascript" src="lib/features.js"></script>
         <script type="text/javascript" src="browser/channel.js"></script>
@@ -32,25 +33,18 @@
         <script type="text/javascript" src="ui/viewManager.js"></script>
         <script type="text/javascript" src="ui/part.js"></script>
         <script type="text/javascript" src="log/js/JavaScriptEventHandler.js"></script>
+        <script type="text/javascript" src="lib/requirejs/require.js"></script>
+        <script type="text/javascript" src="lib/requirejs/require-debug.js"></script>
 </head>
 <body>
 <div id="purpleRoot" class="purpleVBox">
  <div id='purpleTop' class='purpleHBox'>
-   <span id='purpleControl' class='purpleCell'>
-     Purple
-   </span>
-   <span id='log.button' class='purpleCell purpleButton'>
-     <span class="nls" id='log.description'>Log</span>
-     <span id='log.total'>0</span>
-   </span>
-   <span id='resources.button' class='purpleCell purpleButton'>
-     <span class="nls" id='resources.description'>Resources</span>
-     <span id='resources.total'>0</span>
-   </span>
+   <div id='purpleControl' class='purpleCell'>
+        <iframe seamless class="purplePart displayedPurple" id="searchIframe" src="findAnything/index.html"></iframe>
+   </div>
  </div>
  <div class="purpleHBox" data-flexible="100">
    <div class='purpleCell'>
-     <iframe seamless class="purplePart" id="resources.iframe" src="resources/index.html"></iframe>
      <iframe seamless class="purplePart tippedPurple" id="log.iframe" src="log/index.html"></iframe>
    </div>
  </div>
