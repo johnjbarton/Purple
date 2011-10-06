@@ -10,20 +10,14 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
   
   var eventLogViewAssembly = new thePurple.PurplePart('eventLogViewAssembly'); 
   
-  eventLogViewAssembly.partAdded = function (partInfo) {
-    if (partInfo.value === log) {
-      log.registerPart(filter);
-    } else if (partInfo.value === filter) {
-      filter.registerPart(viewport);
-    }
+  eventLogViewAssembly.initialize = function () {
+      log.connect(filter);
+      filter.connect(viewport);
   };
   
-  eventLogViewAssembly.partRemoved = function(partInfo) {
-    if (partInfo.value === log) {
-      log.unregisterPart(filter);
-    } else if (partInfo.value === filter) {
-      filter.unregisterPart(viewport);
-    }
+  eventLogViewAssembly.partRemoved = function() {
+      log.disconnect(filter);
+      filter.disconnect(viewport);
   };
 
   thePurple.registerPart(eventLogViewAssembly);

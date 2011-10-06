@@ -17,18 +17,14 @@ define([], function() {
 
   // Filters will be parts of logs
   
-  filter.partAdded = function(partInfo) {
-    if (partInfo.value === this) {
+  filter.connect = function(eventLog) {
       this.filteredMessages = [];
-      this.sourceLog = partInfo.assembly;  // upstream
-    } 
+      this.sourceLog = eventLog;  // upstream
   };
 
-  filter.partRemoved = function(partInfo) {
-    if (partInfo.value === this) {
+  filter.disconnect = function(eventLog) {
       delete this.filteredMessages;
       delete this.sourceLog;
-    } 
   };
   
   // -----------------------------------------------------------------------------------

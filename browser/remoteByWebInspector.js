@@ -8,9 +8,9 @@
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
-  var remote__ = new thePurple.PurplePart('remote');
+  var remoteByWebInspector = new thePurple.PurplePart('remote');
   
-  remote__.jsonHandlers = {}; // by domain and function name
+  remoteByWebInspector.jsonHandlers = {}; // by domain and function name
   
   // A left paren ( followed by any not-right paren ) followed by right paren
   var reParamList = /\(([^\)]*)\)/; 
@@ -57,16 +57,16 @@
     var api = remote.getAPI();
     var domains = Object.keys(api);
     domains.forEach(function buildSend(domain) {
-      remote__[domain] = {};
+      remoteByWebInspector[domain] = {};
       var methods = Object.keys(api[domain]);
       methods.forEach(function buildMethod(method) {
         var paramNames = getParamsFromAPI(api[domain][method]);
-        remote__[domain][method] = makeSendRemoteCommand(remote__.channel, domain, method, paramNames);
+        remoteByWebInspector[domain][method] = makeSendRemoteCommand(remoteByWebInspector.channel, domain, method, paramNames);
       });
     });
   }
 
-  remote__.reParameters = /\(([^\)]*)\)/;
+  remoteByWebInspector.reParameters = /\(([^\)]*)\)/;
 
   function marshallForHandler(handler) {
     return function (objFromJSON) {
@@ -78,30 +78,30 @@
     };
   }
   
-  remote__.setResponseHandlers = function (responseHandlerObject) {
+  remoteByWebInspector.setResponseHandlers = function (responseHandlerObject) {
     this.responseHandlerObject = responseHandlerObject;  // {Debugger:{functions}, Console:{functions}}
     var Features = thePurple.getPartByName('Features');
     var remote =  Features.getPartByName("remote");
     var events = remote.getEvents();
     var domainNames = Object.keys(events);
     domainNames.forEach(function buildDomainResponse(domainName) {
-      remote__.jsonHandlers[domainName] = {};
+      remoteByWebInspector.jsonHandlers[domainName] = {};
       var handlerNames = Object.keys(events[domainName]);
       handlerNames.forEach(function buildHandler(handlerName) {
         var handlerSpec = events[domainName][handlerName]; // an empty function
         var handler = responseHandlerObject[domainName][handlerName];  // implementation function of
         if (!handler) {
           console.trace("remoteByWebInspector");
-          console.error("remoteByWebInspector, no handler for "+domainName+"."+handlerName, remote__);
+          console.error("remoteByWebInspector, no handler for "+domainName+"."+handlerName, remoteByWebInspector);
           throw new Error("remoteByWebInspector, no handler for "+domainName+"."+handlerName);
         }
-        var m = remote__.reParameters.exec(handlerSpec.toString());
+        var m = remoteByWebInspector.reParameters.exec(handlerSpec.toString());
         var params = m[1].split(',');
         handler.parameters = [];
         for (var i = 0; i < params.length; i++) {
           handler.parameters[i] = params[i].trim();
         }
-        remote__.jsonHandlers[domainName][handlerName] = marshallForHandler(handler);
+        remoteByWebInspector.jsonHandlers[domainName][handlerName] = marshallForHandler(handler);
       });
     });
   };
@@ -110,8 +110,8 @@
   //---------------------------------------------------------------------------------------------
   // Implement ChannelPart
   // 
-  remote__.channelPart = new thePurple.PurplePart('remoteByWebInspectorChannelPart');
-  remote__.channelPart.recv = function(message) {
+  remoteByWebInspector.channelPart = new thePurple.PurplePart('remoteByWebInspectorChannelPart');
+  remoteByWebInspector.channelPart.recv = function(message) {
     console.log("remote.recv", message);
     var data = message.data;
     if (data.source && data.name) {
@@ -123,9 +123,9 @@
         var method = handlers[methodName];
         if (method) {
           try {
-            var objFromJSON = data.params
+            var objFromJSON = data.params;
             if (typeof(objFromJSON) === 'string') {
-            	objFromJSON = JSON.parse(data.params);
+              objFromJSON = JSON.parse(data.params);
             }
             method.apply(null, [objFromJSON]);
           } catch(exc) {
@@ -139,24 +139,20 @@
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  remote__.partAdded = function(partInfo) {
-    if (partInfo.value.hasFeature('channel')) {
-      this.channel = partInfo.value;
-      buildImplementation();
-      this.features.push('remote');
-      this.channel.registerPart(this.channelPart);
-	}
+  remoteByWebInspector.connect = function(channel) {
+    this.channel = channel;
+    buildImplementation();
+    this.channel.registerPart(this.channelPart);
   };
   
-  remote__.partRemoved = function(partInfo) {
-    if (this.channel && this.channel === partInfo.value) {
+  remoteByWebInspector.disconnect = function(channel) {
+    if (this.channel && this.channel === channel) {
       this.channel.unregisterPart(this.channelPart);
-	  delete this.channel;
-	}
+      delete this.channel;
+    }
   };
 
-  Assembly.addPartContainer(remote__);
-  remote__.implementsFeature('remote');
-  thePurple.registerPart(remote__);
+  Assembly.addPartContainer(remoteByWebInspector);
+  thePurple.registerPart(remoteByWebInspector);
 
 }());

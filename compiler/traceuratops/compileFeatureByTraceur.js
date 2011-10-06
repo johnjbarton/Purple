@@ -194,39 +194,33 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var compiler__ =  new thePurple.PurplePart('compilerByTraceur');  // the __ bit just makes the method names stand out.
+  var compilerFeatureByTraceur =  new thePurple.PurplePart('compilerByTraceur'); 
     
-  compiler__.partAdded = function(partInfo){
-    if (partInfo.value.hasFeature('editor')) {
-      this.editorPart.setEditor(partInfo.value);
-    }
+  compilerFeatureByTraceur.connect = function(editor){
+    this.editorPart.editor = editor;
+    editor.setContent("purpleDemo.js", "purple");
+    editor.registerPart(this.editorPart);
   }
   
-  compiler__.partRemoved = function(partInfo) {
-    if (this.editor && partInfo.value === this.editor) {
-        this.editor.unregisterPart(this.editorPart);
+  compilerFeatureByTraceur.disconnect = function(editor) {
+    if (this.editorPart.editor && editor === this.editorPart.editor) {
+        editor.unregisterPart(this.editorPart);
+        delete this.editorPart.editor;
     }
   };
   
   // -----------------------------------------------------------------------------------
   // From editor
-  compiler__.editorPart = new thePurple.PurplePart("compilerByTraceur");
+  compilerFeatureByTraceur.editorPart = new thePurple.PurplePart("compilerByTraceur");
 
-  compiler__.editorPart.setEditor = function(editor) {
-    this.editor = editor;
-    this.editor.setContent("purpleDemo.js", "purple");
-    this.editor.registerPart(this);
-  };
-  
-
-  compiler__.editorPart.onSourceChange = function(name, src, startDamage, endDamage) {
+  compilerFeatureByTraceur.editorPart.onSourceChange = function(name, src, startDamage, endDamage) {
     if (src) {
-      var res = compiler__.compile(name, src);
+      var res = compilerFeatureByTraceur.compile(name, src);
       if (res) {
         var value = evaluate(res);
-        this.editor.showValue(value, 1, 1);
+        compilerFeatureByTraceur.editorPart.editor.showValue(value, 1, 1);
       } else {
-        var indicators = compiler__.reporter.errorIndicators;
+        var indicators = compilerFeatureByTraceur.reporter.errorIndicators;
         var summary;
         indicators.forEach(function summarizeErrors(indicator) {
           if (!summary)  {
@@ -237,7 +231,7 @@
     	        summary.token += indicator.token;
         	  } // else first one wins
         	} else {
-        	  this.editor.reportError(summary);
+        	  compilerFeatureByTraceur.editorPart.editor.reportError(summary);
         	}
           }
         });
@@ -247,11 +241,11 @@
     // else ignore empty buffers
   };
   
-  compiler__.editorPart.onLineRevealed = function(name, beginLine, endLine, tokenStyles) {
+  compilerFeatureByTraceur.editorPart.onLineRevealed = function(name, beginLine, endLine, tokenStyles) {
     var tokenRanges = [];
-    if (compiler__.compiler) {
-       var file = compiler__.compiler.project_.getFile(name)
-       var tree = compiler__.compiler.project_.getParseTree(file);
+    if (compilerFeatureByTraceur.compiler) {
+       var file = compilerFeatureByTraceur.compiler.project_.getFile(name)
+       var tree = compilerFeatureByTraceur.compiler.project_.getParseTree(file);
        var path = thePurple.ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
        if (path && path.length) {
          var treeAtIndex = path.pop();
@@ -263,27 +257,28 @@
   }
   
   //--------------------------------------------------------------------------------------
-  compiler__.compile = function(name, src) {
+  compilerFeatureByTraceur.compile = function(name, src) {
     
     var project = new traceur.semantics.symbols.Project();
     var contents = src;
     var sourceFile = new traceur.syntax.SourceFile(name, contents);
     project.addFile(sourceFile);
 
-    compiler__.reporter = new traceur.util.ErrorReporter();
-    compiler__.reporter.reportMessageInternal = reportToPurple;
-    compiler__.compiler = new traceur.codegeneration.Compiler(compiler__.reporter, project);
-    compiler__.compiler.parseFile_(sourceFile);
-    compiler__.compiler.analyzeFile_(sourceFile);
-    compiler__.compiler.transformFile_(sourceFile);
+    compilerFeatureByTraceur.reporter = new traceur.util.ErrorReporter();
+    compilerFeatureByTraceur.reporter.reportMessageInternal = reportToPurple;
+    compilerFeatureByTraceur.compiler = new traceur.codegeneration.Compiler(compilerFeatureByTraceur.reporter, project);
+    compilerFeatureByTraceur.compiler.parseFile_(sourceFile);
+    compilerFeatureByTraceur.compiler.analyzeFile_(sourceFile);
+    compilerFeatureByTraceur.compiler.transformFile_(sourceFile);
 
-    if (compiler__.compiler.hadError_()) {
+    if (compilerFeatureByTraceur.compiler.hadError_()) {
       return null;
     }
-    return compiler__.compiler.results_;
+    return compilerFeatureByTraceur.compiler.results_;
   };
 
-  compiler__.implementsFeature('compiler');
-  thePurple.registerPart(compiler__);
+  compilerFeatureByTraceur.implementsFeature('compiler');
+  thePurple.registerPart(compilerFeatureByTraceur);
 
-})();
+  return compilerFeatureByTraceur;
+}());

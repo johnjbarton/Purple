@@ -75,22 +75,17 @@
   
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  channel__.partAdded = function(addedPartInfo) {
-    if (addedPartInfo.value === this) {
+  channel__.initialize = function() {
       this.protocolName ='IAmPurple';
       this.version = 1;
       console.log("Calling Browser.connect");
       Browser.connect(this);
-    }
   };
 
-  channel__.partRemoved = function(addedPartInfo) {
-    if (addedPartInfo === this) {
+  channel__.destroy = function() {
       Browser.disconnect(this);
-    }
   };
   
-  channel__.implementsFeature('channel');
   thePurple.registerPart(channel__);
   
 }());

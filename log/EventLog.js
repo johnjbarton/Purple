@@ -11,40 +11,40 @@ define([], function() {
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var EventLog =  new thePurple.PurplePart('EventLog');  // the __ bit just makes the method names stand out.
+  var EventLog =  new thePurple.PurplePart('EventLog'); 
   
-  EventLog.partAdded = function(partInfo) {
-    if (partInfo.value === this) {
+  EventLog.initialize = function() {
       this.messages = [];
       this.sources = {};
       this.sinks = {};
       Assembly.addPartContainer(this.sinks);
-    } else if (partInfo.value.hasFeature('EventSource')) {
-      this.sources[partInfo.value.getName()] = partInfo.value;
-      partInfo.value.addListener(this.recv);
-    }
+  };
+  
+  EventLog.connect = function(eventSource) {
+      this.sources[eventSource.name] = eventSource;
+      eventSource.addListener(this.recv);
   };
 
-  EventLog.partRemoved = function(partInfo) {
-    if (partInfo.value === this) {
-      delete this.messages;
-    } else if (partInfo.name === 'channel') {
-      var channel = partInfo.implementation;
-      channel.unregisterPart(this);
-    }
+  EventLog.disconnect = function(eventSource) {
+      eventSource.removeListener(this.recv);
   };
+
+  EventLog.destroy = function() {
+      delete this.messages;
+  }; 
   
   thePurple.registerPart(EventLog);
   
   // -----------------------------------------------------------------------------------
-   EventLog.recv = function(event) {
-     this.messages.push(event.data);
-     this.sinks.toEachPart('appendData', [event.data]);
-   }.bind(EventLog);
-   
-   EventLog.forEachEvent = function(fncOfData) {
-     return this.messages.forEach(fncOfData);
-   };
+  //
+  EventLog.recv = function(event) {
+    this.messages.push(event.data);
+    this.sinks.toEachPart('appendData', [event.data]);
+  }.bind(EventLog);
   
-   return EventLog;
+  EventLog.forEachEvent = function(fncOfData) {
+    return this.messages.forEach(fncOfData);
+  };
+  
+  return EventLog;
 }());

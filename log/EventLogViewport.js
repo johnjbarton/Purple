@@ -24,17 +24,18 @@ define([], function() {
   
   var EventLogViewport =  new thePurple.PurplePart('EventLogViewport');  // 
   
-  EventLogViewport.partAdded = function(partInfo) {
-    if (partInfo.value.hasFeature('')) {
-      this.messagesInViewport = [];
-      this.sourceLog = partInfo.value;
+  EventLogViewport.initialize = function() {
+    this.messagesInViewport = [];
+  }
+    
+  EventLogViewport.connect = function(eventLog) {
+      this.sourceLog = eventLog
       this.initializeUI();
       this.update();
-    } 
   };
 
-  EventLogViewport.partRemoved = function(partInfo) {
-    if (this.sourceLog && this.sourceLog === partInfo.value) {
+  EventLogViewport.disconnect = function(eventLog) {
+    if (this.sourceLog && this.sourceLog === eventLog) {
       delete this.messagesInViewport;
     } 
   };
