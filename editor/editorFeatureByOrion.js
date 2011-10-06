@@ -11,77 +11,11 @@
 /*global eclipse:true orion:true dojo window*/
 /*jslint devel:true*/
 
+define(['annotationFactory'], function(annotationFactory){
+
 window.purple = window.purple || {};
 var thePurple = window.purple;
 var Assembly = thePurple.Assembly; 
-
-// See org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js  
-thePurple.AnnotationFactory = (function() {
-  function AnnotationFactory() {
-  }
-  AnnotationFactory.prototype = {
-    createAnnotationRulers: function() {
-      var rulerStyle = {'class': 'purple_annotation', style: { backgroundColor: "#ffffff", width: '240px', lineHeight: '17px' }};
-      // "Every ruler div has one extra div at the top (firstChild before any lines). 
-      // This div is used to determine the width of the ruler.' Silenio Quarti on orion-dev
-      var minusOneAnnotation = {html: "<a>undefined <img> src='/images/problem.gif'></img></a>", style: rulerStyle};
-      this.annotationRuler = new orion.textview.AnnotationRuler("left", rulerStyle, minusOneAnnotation);
-      var overviewStyle = {style: {backgroundColor: '#FFFFFF'}};
-      this.overviewRuler = new orion.textview.OverviewRuler("right", overviewStyle, this.annotationRuler);
-      return {annotationRuler: this.annotationRuler, overviewRuler: this.overviewRuler};
-    },
-
-    _showAnnotation: function(data, createAnnotation) {
-      var ruler = this.annotationRuler;
-      if (!ruler) {
-        return;
-      }
-      ruler.clearAnnotations();
-      var annotation = createAnnotation(data);
-      ruler.setAnnotation(annotation.line - 1, annotation);
-    },
-    
-    createErrorAnnotation: function(indicator) {
-      // escaping voodoo... we need to construct HTML that contains valid JavaScript.
-      var escapedReason = indicator.tooltip.replace(/'/g, "&#39;").replace(/"/g, '&#34;');
-      var annotation = {
-        line: indicator.line,
-        column: indicator.column,
-        html: "<a style='line-height:17px;' class='purpleAnnotation' title='" + escapedReason + "' alt='" + escapedReason + "'>"+indicator.token+"</a>",
-        overviewStyle: {style: {"backgroundColor": "lightcoral", "border": "1px solid red"}}
-      };
-	  return annotation;
-    },
-    
-    // indicators = {}
-    showIndicator: function(indicator) {
-      this._showAnnotation(indicator, this.createErrorAnnotation);
-    },
-    
-    createValueAnnotation: function(evaluation) {
-      var value = evaluation.value;
-      if (typeof value === 'object') {
-	      var tooltip = Object.keys(value).join(', ');
-      } else {
-          var tooltip = typeof value;
-      }
-	      
-      var annotation = {
-        line: evaluation.line,
-        column: evaluation.column,
-        html: "<a style='line-height:17px;' class='purpleAnnotation' title='" + tooltip + "' alt='" + tooltip + "'>"+value+"</a>",
-        overviewStyle: {style: {"backgroundColor": "lightcoral", "border": "1px solid red"}}
-      };
-	  return annotation;
-    },
-    
-    showValue: function(evaluation) {
-	  this._showAnnotation(evaluation, this.createValueAnnotation);
-    },
-  };
-  return AnnotationFactory;
-}());
-
 
 // Syntax highlighting is triggered by an editor callback 'lineStyle' event
 thePurple.ErrorStyler = (function () {
@@ -97,12 +31,12 @@ thePurple.ErrorStyler = (function () {
       console.log("ErrorStyler called with start: "+start+' text:'+text);
       return [];
       //styles.push({start: tokenStart, end: scanner.getOffset() + offset, style: style});
-    },
+    }
   };
   return ErrorStyler;
 }());
 
-dojo.addOnLoad(function(){
+var editor = (function(){
   
   var editorDomNode = dojo.byId("editor");
   
@@ -158,8 +92,6 @@ dojo.addOnLoad(function(){
     }
   };
   
-  var annotationFactory = new thePurple.AnnotationFactory();
-
   function save(editor) {
     editor.onInputChange(null, null, null, true);
     window.alert("Save hook.");
@@ -221,7 +153,9 @@ dojo.addOnLoad(function(){
   });
   
   editor.installTextView();
-  
+  return editor;
+}());
+
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
   
@@ -240,7 +174,7 @@ dojo.addOnLoad(function(){
 	'Comment':                  {styleClass: "token_comment"},
 	'ReservedWord':             {styleClass: "token_keyword"},
 	'Experimental':             {},
-	'Error':                    {},   
+	'Error':                    {}   
 	};
 	
   // Errors reported but not used by the highlighter yet.
@@ -291,20 +225,15 @@ dojo.addOnLoad(function(){
 
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  editorFeatureByOrion.partAdded = function(partInfo) {
-    if (partInfo.value === this) {
-     var view = editor.getTextView();
-     view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
-     view.addEventListener("LineStyle", this, this._onLineStyle);
-    }
+  editorFeatureByOrion.initialize = function() {
+    var view = editor.getTextView();
+    view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
+    view.addEventListener("LineStyle", this, this._onLineStyle);
   };
     
-  editorFeatureByOrion.partRemoved = function(partInfo) {
-    if (partInfo.value === this) {
-      thePurple.unimplementFeature('editor', this);
-      editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion._onModelChanged, "no data");
-      editor.getTextView().removeEventListener("LineStyle", editorFeatureByOrion, editorFeatureByOrion._onLineStyle, "no data");
-    }
+  editorFeatureByOrion.destroy = function() {
+    editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion._onModelChanged, "no data");
+    editor.getTextView().removeEventListener("LineStyle", editorFeatureByOrion, editorFeatureByOrion._onLineStyle, "no data");
   };
 
   //----------------------------
@@ -339,4 +268,8 @@ dojo.addOnLoad(function(){
        console.log("TODO: There are unsaved changes.");
     }
   };
+
+
+return editorFeatureByOrion;
+
 });
