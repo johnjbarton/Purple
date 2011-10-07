@@ -1,6 +1,6 @@
 The global object "window.purple" has 'parts'. The global object is renamed by convention:
   var thePurple = window.purple;
-Later module loading will pass thePurple as an argument.
+(Later module loading will pass thePurple as an argument).
 
 Visible parts are loaded into iframes; invisible parts are loaded into the root iframe.
 
@@ -9,12 +9,7 @@ When a part's main JavaScript file is loaded it registers with thePurple using
 This part and all other existing parts are notified of the successful registration when 
 their "partAdded" method is called:
      localObject.partAdded(partInfo) {  // registerPart was called.
-Parts use this callback to initialize state. If a part
-needs to initialize its own state tests partInfo.value:
-     if (partInfo.value === this) {  // init self.
-If a part needs another part to succeed, it tests by name or feature:
-     if (partInfo.value.hasFeature('editor')) { 
-        this.editor = partInfo.value;
+Parts use this callback to connect to parts in other iframes.
 
 Features are named interfaces on parts. If a newly added part has a feature, say
 'editor', then we know that this part supports the API and sends the events given in the

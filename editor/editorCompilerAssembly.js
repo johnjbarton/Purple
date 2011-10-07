@@ -24,14 +24,14 @@ define(['editorFeatureByOrion'], function(editor) {
       editor.destroy();
   };
   
-  editorCompilerAssembly.partAdded = function(partInfo) {
-    if (partInfo.value.getName() === 'compilerByTraceur') {
+  editorCompilerAssembly.partAdded = function(part) {
+    if (part.getName() === 'compilerByTraceur') {
       this.initialize();
     }
   };
 
-  editorCompilerAssembly.partRemoved = function(partInfo) {
-    if (partInfo.value.getName() === 'compilerByTraceur') {
+  editorCompilerAssembly.partRemoved = function(part) {
+    if (part.getName() === 'compilerByTraceur') {
       this.destroy();
     }
   };

@@ -98,16 +98,16 @@
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  jsEventHandler.partAdded = function(partInfo) {
-    if (partInfo.value.hasFeature('remote')) {
-      this.remote = partInfo.value;
+  jsEventHandler.partAdded = function(part) {
+    if (part.hasFeature('remote')) {
+      this.remote = part;
       this.remote.setResponseHandlers(this.ResponseHandlers);
 	  this.startDebugger();
 	}
   };
   
-  jsEventHandler.partRemoved = function(partInfo) {
-    if (this.remote && partInfo.value === this.remote) {
+  jsEventHandler.partRemoved = function(part) {
+    if (this.remote && part === this.remote) {
       this.stopDebugger();
 	}
   };

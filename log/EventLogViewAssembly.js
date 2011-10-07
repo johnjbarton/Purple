@@ -28,17 +28,17 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
     filter.destroy();
   };
 
-  eventLogViewAssembly.partAdded = function(partInfo) {
-    if (partInfo.value.hasFeature('channel')) {
-      this.channel = partInfo.value;
+  eventLogViewAssembly.partAdded = function(part) {
+    if (part.hasFeature('channel')) {
+      this.channel = part;
       eventLogViewAssembly.initialize();
     }
   };
 
-  eventLogViewAssembly.partRemoved = function(partInfo) {
+  eventLogViewAssembly.partRemoved = function(part) {
     var stillAlive = this.channel;
     if (stillAlive) {
-      var mineRemoved = (partInfo.value === this.channel);
+      var mineRemoved = (part === this.channel);
       if (mineRemoved) {
         eventLogViewAssembly.destroy();
       }
