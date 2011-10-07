@@ -8,7 +8,7 @@
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
-  var remoteByWebInspector = new thePurple.PurplePart('remote');
+  var remoteByWebInspector = new thePurple.PurplePart('remoteByWebInspector');
   
   remoteByWebInspector.jsonHandlers = {}; // by domain and function name
   
