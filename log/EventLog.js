@@ -16,7 +16,7 @@ define([], function() {
   EventLog.initialize = function() {
       this.messages = [];
       this.sources = {};
-      this.sinks = {};
+      this.sinks = new thePurple.PurplePart('eventLogSinks');
       Assembly.addPartContainer(this.sinks);
   };
   
