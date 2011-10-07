@@ -22,11 +22,11 @@ define([], function() {
   
   EventLog.connect = function(eventSource) {
       this.sources[eventSource.name] = eventSource;
-      eventSource.addListener(this.recv);
+      eventSource.registerPart(EventLog);
   };
 
   EventLog.disconnect = function(eventSource) {
-      eventSource.removeListener(this.recv);
+      eventSource.unregisterPart(EventLog);
   };
 
   EventLog.destroy = function() {

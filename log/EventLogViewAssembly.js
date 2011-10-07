@@ -11,13 +11,41 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
   var eventLogViewAssembly = new thePurple.PurplePart('eventLogViewAssembly'); 
   
   eventLogViewAssembly.initialize = function () {
-      log.connect(filter);
-      filter.connect(viewport);
+    log.initialize();
+    filter.initialize();
+    viewport.initialize();
+    log.connect(this.channel);
+    filter.connect(log);
+    viewport.connect(filter);
   };
   
-  eventLogViewAssembly.partRemoved = function() {
-      log.disconnect(filter);
-      filter.disconnect(viewport);
+  eventLogViewAssembly.destroy = function() {
+    log.disconnect(this.channel);
+    filter.disconnect(log);
+    viewport.disconnect(filter);
+    viewport.destroy();
+    log.destroy();
+    filter.destroy();
+  };
+
+  eventLogViewAssembly.partAdded = function(partInfo) {
+    if (partInfo.value.hasFeature('channel')) {
+      this.channel = partInfo.value;
+    }
+    
+    if (this.channel) {
+      eventLogViewAssembly.initialize();
+    }
+  };
+
+  eventLogViewAssembly.partRemoved = function(partInfo) {
+    var stillAlive = this.channel;
+    if (stillAlive) {
+      var mineRemoved = (partInfo.value === this.channel);
+      if (mineRemoved) {
+        eventLogViewAssembly.destroy();
+      }
+    }
   };
 
   thePurple.registerPart(eventLogViewAssembly);
