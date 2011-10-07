@@ -11,6 +11,7 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
   var eventLogViewAssembly = new thePurple.PurplePart('eventLogViewAssembly'); 
   
   eventLogViewAssembly.initialize = function () {
+    this.channel.initialize();
     log.initialize();
     filter.initialize();
     viewport.initialize();
