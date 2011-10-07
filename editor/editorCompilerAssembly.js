@@ -8,19 +8,19 @@ define(['editorFeatureByOrion'], function(editor) {
   'use strict';
   var thePurple = window.purple;
   
-  var compiler = thePurple.getPartByName('compilerByTraceur');
   
   var editorCompilerAssembly = new thePurple.PurplePart('editorCompilerAssembly'); 
   
   editorCompilerAssembly.initialize = function () {
       editor.initialize();
-      compiler.initialize();
-      compiler.connect(editor);
+      this.compiler = thePurple.getPartByName('compilerByTraceur');
+      this.compiler.initialize();
+      this.compiler.connect(editor);
   };
   
   editorCompilerAssembly.destroy = function() {
-      compiler.disconnect(editor);
-      compiler.destroy();
+      this.compiler.disconnect(editor);
+      this.compiler.destroy();
       editor.destroy();
   };
   
