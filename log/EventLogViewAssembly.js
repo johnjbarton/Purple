@@ -31,9 +31,6 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
   eventLogViewAssembly.partAdded = function(partInfo) {
     if (partInfo.value.hasFeature('channel')) {
       this.channel = partInfo.value;
-    }
-    
-    if (this.channel) {
       eventLogViewAssembly.initialize();
     }
   };
