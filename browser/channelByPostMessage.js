@@ -86,6 +86,7 @@
       Browser.disconnect(this);
   };
   
+  channel__.implementsFeature('channel');
   thePurple.registerPart(channel__);
   
 }());
