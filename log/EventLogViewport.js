@@ -25,50 +25,92 @@ define([], function() {
   var EventLogViewport =  new thePurple.PurplePart('EventLogViewport');  // 
   
   EventLogViewport.initialize = function() {
-    this.messagesInViewport = [];
+    this.viewPort = {
+      rendered: { // these values are controlled by RenderedLines
+        first: 0,
+        last: 0
+      },
+      visible: {  // these values are controled by VisibleLines
+        first: 0,
+        last: 0
+      },
+    }
   }
     
   EventLogViewport.connect = function(eventLog) {
-      this.sourceLog = eventLog
       this.initializeUI();
+      this.sourceLog = eventLog
+      this.sourceLog.registerPart(this);
       this.update();
   };
 
   EventLogViewport.disconnect = function(eventLog) {
     if (this.sourceLog && this.sourceLog === eventLog) {
-      delete this.messagesInViewport;
+      this.sourceLog.unregisterPart(this);
+      delete this.sourceLog;
+      delete this.viewport;
     } 
   };
   
   thePurple.registerPart(EventLogViewport);
+  window.addEventListener('pagehide', function() {
+    thePurple.unregisterPart(EventLogViewport);
+  }, false);
   
   // -----------------------------------------------------------------------------------
+  EventLogViewport.computeLineHeight = function() {
+    return 14;
+  };
+  
+  var renderedLines = {
+    first: 0,
+    total: 0,
+    connect: function(elt) {
+      this.container = elt;
+    },
+    isRendered: function(index) {
+      return (index >= this.first && index < this.first + this.total); 
+    },
+    append: function(data, index) {
+      var dataView = this.renderToHTML(data);
+      this.container.appendChild(dataView);
+    },
+    renderToHTML: function(data) {
+      var div = this.container.ownerDocument.createElement('div');
+      div.innerHTML = this.renderToString(data);
+      return div;
+    },
+    renderToString: function(data) {
+      if (data.source) {
+        var renderer = Renderer[data.source];
+        if (renderer) {
+          return renderer(data);
+        } else {
+          return data.source+"?";
+        }
+      } else {
+        return data.toString();
+      }
+    }    
+  };
+  
+      
   EventLogViewport.initializeUI = function () {
     var logElement = document.getElementById('log');
     logElement.style.overflowY = 'scroll';
+    renderedLines.connect(logElement);
   };
 
-  EventLogViewport.dataAppended = function(data) {
-    // if the viewport is looking at the bottom
-    this.update();
+  EventLogViewport.dataAppended = function(data, index) {
+    renderedLines.append(data, index);
   };
   
   EventLogViewport.update = function() {
   
   };
   
-  EventLogViewport.render = function(data) {
-    if (data.source) {
-      var renderer = Renderer[data.source];
-      if (renderer) {
-        return renderer(data);
-      } else {
-        return data.source+"?";
-      }
-    } else {
-      return data.toString();
-    }
-  };
+  // ---------------------------------------------------------------------------------
+  
   
   return EventLogViewport;
   

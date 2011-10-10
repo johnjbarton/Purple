@@ -33,5 +33,11 @@
   Features.registerPart(EventSource);
   Features.registerPart(EventSink);
   Features.registerPart(EventLog);
+  window.addEventListener('pagehide', function() {
+    Features.unregisterPart(EventSource);
+    Features.unregisterPart(EventSink);
+    Features.unregisterPart(EventLog);
+  }, false);
+    
   
 }());

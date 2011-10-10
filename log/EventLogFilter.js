@@ -20,11 +20,15 @@ define([], function() {
   filter.connect = function(eventLog) {
       this.filteredMessages = [];
       this.sourceLog = eventLog;  // upstream
+      this.sourceLog.registerPart(this);
   };
 
   filter.disconnect = function(eventLog) {
+    if (this.sourceLog) {
       delete this.filteredMessages;
+      this.sourceLog.unregisterPart(this)
       delete this.sourceLog;
+    }
   };
   
   // -----------------------------------------------------------------------------------
@@ -38,15 +42,16 @@ define([], function() {
   
   filter.appendData = function(data) {
     if (this.match(data)) {
-      this.filterMessages.push(data);
-      this.toEachPart('dataAppended', [data]);
+      var index = this.filteredMessages.length;
+      this.filteredMessages.push(data);
+      this.toEachPart('dataAppended', [data, index]);
     }
   };
   
   // Filter
   
   filter.updateAll = function() {
-    this.filterMessages = [];  // erase
+    this.filteredMessages = [];  // erase
     this.sourceLog.forEach(this.appendData.bind(this));
   };
   
