@@ -1,4 +1,5 @@
 // PurplePart recv message and create log
+// connect(source), registerPart(sink)
 // Copyright 2011 Google Inc. 
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
@@ -16,8 +17,7 @@ define([], function() {
   EventLog.initialize = function() {
       this.messages = [];
       this.sources = {};
-      this.sinks = new thePurple.PurplePart('eventLogSinks');
-      Assembly.addPartContainer(this.sinks);
+      Assembly.addPartContainer(this);
   };
   
   EventLog.connect = function(eventSource) {
@@ -34,12 +34,15 @@ define([], function() {
   }; 
   
   thePurple.registerPart(EventLog);
+  window.addEventListener('pagehide', function (){
+    thePurple.unregisterPart(EventLog);
+  }, false);
   
   // -----------------------------------------------------------------------------------
   //
   EventLog.recv = function(event) {
     this.messages.push(event.data);
-    this.sinks.toEachPart('appendData', [event.data]);
+    this.toEachPart('appendData', [event.data]);
   }.bind(EventLog);
   
   EventLog.forEachEvent = function(fncOfData) {
