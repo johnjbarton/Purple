@@ -10,11 +10,20 @@ define(['../browser/remoteByWebInspector'], function (remoteByWebInspector) {
   Resources.resources = [];
   Resources.resourcesByURL = {}; // a Resource or an array of
   
-  Assembly.addPartContainer(Resources);
+  Resources.connect = function(eventSink) {
+    this.eventSink = eventSink;
+  };
+
+  Resources.disconnect = function(eventSink) {
+    if (this.eventSink === eventSink) {
+      delete this.eventSink;
+    }
+  };
 
   Resources.append = function(url, resource) {
     this.resourcesByURL[url] = resource;
     this.resources.push(resource);
+    this.eventSink.apply(null, [{data: resource}]);
     this.toEachPart('change', [{mutation: 'add', propertyName: url, value: resource}]);
     return resource;
   };
@@ -101,12 +110,15 @@ define(['../browser/remoteByWebInspector'], function (remoteByWebInspector) {
   jsEventHandler.connect = function(channel) {
       this.remote = remoteByWebInspector.create('resourceCreationRemote', this.responseHandlers);
       this.remote.connect(channel);
+      this.logger = channel.recv.bind(channel);
+      Resources.connect(this.logger);
 	  this.startDebugger();
   };
   
   jsEventHandler.disconnect = function(channel) {
       this.stopDebugger();
       this.remote.disconnect(channel);
+      Resources.disconnect(this.logger);
   };
 
   thePurple.registerPart(jsEventHandler);
