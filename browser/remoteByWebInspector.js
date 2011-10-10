@@ -118,7 +118,7 @@
       var splits = data.name.split('.');
       var category = splits[0];
       var methodName = splits[1];
-      var handlers = this.jsonHandlers[category];
+      var handlers = remoteByWebInspector.jsonHandlers[category];
       if (handlers) {
         var method = handlers[methodName];
         if (method) {
@@ -153,6 +153,7 @@
   };
 
   Assembly.addPartContainer(remoteByWebInspector);
+  remoteByWebInspector.implementsFeature('remote');
   thePurple.registerPart(remoteByWebInspector);
 
 }());
