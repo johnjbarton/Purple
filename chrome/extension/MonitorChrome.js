@@ -45,7 +45,6 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
 MonitorChrome.registerTab = function(proxy, tabId, debuggerErrorCallback) {
     MonitorChrome.Debugger.initialize(proxy, tabId, debuggerErrorCallback);
     MonitorChrome.Debugger.connect();
-    MonitorChrome.Resources.connect(proxy);
 };
 
 MonitorChrome.disconnect = function(errback) {
@@ -197,27 +196,5 @@ Debugger.send = function(data) {
   var params = data.params;
   chrome.experimental.debugger.sendRequest(this.tabId, method, params, this.recv.bind(this));
 };
-
-// http://code.google.com/chrome/extensions/experimental.devtools.resources.html
-
-var Resources = MonitorChrome.Resources = {};
-
-Resources.connect = function(proxy) {
-  this.proxy = proxy;
-  chrome.experimental.devtools.resources.getHAR(Resources.onHar);
-  chrome.experimental.devtools.resources.onFinished.addListener(Resources.onResource);
-};
-
-Resources.disconnect = function() {
-  // oh I guess you can't remove the listener!
-};
-
-Resources.onHar = function(har) {
-  console.log("Resources.onHar", har);
-};
-
-Resources.onResource = function(resource) {
-  console.log("Resources.onResource", resource);
-}
 
 }());
