@@ -4,16 +4,13 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-(function () {
+define([], function () {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
-  var remoteByWebInspector = new thePurple.PurplePart('remoteByWebInspector');
-  
-  remoteByWebInspector.jsonHandlers = {}; // by domain and function name
-  
   // A left paren ( followed by any not-right paren ) followed by right paren
   var reParamList = /\(([^\)]*)\)/; 
+  var reParameters = /\(([^\)]*)\)/;
   
   // parse the function source to get the parameter name
   function getParamsFromAPI(fnc) {
@@ -51,7 +48,7 @@
   }
   
   // Walk the remote API and implement each function to send over channel.
-  function buildImplementation() {
+  function buildImplementation(remoteByWebInspector) {
     var Features = thePurple.getPartByName('Features');
     var remote =  Features.getPartByName("remote");
     var api = remote.getAPI();
@@ -66,8 +63,6 @@
     });
   }
 
-  remoteByWebInspector.reParameters = /\(([^\)]*)\)/;
-
   function marshallForHandler(handler) {
     return function (objFromJSON) {
       var args = [];
@@ -78,7 +73,52 @@
     };
   }
   
-  remoteByWebInspector.setResponseHandlers = function (responseHandlerObject) {
+  //---------------------------------------------------------------------------------------------
+  // Implement PurplePart
+  var RemoteByWebInspector = Object.create(thePurple.PurplePart.methods);
+  
+  RemoteByWebInspector.connect = function(channel) {
+    this.channel = channel;
+    buildImplementation(this);
+    this.channel.addListener(this.recv);
+  };
+  
+  RemoteByWebInspector.disconnect = function(channel) {
+    if (this.channel && this.channel === channel) {
+      this.channel.removeListener(this.recv);
+      delete this.channel;
+    }
+  };
+  
+  //---------------------------------------------------------------------------------------------
+  // As ChannelPart
+  // 
+  RemoteByWebInspector.recv = function(message) {
+    console.log("remote.recv", message);
+    var data = message.data;
+    if (data.source && data.name) {
+      var splits = data.name.split('.');
+      var category = splits[0];
+      var methodName = splits[1];
+      var handlers = this.jsonHandlers[category];
+      if (handlers) {
+        var method = handlers[methodName];
+        if (method) {
+          try {
+            var objFromJSON = data.params;
+            if (typeof(objFromJSON) === 'string') {
+              objFromJSON = JSON.parse(data.params);
+            }
+            method.apply(null, [objFromJSON]);
+          } catch(exc) {
+            console.error("RemoteByWebInspector ERROR "+exc, exc.stack, data.params);
+          }
+        }
+      }
+    }
+  };
+  
+  function addHandlers(remoteByWebInspector, responseHandlerObject) {
     this.responseHandlerObject = responseHandlerObject;  // {Debugger:{functions}, Console:{functions}}
     var Features = thePurple.getPartByName('Features');
     var remote =  Features.getPartByName("remote");
@@ -91,69 +131,30 @@
         var handlerSpec = events[domainName][handlerName]; // an empty function
         var handler = responseHandlerObject[domainName][handlerName];  // implementation function of
         if (!handler) {
-          console.trace("remoteByWebInspector");
-          console.error("remoteByWebInspector, no handler for "+domainName+"."+handlerName, remoteByWebInspector);
-          throw new Error("remoteByWebInspector, no handler for "+domainName+"."+handlerName);
+          console.trace("RemoteByWebInspector");
+          console.error("RemoteByWebInspector, no handler for "+domainName+"."+handlerName, RemoteByWebInspector);
+          throw new Error("RemoteByWebInspector, no handler for "+domainName+"."+handlerName);
         }
-        var m = remoteByWebInspector.reParameters.exec(handlerSpec.toString());
+        var m = reParameters.exec(handlerSpec.toString());
         var params = m[1].split(',');
         handler.parameters = [];
         for (var i = 0; i < params.length; i++) {
           handler.parameters[i] = params[i].trim();
         }
         remoteByWebInspector.jsonHandlers[domainName][handlerName] = marshallForHandler(handler);
-      });
+      }.bind(this));
     });
-  };
-
+  }
   
-  //---------------------------------------------------------------------------------------------
-  // Implement ChannelPart
-  // 
-  remoteByWebInspector.channelPart = new thePurple.PurplePart('remoteByWebInspectorChannelPart');
-  remoteByWebInspector.channelPart.recv = function(message) {
-    console.log("remote.recv", message);
-    var data = message.data;
-    if (data.source && data.name) {
-      var splits = data.name.split('.');
-      var category = splits[0];
-      var methodName = splits[1];
-      var handlers = remoteByWebInspector.jsonHandlers[category];
-      if (handlers) {
-        var method = handlers[methodName];
-        if (method) {
-          try {
-            var objFromJSON = data.params;
-            if (typeof(objFromJSON) === 'string') {
-              objFromJSON = JSON.parse(data.params);
-            }
-            method.apply(null, [objFromJSON]);
-          } catch(exc) {
-            console.error("remoteByWebInspector ERROR "+exc, exc.stack, data.params);
-          }
-        }
-      }
-    }
-  };
-
-  //---------------------------------------------------------------------------------------------
-  // Implement PurplePart
-  
-  remoteByWebInspector.connect = function(channel) {
-    this.channel = channel;
-    buildImplementation();
-    this.channel.registerPart(this.channelPart);
+  RemoteByWebInspector.create = function(name, handlers) {
+    var remote = Object.create(RemoteByWebInspector);
+    thePurple.PurplePart.apply(remote, [name]);
+    remote.jsonHandlers = {}; // by domain and function name
+    remote.recv = remote.recv.bind(remote);
+    addHandlers(remote, handlers);
+    return remote;
   };
   
-  remoteByWebInspector.disconnect = function(channel) {
-    if (this.channel && this.channel === channel) {
-      this.channel.unregisterPart(this.channelPart);
-      delete this.channel;
-    }
-  };
+  return RemoteByWebInspector;
 
-  Assembly.addPartContainer(remoteByWebInspector);
-  remoteByWebInspector.implementsFeature('remote');
-  thePurple.registerPart(remoteByWebInspector);
-
-}());
+});

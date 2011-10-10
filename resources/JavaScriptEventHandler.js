@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-(function () {
+define(['../browser/remoteByWebInspector'], function (remoteByWebInspector) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
 
@@ -63,7 +63,7 @@
   };
 
   // Implement Remote.events
-  jsEventHandler.ResponseHandlers = {
+  jsEventHandler.responseHandlers = {
     Debugger: {
         breakpointResolved: function(breakpointId, location) {
           console.log("JavaScriptEventHandler", arguments);
@@ -98,19 +98,18 @@
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  jsEventHandler.connect = function(remote) {
-      this.remote = remote;
-      this.remote.setResponseHandlers(this.ResponseHandlers);
+  jsEventHandler.connect = function(channel) {
+      this.remote = remoteByWebInspector.create('resourceCreationRemote', this.responseHandlers);
+      this.remote.connect(channel);
 	  this.startDebugger();
   };
   
-  jsEventHandler.disconnect = function(remote) {
-    if (this.remote && remote === this.remote) {
+  jsEventHandler.disconnect = function(channel) {
       this.stopDebugger();
-	}
+      this.remote.disconnect(channel);
   };
 
   thePurple.registerPart(jsEventHandler);
 
-  
-}());
+  return jsEventHandler;
+});

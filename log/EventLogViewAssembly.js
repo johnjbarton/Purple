@@ -15,21 +15,23 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
     log.initialize();
     filter.initialize();
     viewport.initialize();
+  };
+  
+  eventLogViewAssembly.connect = function() {
     log.connect(this.channel);
     filter.connect(log);
     viewport.connect(filter);
-    // enable the remote browser
-    this.remote.connect(this.channel);
-    this.jsEventHandler.connect(this.remote);
+    this.jsEventHandler.connect(this.channel);
   };
   
-  eventLogViewAssembly.destroy = function() {
-    this.jsEventHandler.disconnect(this.remote);
-     // disable the remote browser
-    this.remote.disconnect(this.channel);
+  eventLogViewAssembly.disconnect = function() {
+    this.jsEventHandler.disconnect(this.channel);
     log.disconnect(this.channel);
     filter.disconnect(log);
     viewport.disconnect(filter);
+  };
+  
+  eventLogViewAssembly.destroy = function() {
     viewport.destroy();
     log.destroy();
     filter.destroy();
@@ -38,13 +40,13 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
   eventLogViewAssembly.partAdded = function(part) {
     if (part.hasFeature('channel')) {
       this.channel = part;
-    } else if (part.hasFeature('remote')) {
-      this.remote = part;
     } else if (part.name === 'jsEventHandler') {  // TODO this needs to be dynamic some other way.
       this.jsEventHandler = part;
     }
-    if (this.channel && this.remote && this.jsEventHandler) {
+    if (this.channel && this.jsEventHandler && !this.initialized) {
+      this.initialized = true;
       eventLogViewAssembly.initialize();
+      this.channel.connect(this.connect.bind(this));
     }
   };
 
@@ -53,6 +55,7 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
     if (stillAlive) {
       var mineRemoved = (part === this.channel);
       if (mineRemoved) {
+        eventLogViewAssembly.disconnect();
         eventLogViewAssembly.destroy();
       }
     }
