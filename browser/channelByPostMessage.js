@@ -9,11 +9,9 @@
   var Assembly = thePurple.Assembly;
   var channel__ = new thePurple.PurplePart('channel');
 
-  Assembly.addPartContainer(channel__);  
+  Assembly.addListenerContainer(channel__);
   
-  channel__.recv = function(message) {
-    this.toSomeParts('recv', [message]);
-  }
+  channel__.recv = channel__.toEachListener;
   
   thePurple.Browser = {};
   var Browser = thePurple.Browser;
@@ -26,7 +24,7 @@
    * Out:
    * channel.send: function(message) callable 
    */
-  Browser.connect = function connectToBrowser(channel) {
+  Browser.connect = function connectToBrowser(channel, onConnect) {
  
     function recvPort(event) {
       console.log("channelByPostMessage.recvPort "+event.origin, event);
@@ -49,6 +47,7 @@
         };
       }
       channel.features.push('channel');
+      onConnect(channel);
     }  
     
     function requestPort() {
@@ -78,8 +77,11 @@
   channel__.initialize = function() {
       this.protocolName ='IAmPurple';
       this.version = 1;
+  }
+  
+  channel__.connect = function(onConnect) {
       console.log("Calling Browser.connect");
-      Browser.connect(this);
+      Browser.connect(this, onConnect);
   };
 
   channel__.destroy = function() {
