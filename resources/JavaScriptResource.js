@@ -19,7 +19,7 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
   
   with(domplate.tags) {
     JavaScriptResource.prototype.domplateTag = domplate.domplate({
-      tag: DIV({'class': 'resourceJS'}, '$object.url')
+      tag: DIV({'class': 'resourceJS'}, '$url')
     });
   }
   
