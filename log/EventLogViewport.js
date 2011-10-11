@@ -76,9 +76,14 @@ define([], function() {
       this.container.appendChild(dataView);
     },
     renderToHTML: function(data) {
-      var div = this.container.ownerDocument.createElement('div');
-      div.innerHTML = this.renderToString(data);
-      return div;
+      if (data.domplate) {
+        var html = data.domplateTag.render(data);
+        return html;
+      } else {
+        var div = this.container.ownerDocument.createElement('div');
+        div.innerHTML = this.renderToString(data);
+        return div;
+      }
     },
     renderToString: function(data) {
       if (data.source) {

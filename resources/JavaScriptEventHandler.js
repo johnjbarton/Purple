@@ -1,57 +1,11 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector'], function (remoteByWebInspector) {
+define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/JavaScriptResource'], function (remoteByWebInspector, Resources, JavaScriptResource) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
-
-  var Resources = new thePurple.PurplePart('resources');
-  
-  Resources.resources = [];
-  Resources.resourcesByURL = {}; // a Resource or an array of
-  
-  Resources.connect = function(eventSink) {
-    this.eventSink = eventSink;
-  };
-
-  Resources.disconnect = function(eventSink) {
-    if (this.eventSink === eventSink) {
-      delete this.eventSink;
-    }
-  };
-
-  Resources.append = function(url, resource) {
-    this.resourcesByURL[url] = resource;
-    this.resources.push(resource);
-    this.eventSink.apply(null, [{data: resource}]);
-    this.toEachPart('change', [{mutation: 'add', propertyName: url, value: resource}]);
-    return resource;
-  };
-
-  Resources.get = function(url) {
-    if ( this.resourcesByURL.hasOwnProperty(url) ) {
-      return this.resourcesByURL[url];
-    }
-  };
-  
-  thePurple.registerPart(Resources);
   
   var jsEventHandler = new thePurple.PurplePart('jsEventHandler');
-  
-    
-  //---------------------------------------------------------------------------------------------
-  
-  function JavaScriptResource(url, isContentScript) {
-    this.url = url;
-    this.isContentScript = isContentScript;
-    this.scripts = {};
-  }
-  
-  JavaScriptResource.prototype = {};
-  
-  JavaScriptResource.prototype.appendScript = function(scriptId, startLine, startColumn, endLine, endColumn) {
-    this.scripts[scriptId] = [startLine, startColumn, endLine, endColumn];
-  };
   
   //---------------------------------------------------------------------------------------------
   //
