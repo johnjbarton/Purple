@@ -117,7 +117,7 @@ define([], function() {
         keys.forEach(function (key) {
           sub.push( key+':'+renderedLines.summary(obj[key]) );
         });
-        str = '{' + sub.join(',').substr(0,80) +'}';
+        str = '{' + sub.join(',') +'}';
       }
       return str;
     }
