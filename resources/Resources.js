@@ -23,7 +23,7 @@ define([], function () {
   Resources.append = function(url, resource) {
     this.resourcesByURL[url] = resource;
     this.resources.push(resource);
-    this.eventSink.apply(null, [{data: resource}]);
+    this.eventSink.apply(null, [resource]);
     return resource;
   };
 

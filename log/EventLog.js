@@ -40,8 +40,8 @@ define([], function() {
   // -----------------------------------------------------------------------------------
   //
   EventLog.recv = function(event) {
-    this.messages.push(event.data);
-    this.toEachPart('appendData', [event.data]);
+    this.messages.push(event);
+    this.toEachPart('appendData', [event]);
   }.bind(EventLog);
   
   EventLog.forEachEvent = function(fncOfData) {

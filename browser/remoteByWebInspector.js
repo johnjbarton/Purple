@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define([], function () {
+define(['../browser/remote'], function (Remote) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
@@ -96,7 +96,7 @@ define([], function () {
   RemoteByWebInspector.recv = function(message) {
     console.log("remote.recv", message);
     var data = message.data;
-    if (data.source && data.name) {
+    if (data && data.source && data.name) {
       var splits = data.name.split('.');
       var category = splits[0];
       var methodName = splits[1];
@@ -129,7 +129,11 @@ define([], function () {
       var handlerNames = Object.keys(events[domainName]);
       handlerNames.forEach(function buildHandler(handlerName) {
         var handlerSpec = events[domainName][handlerName]; // an empty function
-        var handler = responseHandlerObject[domainName][handlerName];  // implementation function of
+        var handlersByDomain = responseHandlerObject[domainName];
+        if (!handlersByDomain) {
+          return;
+        }
+        var handler = handlersByDomain[handlerName];  // implementation function of
         if (!handler) {
           console.trace("RemoteByWebInspector");
           console.error("RemoteByWebInspector, no handler for "+domainName+"."+handlerName, RemoteByWebInspector);

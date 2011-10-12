@@ -75,29 +75,52 @@ define([], function() {
       var dataView = this.renderToHTML(data);
       this.container.appendChild(dataView);
     },
-    renderToHTML: function(data) {
+    renderToHTML: function(event) {
       var innerHTML = "";
-      if (data.domplateTag) {
-        innerHTML = data.domplateTag.tag.render(data);
+      if (event && event.domplateTag) {
+        innerHTML = event.domplateTag.tag.render(event);
       } else {
-        innerHTML = this.renderToString(data);
+        try {
+          innerHTML = this.renderToString(event);
+        } catch (exc) {
+          innerHTML = exc.toString();
+        }
       }
       var div = this.container.ownerDocument.createElement('div');
       div.innerHTML = innerHTML;
       return div;
     },
-    renderToString: function(data) {
-      if (data.source) {
-        var renderer = Renderer[data.source];
-        if (renderer) {
-          return renderer(data);
-        } else {
-          return data.source+"?";
-        }
+    renderToString: function(event) {
+      var str = "";
+      if(event.toString() === '[object MessageEvent]') {
+        str = event.type +" event " + this.summary(event.data);
       } else {
-        return data.toString();
+        str = 'Not a MessageEvent,' + this.summary(event);
       }
-    }    
+      return str;
+    },
+    summary: function(obj) {
+      if (!obj) {
+        return 'falsy';
+      } 
+      var objType = typeof obj;
+      if (objType === 'string') {
+        return obj;
+      }
+      if (objType !== 'object') {
+        return objType;
+      }
+      var keys = Object.keys(obj);
+      var str = '{' + keys.join(',')+'}';
+      if (str.length < 100) {
+        var sub = [];
+        keys.forEach(function (key) {
+          sub.push( key+':'+renderedLines.summary(obj[key]) );
+        });
+        str = '{' + sub.join(',').substr(0,80) +'}';
+      }
+      return str;
+    }
   };
   
       
