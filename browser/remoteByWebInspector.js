@@ -20,7 +20,10 @@ define([], function () {
     if (m && m[1]) {
       var spacyParamList = m[1].split(',');
       spacyParamList.forEach(function(spacy) {
-        paramList.push(spacy.trim());
+        var paramName = spacy.trim();
+        if (paramName) {
+          paramList.push(spacy.trim());
+        }
       });
     }
     return paramList;
@@ -139,7 +142,10 @@ define([], function () {
         var params = m[1].split(',');
         handler.parameters = [];
         for (var i = 0; i < params.length; i++) {
-          handler.parameters[i] = params[i].trim();
+          var param = params[i].trim();
+          if (param) {
+            handler.parameters[i] = param;
+          }
         }
         remoteByWebInspector.jsonHandlers[domainName][handlerName] = marshallForHandler(handler);
       }.bind(this));
