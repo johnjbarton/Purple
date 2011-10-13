@@ -77,14 +77,14 @@ define([], function() {
     },
     renderToHTML: function(event) {
       var innerHTML = "";
-      if (event && event.domplateTag) {
-        innerHTML = event.domplateTag.tag.render(event);
-      } else {
-        try {
+      try {
+        if (event && event.domplateTag) {
+          innerHTML = event.domplateTag.tag.render(event);
+        } else {
           innerHTML = this.renderToString(event);
-        } catch (exc) {
-          innerHTML = exc.toString();
         }
+      } catch (exc) {
+          innerHTML = exc.toString();
       }
       var div = this.container.ownerDocument.createElement('div');
       div.innerHTML = innerHTML;
