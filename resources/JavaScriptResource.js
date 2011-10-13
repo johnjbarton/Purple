@@ -9,6 +9,7 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
     this.url = url;
     this.isContentScript = isContentScript;
     this.scripts = {};
+    this.targetPart = "editor";
   }
   
   JavaScriptResource.prototype = {};
@@ -18,8 +19,12 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
   };
   
   with(domplate.tags) {
+    var ObjectLink = A({"class":"objectLink objectLink-$targetPart a11yFocus", _repObject: "$url"});
+    
     JavaScriptResource.prototype.domplateTag = domplate.domplate({
-      tag: DIV({'class': 'resourceJS'}, '$url')
+      tag: DIV({'class': 'resourceJS'},
+        ObjectLink("$url")   
+        )
     });
   }
   

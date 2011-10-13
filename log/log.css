@@ -1,7 +1,16 @@
-// Copyright 2011 Google Inc. 
-// see Purple/license.txt for BSD license
-// johnjbarton@google.com
+/* Copyright 2011 Google Inc. 
+ * see Purple/license.txt for BSD license
+ * johnjbarton@google.com
+ */
+ 
+.objectLink:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
 
-div#epilog:before {
-  content: "No Log Entries";
-  }
+.objectLink {
+  font-weight: bold;
+  color: blue;
+}
+  
+  
