@@ -3,7 +3,7 @@
 // johnjbarton@google.com
 
 
-define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter, viewport) {
+define(['EventLog', 'EventLogFilter', 'EventLogViewport', 'ConsoleEventHandler'], function(log, filter, viewport, consoleEventHandler) {
 
   'use strict';
   var thePurple = window.purple;
@@ -22,9 +22,11 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
     filter.connect(log);
     viewport.connect(filter);
     this.jsEventHandler.connect(this.channel);
+    this.consoleEventHandler.connect(this.channel);
   };
   
   eventLogViewAssembly.disconnect = function() {
+    this.consoleEventHandler.disconnect(this.channel);
     this.jsEventHandler.disconnect(this.channel);
     log.disconnect(this.channel);
     filter.disconnect(log);
@@ -42,8 +44,10 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport'], function(log, filter,
       this.channel = part;
     } else if (part.name === 'jsEventHandler') {  // TODO this needs to be dynamic some other way.
       this.jsEventHandler = part;
+    } else if (part.name === 'consoleEventHandler') {
+      this.consoleEventHandler = part;
     }
-    if (this.channel && this.jsEventHandler && !this.initialized) {
+    if (this.channel && this.jsEventHandler && this.consoleEventHandler && !this.initialized) {
       this.initialized = true;
       eventLogViewAssembly.initialize();
       this.channel.connect(this.connect.bind(this));

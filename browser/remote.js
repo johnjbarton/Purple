@@ -9,7 +9,8 @@
     api: {
       Console: {
         enable: function(){},
-        disable: function(){}
+        disable: function(){},
+        clearMessages: function(){},
       },
       Debugger: {
         continueToLocation: function(location) {},
@@ -47,6 +48,11 @@
         eventRecorded: function(record) {},
         started: function() {},
         stopped: function() {}
+      },
+      Console: {
+        messageAdded: function(messageObj) {},
+        messageRepeatCountUpdated: function(count) {},
+        messagesCleared: function() {}
       }
     },
     types: {
@@ -70,6 +76,18 @@
         children: '[TimelineEvent]',
         data: 'object',
         type: 'string'
+      },
+      ConsoleMessage: {
+        level: ['debug', 'error', 'log', 'tip', 'error'],
+        line: 'integer',
+        networkRequestId: 'Network.RequestId',
+        parameters: '[Runtime.RemoteObject]',
+        repeatCount: 'integer',
+        source: ['console-api', 'html', 'javascript', 'network', 'other', 'wml', 'xml'],
+        stackTrace: 'StackTrace',
+        text: 'string',
+        type: ['assert', 'dir', 'dirxml', 'endGroup', 'log', 'startGroup', 'startGroupCollapsed', 'trace'],
+        url: 'string'
       }
     }
   });
