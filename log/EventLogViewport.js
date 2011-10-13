@@ -123,11 +123,25 @@ define([], function() {
     }
   };
   
+  EventLogViewport.onClick = function(event) {
+    console.log("click:", event);
+  };
+  
+  EventLogViewport.bindHandlers = function() {
+    this.onClick = this.onClick.bind(this);
+  };
+  
+  EventLogViewport.addListeners = function() {
+    document.addEventListener('click', this.onClick, true);
+  };
       
   EventLogViewport.initializeUI = function () {
     var logElement = document.getElementById('log');
     logElement.style.overflowY = 'scroll';
     renderedLines.connect(logElement);
+    
+    this.bindHandlers();
+    this.addListeners();
   };
 
   EventLogViewport.dataAppended = function(data, index) {
