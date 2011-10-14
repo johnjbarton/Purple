@@ -20,7 +20,13 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
   jsEventHandler.getOrCreateJavaScriptResource = function(url, isContentScript) {
     var resource = Resources.get(url);
     if (!resource) {
-      resource = Resources.append(url, new JavaScriptResource(url, isContentScript));
+      resource = new JavaScriptResource(url, isContentScript);
+      Resources.append(url, resource);
+    } else if ( ! resource instanceof JavaScriptResource) {
+      // we have a network resource which we just discovered is a JavaScriptResource
+      Object.keys(JavaScriptResource.prototype).forEach(function(key) {
+        resource[key] = JavaScriptResource.prototype;
+      });
     }
     return resource;
   };

@@ -3,7 +3,8 @@
 // johnjbarton@google.com
 
 
-define(['EventLog', 'EventLogFilter', 'EventLogViewport', 'ConsoleEventHandler'], function(log, filter, viewport, consoleEventHandler) {
+define(['EventLog', 'EventLogFilter', 'EventLogViewport', 'ConsoleEventHandler', 'NetworkEventHandler'], 
+function(log,       filter,            viewport,           consoleEventHandler,   networkEventHandler) {
 
   'use strict';
   var thePurple = window.purple;
@@ -23,9 +24,11 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport', 'ConsoleEventHandler']
     viewport.connect(filter);
     this.jsEventHandler.connect(this.channel);
     this.consoleEventHandler.connect(this.channel);
+    this.networkEventHandler.connect(this.channel);
   };
   
   eventLogViewAssembly.disconnect = function() {
+    this.networkEventHandler.disconnect(this.channel);
     this.consoleEventHandler.disconnect(this.channel);
     this.jsEventHandler.disconnect(this.channel);
     log.disconnect(this.channel);
@@ -46,8 +49,10 @@ define(['EventLog', 'EventLogFilter', 'EventLogViewport', 'ConsoleEventHandler']
       this.jsEventHandler = part;
     } else if (part.name === 'consoleEventHandler') {
       this.consoleEventHandler = part;
-    }
-    if (this.channel && this.jsEventHandler && this.consoleEventHandler && !this.initialized) {
+    } else if (part.name === 'networkEventHandler') {
+      this.networkEventHandler = part;
+    } 
+    if (this.channel && this.jsEventHandler && this.consoleEventHandler && this.networkEventHandler && !this.initialized) {
       this.initialized = true;
       eventLogViewAssembly.initialize();
       this.channel.connect(this.connect.bind(this));
