@@ -124,6 +124,9 @@ define([], function() {
   EventLogViewport.onClick = function(event) {
     console.log("click:", event);
     var link = event.target.link;
+    if (!link) {
+      return;  // not a link
+    }
     var target = null;
     thePurple.forEachPart(function findTarget(part) {
       if (part.hasFeature('editor')) {
