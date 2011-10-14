@@ -195,12 +195,18 @@ Debugger.onDetach = function(tabId) {
 
 // callback for sendRequest
 Debugger.recv = function(result) {
-  this.proxy.send({source: "debugger", name: "response", result: result});
+  if (result) {
+    this.proxy.send({source: "debugger", name: "response", result: result, request: this.request});
+  } else {
+    this.proxy.send({source: "debugger", name: "response", error: chrome.extension.lastError, request: this.request});
+  }
+  delete this.request; 
 }
 
 Debugger.send = function(data) {
   var method = data.method;
   var params = data.params;
+  this.request = data;
   chrome.experimental.debugger.sendRequest(this.tabId, method, params, this.recv.bind(this));
 };
 
