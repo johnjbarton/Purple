@@ -43,6 +43,7 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
 }
 
 MonitorChrome.registerTab = function(proxy, tabId, debuggerErrorCallback) {
+    MonitorChrome.WebNavigation.initialize(tabId);
     MonitorChrome.Debugger.initialize(proxy, tabId, debuggerErrorCallback);
     MonitorChrome.Debugger.connect();
 };
@@ -128,8 +129,14 @@ var WebNavigation = MonitorChrome.WebNavigation = {
    events: Object.keys(chromeWebNavigation) // all for now
 };
 
+WebNavigation.initialize = function(tabId) {
+  this.tabId = tabId;
+};
+
 WebNavigation.onEvent = function(proxy, name, details) {
-  proxy.send({source: "webNavigation", name: name, details: details});
+  if (details.tabId === WebNavigation.tabId) {  // focus on the tab we are debugging
+    proxy.send({source: "webNavigation", name: name, details: details});
+  }
 };
 
 WebNavigation.hookWebNavigation = function(proxy) {
