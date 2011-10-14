@@ -192,6 +192,9 @@ var editor = (function(){
   
   editorFeatureByOrion.setContent = function(name, src) {
     this.sourceName = name;  // TODO multiple editors
+    if (typeof src !== 'string') {
+      src = src.body; // TODO deal with base64
+    }
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
     editor.onInputChange(name, null, src);
 //    syntaxHighlighter.highlight(name, editor.getTextView());
