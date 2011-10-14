@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['../browser/remote'], function (Remote) {
+define(['../browser/remote'], function (remote) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
@@ -33,11 +33,11 @@ define(['../browser/remote'], function (Remote) {
   
   function bindParams(paramNames, argValues) {
     var params = {};
-    paramNames.forEach(function(name) {
-      if (argValues.length) {
-        params[name] = argValues.shift();
-      }
-    });
+    var max = Math.min(paramNames.length, argValues.length);
+    for(var i = 0; i < max; i++) {
+      var name = paramNames[i];
+      params[name] = argValues[i];
+    }
     return params;
   }
 
@@ -100,26 +100,54 @@ define(['../browser/remote'], function (Remote) {
     console.log("remote.recv", message);
     var data = message.data;
     if (data && data.source && data.name) {
-      var splits = data.name.split('.');
-      var category = splits[0];
-      var methodName = splits[1];
-      var handlers = this.jsonHandlers[category];
-      if (handlers) {
-        var method = handlers[methodName];
-        if (method) {
-          try {
-            var objFromJSON = data.params;
-            if (typeof(objFromJSON) === 'string') {
-              objFromJSON = JSON.parse(data.params);
-            }
-            method.apply(null, [objFromJSON]);
-          } catch(exc) {
-            console.error("RemoteByWebInspector ERROR "+exc, exc.stack, data.params);
+      if (data.name === 'response') {
+        this.onResponse(data);
+      } else {
+        this.onEvent(data);
+      }
+    }
+  };
+  
+  RemoteByWebInspector.onEvent = function(data) {
+    var splits = data.name.split('.');
+    var category = splits[0];
+    var methodName = splits[1];
+    var handlers = this.jsonHandlers[category];
+    if (handlers) {
+      var method = handlers[methodName];
+      if (method) {
+        try {
+          var objFromJSON = data.params;
+          if (typeof(objFromJSON) === 'string') {
+            objFromJSON = JSON.parse(data.params);
           }
+          method.apply(null, [objFromJSON]);
+        } catch(exc) {
+          console.error("RemoteByWebInspector ERROR "+exc, exc.stack, data.params);
         }
       }
     }
   };
+  
+  RemoteByWebInspector.setResponseCallbacks = function(fncOfResponse, fncOfError){
+    this.sendRequestCallback = fncOfResponse;
+    this.sendRequestErrBack = fncOfError;
+  };
+  
+  RemoteByWebInspector.onResponse = function(data) {
+    if(this.sendRequestCallback) {
+      if (data.result) {
+        this.sendRequestCallback(data.result);
+      } else if (data.error) {
+        this.sendRequestErrBack(data.error);
+      } else {
+        this.sendRequestErrBack({error:"onResponse with incorrect data"});
+      }
+      delete this.sendRequestCallback;  // hey you had your chance
+      delete this.sendRequestErrBack;
+    }
+  };
+  
   
   function addHandlers(remoteByWebInspector, responseHandlerObject) {
     this.responseHandlerObject = responseHandlerObject;  // {Debugger:{functions}, Console:{functions}}
