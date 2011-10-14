@@ -1,15 +1,17 @@
 // See Purple/licence.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-(function () {
+define([],function () {
+
   var thePurple = window.purple;
-  
+  // These methods are defined ultimately in InspectorBackendStub.js on chrome source code
   var remote = new thePurple.Feature({
     name: "remote",
     api: {
       Console: {
         enable: function(){},
-        disable: function(){}
+        disable: function(){},
+        clearMessages: function(){}
       },
       Debugger: {
         continueToLocation: function(location) {},
@@ -29,6 +31,16 @@
         stepOut: function() {},
         stepOver: function() {}
       },
+      Network: {
+        clearBrowserCache: function(){},
+        clearBrowserCookies: function(){},
+        disable: function(){},
+        enable: function() {},
+        getResponseBody: function(requestId){},
+        setCacheDisabled: function(cacheDisabled){},
+        setExtraHTTPHeaders: function(headers){},
+        setUserAgentOverride: function(userAgent){}
+      },
       Timeline: {
         start: function(maxCallStackDepth){}, // default 5
         stop: function() {}
@@ -36,6 +48,11 @@
       setResponseHandler: function (eventsHandlerObject) {} // implements events
     },
     events: {
+      Console: {
+        messageAdded: function(messageObj) {},
+        messageRepeatCountUpdated: function(count) {},
+        messagesCleared: function() {}
+      },
       Debugger: {
         breakpointResolved: function(breakpointId, location) {},
         paused: function(details) {},
@@ -43,10 +60,27 @@
         scriptFailedToParse: function(data, errorLine, errorMessage, firstLine, url) {},
         scriptParsed: function(endColumn, endLine, isContentScript, scriptId, startColumn, startLine, url) {}
       },
+      Network: {
+        dataReceived: function(requestId, timestamp, dataLength, encodedDataLength){},
+        loadingFailed: function(requestId, timestamp, errorText, canceled){},
+        loadingFinished: function(requestId, timestamp){},
+        requestServedFromCache: function(requestId){},
+        requestServedFromMemoryCache: function(requestId, loaderId, documentURL, timestamp, initiator, resource){},
+        requestWillBeSent: function(requestId, loaderId, documentURL, request, timestamp, initiator, stackTrace, redirectResponse){},
+        responseRecieved: function(requestId, timestamp, type, response){}
+      },
       Timeline: {
         eventRecorded: function(record) {},
         started: function() {},
         stopped: function() {}
+      },
+      WebNavigation: {
+        onBeforeNavigate: function(details) {},
+        onBeforeRetarget: function(details) {},
+        onCommitted: function(details) {},
+        onCompleted: function(details) {},
+        onDOMContentLoaded: function(details) {},
+        onErrorOccurred: function(details) {}
       }
     },
     types: {
@@ -70,10 +104,37 @@
         children: '[TimelineEvent]',
         data: 'object',
         type: 'string'
+      },
+      ConsoleMessage: {
+        level: ['debug', 'error', 'log', 'tip', 'error'],
+        line: 'integer',
+        networkRequestId: 'Network.RequestId',
+        parameters: '[Runtime.RemoteObject]',
+        repeatCount: 'integer',
+        source: ['console-api', 'html', 'javascript', 'network', 'other', 'wml', 'xml'],
+        stackTrace: 'StackTrace',
+        text: 'string',
+        type: ['assert', 'dir', 'dirxml', 'endGroup', 'log', 'startGroup', 'startGroupCollapsed', 'trace'],
+        url: 'string'
+      },
+      Response: {
+        connectionId: 'integer',
+        connectionReused: 'boolean',
+        fromDiskCache: 'boolean',
+        headers: '[]', // ??
+        headerText: 'string',
+        mimeType: 'string', 
+        requestHeaders: '[]', 
+        requestHeadersTest: 'string',
+        status: 'integer',
+        timing: 'ResourceTiming',
+        url: 'string'
       }
     }
   });
   
-  thePurple.Features.registerPart(remote);
+  var Features = thePurple.getPartByName('Features');
+  Features.registerPart(remote);
   
-}());
+  return remote;
+});

@@ -7,7 +7,7 @@
 (function() {
   var thePurple = window.purple; 
   var Assembly = thePurple.Assembly;
-  var channelByMessageChannel = new thePurple.Feature();
+  var channelByMessageChannel = new thePurple.PurplePart();
   var channel__ = channelByMessageChannel;
   
   //---------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@
         channel.port = event.ports[0];
         channel.port.onmessage = channel.recv.bind(channel);
         channel.send = function(message) { this.port.postMessage(message); };
-        thePurple.implementFeature('channel', channel);
+        channel.features.push('channel');
       } else {
         console.error("connectToBrowser requires ports from proxy");
       }

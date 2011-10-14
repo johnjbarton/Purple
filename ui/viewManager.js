@@ -11,27 +11,22 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var Manager__ =  new thePurple.PurplePart('viewManager');  // the __ bit just makes the method names stand out.
+  var viewManager =  new thePurple.PurplePart('viewManager');  // the __ bit just makes the method names stand out.
   
-  Manager__.featureImplemented = function(feature) {
-    if (feature.name === 'load') {
+  viewManager.onload = function() {
       this.setBoxSizes();
-      window.addEventListener('resize', Manager__.setBoxSizes, true);
-    }
-  };
+      window.addEventListener('resize', viewManager.setBoxSizes, true);
+      window.removeEventListener('load', viewManager.onload , false);
+  }.bind(viewManager);
+  
+  window.addEventListener('load', viewManager.onload , false);
 
-  Manager__.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
-      window.removeEventListener('resize', Manager__.setBoxSizes, true);
-    }
-  };
-
-  Manager__.setBoxSizes = function() {
+  viewManager.setBoxSizes = function() {
     var purpleRoot = window.document.getElementById('purpleRoot');
     var hboxes = Flexor.getChildernByClassName(purpleRoot, 'purpleHBox');
     Flexor.sizeHBoxes(hboxes);
   };
   
-  thePurple.registerPart(Manager__);
+  thePurple.registerPart(viewManager);
   
 }());

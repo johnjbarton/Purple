@@ -43,6 +43,7 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
 }
 
 MonitorChrome.registerTab = function(proxy, tabId, debuggerErrorCallback) {
+    MonitorChrome.WebNavigation.initialize(tabId);
     MonitorChrome.Debugger.initialize(proxy, tabId, debuggerErrorCallback);
     MonitorChrome.Debugger.connect();
 };
@@ -122,13 +123,20 @@ ProxyPoster.prototype = {
 //---------------------------------------------------------------------------------------
 // WebNavigation http://code.google.com/chrome/extensions/dev/experimental.webNavigation.html
 
+var chromeWebNavigation = chrome.experimental.webNavigation || chrome.webNavigation;
 
 var WebNavigation = MonitorChrome.WebNavigation = {
-   events: Object.keys(chrome.experimental.webNavigation) // all for now
+   events: Object.keys(chromeWebNavigation) // all for now
+};
+
+WebNavigation.initialize = function(tabId) {
+  this.tabId = tabId;
 };
 
 WebNavigation.onEvent = function(proxy, name, details) {
-  proxy.send({source: "webNavigation", name: name, details: details});
+  if (details.tabId === WebNavigation.tabId) {  // focus on the tab we are debugging
+    proxy.send({source: "webNavigation", name: name, details: details});
+  }
 };
 
 WebNavigation.hookWebNavigation = function(proxy) {
@@ -140,7 +148,7 @@ WebNavigation.hookWebNavigation = function(proxy) {
 WebNavigation.connect = function() {
   this.events.forEach(function addListeners(event) {
     if (event[0] === 'o' && event[1] === 'n') {
-      chrome.experimental.webNavigation[event].addListener(WebNavigation[event].bind(WebNavigation));
+      chromeWebNavigation[event].addListener(WebNavigation[event].bind(WebNavigation));
     }
   });
 };
@@ -187,12 +195,18 @@ Debugger.onDetach = function(tabId) {
 
 // callback for sendRequest
 Debugger.recv = function(result) {
-  this.proxy.send({source: "debugger", name: "response", result: result});
+  if (result) {
+    this.proxy.send({source: "debugger", name: "response", result: result, request: this.request});
+  } else {
+    this.proxy.send({source: "debugger", name: "response", error: chrome.extension.lastError, request: this.request});
+  }
+  delete this.request; 
 }
 
 Debugger.send = function(data) {
   var method = data.method;
   var params = data.params;
+  this.request = data;
   chrome.experimental.debugger.sendRequest(this.tabId, method, params, this.recv.bind(this));
 };
 

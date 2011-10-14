@@ -8,13 +8,10 @@
   var thePurple = window.purple; 
   var Assembly = thePurple.Assembly;
   var channel__ = new thePurple.PurplePart('channel');
-  
 
-  Assembly.addPartContainer(channel__);  
+  Assembly.addListenerContainer(channel__);
   
-  channel__.recv = function(message) {
-    this.toSomeParts('recv', [message]);
-  }
+  channel__.recv = channel__.toEachListener;
   
   thePurple.Browser = {};
   var Browser = thePurple.Browser;
@@ -27,7 +24,7 @@
    * Out:
    * channel.send: function(message) callable 
    */
-  Browser.connect = function connectToBrowser(channel) {
+  Browser.connect = function connectToBrowser(channel, onConnect) {
  
     function recvPort(event) {
       console.log("channelByPostMessage.recvPort "+event.origin, event);
@@ -49,7 +46,8 @@
           channel.source.postMessage(message, channel.origin); 
         };
       }
-      thePurple.implementFeature('channel', channel);
+      channel.features.push('channel');
+      onConnect(channel);
     }  
     
     function requestPort() {
@@ -76,22 +74,21 @@
   
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  channel__.featureImplemented = function(feature) {
-    console.log("channel featureImplement called with feature", feature);
-    if (feature.name === 'load') {
+  channel__.initialize = function() {
       this.protocolName ='IAmPurple';
       this.version = 1;
+  }
+  
+  channel__.connect = function(onConnect) {
       console.log("Calling Browser.connect");
-      Browser.connect(this);
-    }
+      Browser.connect(this, onConnect);
   };
 
-  channel__.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
+  channel__.destroy = function() {
       Browser.disconnect(this);
-    }
   };
   
+  channel__.implementsFeature('channel');
   thePurple.registerPart(channel__);
   
 }());

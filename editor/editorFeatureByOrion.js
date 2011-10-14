@@ -11,78 +11,14 @@
 /*global eclipse:true orion:true dojo window*/
 /*jslint devel:true*/
 
+define(['annotationFactory'], function(annotationFactory){
+
 window.purple = window.purple || {};
-
-// See org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js  
-window.purple.AnnotationFactory = (function() {
-  function AnnotationFactory() {
-  }
-  AnnotationFactory.prototype = {
-    createAnnotationRulers: function() {
-      var rulerStyle = {'class': 'purple_annotation', style: { backgroundColor: "#ffffff", width: '240px', lineHeight: '17px' }};
-      // "Every ruler div has one extra div at the top (firstChild before any lines). 
-      // This div is used to determine the width of the ruler.' Silenio Quarti on orion-dev
-      var minusOneAnnotation = {html: "<a>undefined <img> src='/images/problem.gif'></img></a>", style: rulerStyle};
-      this.annotationRuler = new orion.textview.AnnotationRuler("left", rulerStyle, minusOneAnnotation);
-      var overviewStyle = {style: {backgroundColor: '#FFFFFF'}};
-      this.overviewRuler = new orion.textview.OverviewRuler("right", overviewStyle, this.annotationRuler);
-      return {annotationRuler: this.annotationRuler, overviewRuler: this.overviewRuler};
-    },
-
-    _showAnnotation: function(data, createAnnotation) {
-      var ruler = this.annotationRuler;
-      if (!ruler) {
-        return;
-      }
-      ruler.clearAnnotations();
-      var annotation = createAnnotation(data);
-      ruler.setAnnotation(annotation.line - 1, annotation);
-    },
-    
-    createErrorAnnotation: function(indicator) {
-      // escaping voodoo... we need to construct HTML that contains valid JavaScript.
-      var escapedReason = indicator.tooltip.replace(/'/g, "&#39;").replace(/"/g, '&#34;');
-      var annotation = {
-        line: indicator.line,
-        column: indicator.column,
-        html: "<a style='line-height:17px;' class='purpleAnnotation' title='" + escapedReason + "' alt='" + escapedReason + "'>"+indicator.token+"</a>",
-        overviewStyle: {style: {"backgroundColor": "lightcoral", "border": "1px solid red"}}
-      };
-	  return annotation;
-    },
-    
-    // indicators = {}
-    showIndicator: function(indicator) {
-      this._showAnnotation(indicator, this.createErrorAnnotation);
-    },
-    
-    createValueAnnotation: function(evaluation) {
-      var value = evaluation.value;
-      if (typeof value === 'object') {
-	      var tooltip = Object.keys(value).join(', ');
-      } else {
-          var tooltip = typeof value;
-      }
-	      
-      var annotation = {
-        line: evaluation.line,
-        column: evaluation.column,
-        html: "<a style='line-height:17px;' class='purpleAnnotation' title='" + tooltip + "' alt='" + tooltip + "'>"+value+"</a>",
-        overviewStyle: {style: {"backgroundColor": "lightcoral", "border": "1px solid red"}}
-      };
-	  return annotation;
-    },
-    
-    showValue: function(evaluation) {
-	  this._showAnnotation(evaluation, this.createValueAnnotation);
-    },
-  };
-  return AnnotationFactory;
-}());
-
+var thePurple = window.purple;
+var Assembly = thePurple.Assembly; 
 
 // Syntax highlighting is triggered by an editor callback 'lineStyle' event
-window.purple.ErrorStyler = (function () {
+thePurple.ErrorStyler = (function () {
   function ErrorStyler(view) {
 	view.addEventListener("LineStyle", this, this._onLineStyle);
   }
@@ -95,12 +31,12 @@ window.purple.ErrorStyler = (function () {
       console.log("ErrorStyler called with start: "+start+' text:'+text);
       return [];
       //styles.push({start: tokenStart, end: scanner.getOffset() + offset, style: style});
-    },
+    }
   };
   return ErrorStyler;
 }());
 
-dojo.addOnLoad(function(){
+var editor = (function(){
   
   var editorDomNode = dojo.byId("editor");
   
@@ -138,7 +74,7 @@ dojo.addOnLoad(function(){
         if (splits.length > 0) {
           switch(extension) {
             case "js":
-              this.stylers[extension] = new window.purple.ErrorStyler(textView);
+              this.stylers[extension] = new thePurple.ErrorStyler(textView);
               break;
             case "java":
               this.stylers[extension] = new examples.textview.TextStyler(textView, "java");
@@ -156,8 +92,6 @@ dojo.addOnLoad(function(){
     }
   };
   
-  var annotationFactory = new window.purple.AnnotationFactory();
-
   function save(editor) {
     editor.onInputChange(null, null, null, true);
     window.alert("Save hook.");
@@ -219,12 +153,13 @@ dojo.addOnLoad(function(){
   });
   
   editor.installTextView();
-  
+  return editor;
+}());
+
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
-  var thePurple = window.purple;
   
-  var editorFeatureByOrion = new thePurple.PurplePart('editor');
+  var editorFeatureByOrion = new thePurple.PurplePart('editorByOrion');
   
   //--------------------------------------------------------------------------------------------------------
   // Implement features.editor
@@ -239,14 +174,27 @@ dojo.addOnLoad(function(){
 	'Comment':                  {styleClass: "token_comment"},
 	'ReservedWord':             {styleClass: "token_keyword"},
 	'Experimental':             {},
-	'Error':                    {},   
+	'Error':                    {}   
 	};
 	
   // Errors reported but not used by the highlighter yet.
   editorFeatureByOrion._unclaimedIndicators = []; 
   
+  editorFeatureByOrion.open = function(source) {
+    this.sourceName = source.url;
+    source.fetchContent(
+      this.setContent.bind(this, this.sourceName), 
+      function(msg) { 
+        throw new Error(msg); 
+      }
+    );
+  };
+  
   editorFeatureByOrion.setContent = function(name, src) {
     this.sourceName = name;  // TODO multiple editors
+    if (typeof src !== 'string') {
+      src = src.body; // TODO deal with base64
+    }
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
     editor.onInputChange(name, null, src);
 //    syntaxHighlighter.highlight(name, editor.getTextView());
@@ -290,21 +238,15 @@ dojo.addOnLoad(function(){
 
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  editorFeatureByOrion.featureImplemented = function(feature) {
-    if (feature.name === 'load') {
-     var view = editor.getTextView();
-     view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
-     view.addEventListener("LineStyle", this, this._onLineStyle);
-     thePurple.implementFeature('editor', this);
-    }
+  editorFeatureByOrion.initialize = function() {
+    var view = editor.getTextView();
+    view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
+    view.addEventListener("LineStyle", this, this._onLineStyle);
   };
     
-  editorFeatureByOrion.featureUnimplemented = function(feature) {
-    if (feature.name === 'load') {
-      thePurple.unimplementFeature('editor', this);
-      editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion._onModelChanged, "no data");
-      editor.getTextView().removeEventListener("LineStyle", editorFeatureByOrion, editorFeatureByOrion._onLineStyle, "no data");
-    }
+  editorFeatureByOrion.destroy = function() {
+    editor.getTextView().removeEventListener("ModelChanged", editorFeatureByOrion, editorFeatureByOrion._onModelChanged, "no data");
+    editor.getTextView().removeEventListener("LineStyle", editorFeatureByOrion, editorFeatureByOrion._onLineStyle, "no data");
   };
 
   //----------------------------
@@ -330,6 +272,8 @@ dojo.addOnLoad(function(){
       event.ranges = this.tokenStyles;
   };
   
+  Assembly.addPartContainer(editorFeatureByOrion);
+  editorFeatureByOrion.implementsFeature('editor');
   thePurple.registerPart(editorFeatureByOrion);
   
   window.onbeforeunload = function() {
@@ -337,4 +281,8 @@ dojo.addOnLoad(function(){
        console.log("TODO: There are unsaved changes.");
     }
   };
+
+
+return editorFeatureByOrion;
+
 });

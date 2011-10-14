@@ -3,12 +3,15 @@
 
 (function () {
   var thePurple = window.purple;
+  var Feature = thePurple.Feature;
   
-  var editor = new thePurple.Feature({
+  var editor = thePurple.extend(Object.create(Feature.methods), {
     name: "editor",
     api: {
       //-------------------
       // Commands to editor
+      open: function(source) {}, // source.url
+      
       setContent: function(name, src) { },
     
       // indicator: {token: string, tooltip: string, line: number, column: number }
@@ -25,9 +28,10 @@
       // endDamage: last pos of change in *old* buffer 
       _sourceChange: function(name, src, startDamage, endDamage) {}
 
-    },
+    }
   });
   
-  thePurple.Features.registerPart(editor);
+  var Features = thePurple.getPartByName('Features');
+  Features.registerPart(editor);
   
 }());

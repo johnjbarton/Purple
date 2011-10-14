@@ -1,0 +1,6 @@
+Architecture
+ Features as optional components of parts
+ Visible parts: loaded into iframes
+ Invisible parts: ? loaded into iframes?
+ Built-in parts vs extension parts: loaded via purple.conf
+  purple.conf: plain text, shaved JSON

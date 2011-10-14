@@ -22,7 +22,7 @@
       recv: function(message) {}
     }
   });
-  
-  thePurple.Features.registerPart(channel);
+  var Features = thePurple.getPartByName('Features');
+  Features.registerPart(channel);
   
 }());

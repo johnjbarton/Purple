@@ -15,7 +15,8 @@
     [
       "experimental",
       "tabs",
-      "contextMenus"
+      "contextMenus",
+      "webNavigation"
     ],
    "options_page": "options.html"
 }

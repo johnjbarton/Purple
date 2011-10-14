@@ -45,8 +45,23 @@ window.onload = function() {
 	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
 	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
 <!-- End from Orion embeddededitor -->
+        <script type="text/javascript" src="../lib/requirejs/require.js"></script>
+        <script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
+
         <script type="text/javascript" src="editor.js"></script>
-        <script type="text/javascript" src="editorFeatureByOrion.js"></script>
+        <script>
+        window.addEventListener('load', function() {
+          require(['editorCompilerAssembly'], function assy(editorCompilerAssembly) {
+            console.log("editorCompilerAssembly loaded");
+          });
+        }, false);
+
+        window.addEventListener('unload', function() {
+          require(['editorCompilerAssembly'], function assy(editorCompilerAssembly) {
+            console.log("editorCompilerAssembly unloaded");
+          });
+        }, false);
+        </script>
 
 </head>
 <body>
