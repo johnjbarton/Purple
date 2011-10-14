@@ -34,13 +34,14 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
   };
   
   // close over the handler here to narrow the interface to NetworkResource
+  // |this| will be bound to a Resource
   
   NetworkResource.prototype.fetchContent = function(fncOfContent, fncOfError) {
     if (this.requestId) {
-      var rc = networkEventHandler.remote.getResponseBody(this.requestId);
-      fncOfContent(rc);
+      networkEventHandler.remote.setResponseCallbacks(fncOfContent, fncOfError);
+      networkEventHandler.remote.Network.getResponseBody(this.requestId);
     } else {
-      fncOfError("Resource not loaded");
+      fncOfError("Resource not loaded: "+this.url);
     }
   };
 
@@ -68,7 +69,9 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
           resource.servedFromCache = true;
         },
         requestServedFromMemoryCache: function(requestId, loaderId, documentURL, timestamp, initiator, cachedResource){
-          var resource = networkEventHandler.getOrCreateResource(documentURL);
+          var url = cachedResource.url;
+          var resource = networkEventHandler.getOrCreateResource(url);
+          resource.documentURL = documentURL;
           resource.requestId = requestId;
           resource.loaderId = loaderId;
           resource.timestamps = {"fromMemoryCache": timestamp};
@@ -78,7 +81,9 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
           networkEventHandler.logger(resource);
         },
         requestWillBeSent: function(requestId, loaderId, documentURL, request, timestamp, initiator, stackTrace, redirectResponse){
-          var resource = networkEventHandler.getOrCreateResource(documentURL);
+          var url = request.url;
+          var resource = networkEventHandler.getOrCreateResource(url);
+          resource.documentURL = documentURL;
           resource.requestId = requestId;
           resource.loaderId = loaderId;
           resource.request = request;
@@ -94,6 +99,26 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
           resource.timestamps.responseRecieved = timestamp;
           resource.type = type;
           resource.response = response;
+        }
+      },
+      WebNavigation: {
+        onBeforeNavigate: function(details){
+          networkEventHandler.logger(details);
+        },
+        onBeforeRetarget: function(details){
+          networkEventHandler.logger(details);
+        },
+        onCommitted: function(details){
+          networkEventHandler.logger(details);
+        },
+        onCompleted: function(details){
+          networkEventHandler.logger(details);
+        },
+        onDOMContentLoaded: function(details){
+          networkEventHandler.logger(details);
+        },
+        onErrorOccurred: function(details){
+          networkEventHandler.logger(details);
         }
       }
   };
