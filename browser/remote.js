@@ -1,9 +1,10 @@
 // See Purple/licence.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-(function () {
+define([],function () {
+
   var thePurple = window.purple;
-  
+  // These methods are defined ultimately in InspectorBackendStub.js on chrome source code
   var remote = new thePurple.Feature({
     name: "remote",
     api: {
@@ -72,6 +73,14 @@
         eventRecorded: function(record) {},
         started: function() {},
         stopped: function() {}
+      },
+      WebNavigation: {
+        onBeforeNavigate: function(details) {},
+        onBeforeRetarget: function(details) {},
+        onCommitted: function(details) {},
+        onCompleted: function(details) {},
+        onDOMContentLoaded: function(details) {},
+        onErrorOccurred: function(details) {}
       }
     },
     types: {
@@ -127,4 +136,5 @@
   var Features = thePurple.getPartByName('Features');
   Features.registerPart(remote);
   
-}());
+  return remote;
+});
