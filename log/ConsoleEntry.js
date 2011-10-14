@@ -15,7 +15,7 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
   //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
 
   with(domplate.tags) {
-    ConsoleEntry.messageClearedEntry = {
+    ConsoleEntry.messagesClearedEntry = {
       domplateTag: domplate.domplate({
         tag: DIV({'class':'consoleCleared'}, "Console Cleared")
       })
