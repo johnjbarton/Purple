@@ -10,6 +10,8 @@
     api: {
       //-------------------
       // Commands to editor
+      open: function(source) {}, // source.url
+      
       setContent: function(name, src) { },
     
       // indicator: {token: string, tooltip: string, line: number, column: number }

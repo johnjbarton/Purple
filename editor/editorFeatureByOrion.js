@@ -180,6 +180,16 @@ var editor = (function(){
   // Errors reported but not used by the highlighter yet.
   editorFeatureByOrion._unclaimedIndicators = []; 
   
+  editorFeatureByOrion.open = function(source) {
+    this.sourceName = source.url;
+    source.fetchContent(
+      this.setContent.bind(this, this.sourceName), 
+      function(msg) { 
+        throw new Error(msg); 
+      }
+    );
+  };
+  
   editorFeatureByOrion.setContent = function(name, src) {
     this.sourceName = name;  // TODO multiple editors
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.

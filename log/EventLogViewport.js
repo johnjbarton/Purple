@@ -76,18 +76,16 @@ define([], function() {
       this.container.appendChild(dataView);
     },
     renderToHTML: function(event) {
-      var innerHTML = "";
+      var div = this.container.ownerDocument.createElement('div');
       try {
         if (event && event.domplateTag) {
-          innerHTML = event.domplateTag.tag.render(event);
+          event.domplateTag.tag.replace(event, div, event.domplateTag);
         } else {
-          innerHTML = this.renderToString(event);
+          div.innerHTML = this.renderToString(event);
         }
       } catch (exc) {
-          innerHTML = exc.toString();
+          div.innerHTML = exc.toString();
       }
-      var div = this.container.ownerDocument.createElement('div');
-      div.innerHTML = innerHTML;
       return div;
     },
     renderToString: function(event) {
@@ -125,6 +123,19 @@ define([], function() {
   
   EventLogViewport.onClick = function(event) {
     console.log("click:", event);
+    var link = event.target.link;
+    var target = null;
+    thePurple.forEachPart(function findTarget(part) {
+      if (part.hasFeature('editor')) {
+        target = part;
+        return true;
+      }
+    });
+    if (target) {    
+      target.open(link.source);
+    } else {
+      throw new Error("No "+link.target+" found");
+    }
   };
   
   EventLogViewport.bindHandlers = function() {
