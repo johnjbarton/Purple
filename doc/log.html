@@ -1,0 +1,58 @@
+<html>
+<head>
+<style>
+body {
+  font-family:Verdana,Geneva,sans-serif;
+}
+table { 
+  text-align: center;
+  border-collapse: collapse;
+}
+th {
+  padding: 10px;
+}
+td {
+  padding: 6px;
+  border: solid gray 4px;
+}
+td.explain {
+  border: none;
+  font-family: monospace;
+  text-align: left;
+}
+</style>
+</head>
+<body>
+<h1>Purple Log Architecture</h1>
+<h2>Event Flow</h2>
+<p>Events, posted as JSON from various sources, append to a immutable log. Incrementally the log entries filter through
+category indexes, text filters and number-of-visible-entries filters. Finally the rendering layer merges the JSON records 
+merge and generates HTML</p>
+<table>
+<tbody>
+  <tr>
+    <td style='border: none;vertical-align:middle;font-size:300%' rowspan='7'>&darr;</td>
+    <th>Sources</th><td>Debugger</td><td>Network</td><td>Console</td><td>Querypoints</td><td class='explain'>postMessage JSON</td>
+  </tr>
+  <tr>
+    <th>Channels</th><td colspan='3'>Browser</td><td>Instrumentation</td><td class='explain'>JSON recv</td>
+  <tr>
+    <th>Log</th><td colspan='4'>Event Log</td><td class='explain'>append-only JSON array</td>
+  <tr>
+    <th>Indexes</th><td>*</td><td>Resources</td><td>Console</td><td>Layout/Paint</td><td class='explain'>incremental array of log indexes</td>
+  </tr>
+  <tr>
+    <th>Filter</th><td colspan='4'>FindAnything</td><td class='explain'>interactive (drop-down) and docked views</td>
+  </tr>
+  <tr>
+    <th>Viewport</th><td colspan='4'>IndexViewport</td><td class='explain'># rows rendered, can lock to bottom</td>
+  </tr>
+  <tr>
+    <th>Rendering</th><td>*</td><td>Resources</td><td>Console</td><td>Layout/Paint</td><td class='explain'>row template expansion</td>
+  </tr>
+</tbody>
+</table>
+<h2>User Interface</h2>
+The UI can use the log views in different ways.  The two simple ways to start are drop-down summary views for findAnything and table-like views to study or coordinate with editing.
+</body>
+</html>
