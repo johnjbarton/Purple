@@ -3,22 +3,10 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define([], function() {
+define(['ConsoleEntry'], function(ConsoleEntry) {
   
   'use strict';
   var thePurple = window.purple;
-  var Browser = thePurple.Browser;
-  var Renderer = {
-    'debugger': function(data) {
-      var params = data.params ? Object.keys(data.params).join(',') : "";
-      return "debugger."+data.name+"("+params+")";
-    },
-    'webNavigation': function(data) {
-      var params = data.params ? Object.keys(data.params).join(',') : "";
-      return "webNavigation."+data.name+"("+params+")";
-    }
-  };
-
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
@@ -73,7 +61,9 @@ define([], function() {
     },
     append: function(data, index) {
       var dataView = this.renderToHTML(data);
-      this.container.appendChild(dataView);
+      if (dataView) {
+        this.container.appendChild(dataView);
+      } 
     },
     renderToHTML: function(event) {
       var div = this.container.ownerDocument.createElement('div');
@@ -81,10 +71,11 @@ define([], function() {
         if (event && event.domplateTag) {
           event.domplateTag.tag.replace(event, div, event.domplateTag);
         } else {
+          return;
           div.innerHTML = this.renderToString(event);
         }
       } catch (exc) {
-          div.innerHTML = exc.toString();
+          ConsoleEntry.InternalExceptionTag.tag.replace(exc, div, ConsoleEntry.InternalExceptionTag);
       }
       return div;
     },
@@ -124,20 +115,19 @@ define([], function() {
   EventLogViewport.onClick = function(event) {
     console.log("click:", event);
     var link = event.target.link;
-    if (!link) {
-      return;  // not a link
-    }
-    var target = null;
-    thePurple.forEachPart(function findTarget(part) {
-      if (part.hasFeature('editor')) {
-        target = part;
-        return true;
+    if (link && link.source) {
+      var target = null;
+      thePurple.forEachPart(function findTarget(part) {
+        if (part.hasFeature('editor')) {
+          target = part;
+          return true;
+        }
+      });
+      if (target) {    
+        target.open(link.source);
+      } else {
+        throw new Error("No "+link.target+" found");
       }
-    });
-    if (target) {    
-      target.open(link.source);
-    } else {
-      throw new Error("No "+link.target+" found");
     }
   };
   

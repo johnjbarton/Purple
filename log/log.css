@@ -13,4 +13,31 @@
   color: blue;
 }
   
-  
+.internalError {
+  color: red;
+}  
+
+.hasMore * {
+ display: none;
+}
+
+.hasMore:before {
+  content: url("../ui/icons/from-firebug/twistyClosed.png");
+}
+
+.hadMore:before {
+  content: url("../ui/icons/from-firebug/twistyOpen.png");
+}
+
+.callStack {
+  padding-left: 1em;
+}
+
+.callStackFrame {
+  color: green;
+  padding-left: 25px;
+}
+
+.callStackFrame .objectLink {
+  text-align: right;
+}
