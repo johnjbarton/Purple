@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/NetworkResource'], function (remoteByWebInspector, Resources, Resource) {
+define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/Resource'], function (remoteByWebInspector, Resources, Resource) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
