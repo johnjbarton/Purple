@@ -3,8 +3,10 @@
 
 define(['../lib/domplate/lib/domplate'], function (domplate) {
   
+  var thePurple = window.purple;
+  
   with(domplate.tags) {
-   var PARTLINK = A({"class":"PartLink PartLink-$.targetPart a11yFocus", _target: "$targetPart", 'onclick': '$clickLink'});
+   var PARTLINK = A({"class":"PartLink PartLink-$.targetPart a11yFocus", _target: "$targetPart", _repObject: '$object', 'onclick': '$clickLink'});
     
     var ResourceRep = domplate.domplate({
       tag: DIV({'class': 'resource'},
@@ -17,11 +19,12 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
   
   ResourceRep.targetPart = 'editor', // constant for all instances
   
-  // Will be called with |this| bound to $object
+  // Will be called with |this| bound to domplate (rep)
   ResourceRep.clickLink = function(event) {
     var target = event.currentTarget;  // the element with the handler
     var destinationFeature = target.getAttribute('target');
-    this.openPartWith.apply(this, [destinationFeature]);
+    var repObject = target.repObject;
+    this.openPartWith.apply(repObject, [destinationFeature]);
   };
     
   ResourceRep.openPartWith = function(feature) {

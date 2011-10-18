@@ -27,6 +27,14 @@ define([], function () {
     return resource;
   };
 
+  Resources.replace = function(url, resource) {
+    var index = this.resources.indexOf(resource);
+    this.resources[index] = resource;
+    this.resourcesByURL[url] = resource;
+    this.eventSink.apply(null, [resource]);
+    return resource;
+  };
+
   Resources.get = function(url) {
     if ( this.resourcesByURL.hasOwnProperty(url) ) {
       return this.resourcesByURL[url];
