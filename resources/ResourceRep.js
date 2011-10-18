@@ -4,7 +4,7 @@
 define(['../lib/domplate/lib/domplate'], function (domplate) {
   
   with(domplate.tags) {
-   var PARTLINK = A({"class":"PartLink PartLink-$object.rep.targetPart a11yFocus", _target: "$object.rep.targetPart", 'onclick': '$object.rep.clickLink'});
+   var PARTLINK = A({"class":"PartLink PartLink-$.targetPart a11yFocus", _target: "$targetPart", 'onclick': '$clickLink'});
     
     var ResourceRep = domplate.domplate({
       tag: DIV({'class': 'resource'},

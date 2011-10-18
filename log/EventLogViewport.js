@@ -69,7 +69,9 @@ define(['ConsoleEntryRep'], function(ConsoleEntryRep) {
       var div = this.container.ownerDocument.createElement('div');
       try {
         if (object && object.rep) {
-          object.rep.tag.replace({object: object}, div, object);
+          // The rep tags are 'controllers/views', $object is their model
+          // The tage use |this| meaning the rep, not the model object.
+          object.rep.tag.replace({object: object}, div, object.rep);
         } else {
           return;
           div.innerHTML = this.renderToString(object);

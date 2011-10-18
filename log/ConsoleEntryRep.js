@@ -11,7 +11,7 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
   with(domplate.tags) {
 
     ConsoleEntryRep = domplate.domplate({
-      tag: DIV({'class': 'console-$object.message.type hasMore', 'onclick': '$object.rep.toggleMore'}, '$object.message.text',
+      tag: DIV({'class': 'console-$object.message.type hasMore', 'onclick': '$toggleMore'}, '$object.message.text',
         TABLE({'class':'callStack'},
           FOR('frame', '$object.message.stack|getFrames',
             TR({'class':'callStackFrame'}, 
