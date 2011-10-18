@@ -22,11 +22,12 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
     if (!resource) {
       resource = new JavaScriptResource(url, isContentScript);
       Resources.append(url, resource);
-    } else if ( ! (resource instanceof JavaScriptResource) ) {
+    } else if ( ! resource instanceof JavaScriptResource) {
       // we have a network resource which we just discovered is a JavaScriptResource
-      Object.keys(JavaScriptResource.prototype).forEach(function(key) {
-        resource[key] = JavaScriptResource.prototype[key];
-      });
+      var tmp = Object.create(resource);
+      JavaScriptResource.apply(tmp, [url, isContentScript]);
+      Resources.replace(url, tmp);
+      resource = tmp;
     }
     return resource;
   };
