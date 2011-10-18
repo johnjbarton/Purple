@@ -1,28 +1,16 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/NetworkResource'], function (remoteByWebInspector, Resources, NetworkResource) {
+define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/NetworkResource'], function (remoteByWebInspector, Resources, Resource) {
   var thePurple = window.purple;
+  var Assembly = thePurple.Assembly;
   
   var networkEventHandler = new thePurple.PurplePart('networkEventHandler');
   
-  // close over the handler here to narrow the interface to NetworkResource
-  // |this| will be bound to a Resource
-  
-  function fetchContent(fncOfContent, fncOfError) {
-    if (this.requestId) {
-      networkEventHandler.remote.setResponseCallbacks(fncOfContent, fncOfError);
-      networkEventHandler.remote.Network.getResponseBody(this.requestId);
-    } else {
-      fncOfError("Resource not loaded: "+this.url);
-    }
-  }
-
   networkEventHandler.getOrCreateResource = function(url) {
     var resource = Resources.get(url);
     if (!resource) {
-      resource = new NetworkResource(url);
-      resource.fetchContent = fetchContent;
+      resource = Resource.new(url);
       Resources.append(url, resource);
     }
     return resource;
@@ -45,6 +33,18 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
     }
   };
   
+  // close over the handler here to narrow the interface to Resource
+  // |this| will be bound to a Resource
+  
+  Resource.fetchContent = function(fncOfContent, fncOfError) {
+    if (this.requestId) {
+      networkEventHandler.remote.setResponseCallbacks(fncOfContent, fncOfError);
+      networkEventHandler.remote.Network.getResponseBody(this.requestId);
+    } else {
+      fncOfError("Resource not loaded: "+this.url);
+    }
+  };
+
   //---------------------------------------------------------------------------------------------
   // Implement Remote.events
   networkEventHandler.responseHandlers = {
