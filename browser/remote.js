@@ -49,7 +49,7 @@ define([],function () {
     },
     events: {
       Console: {
-        messageAdded: function(messageObj) {},
+        messageAdded: function(message) {},
         messageRepeatCountUpdated: function(count) {},
         messagesCleared: function() {}
       },
