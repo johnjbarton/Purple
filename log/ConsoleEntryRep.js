@@ -1,25 +1,32 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate'], function (domplate) {
-  var thePurple = window.purple;
-  var Assembly = thePurple.Assembly;
-  
+define(['../lib/domplate/lib/domplate', '../resources/BaseRep'], function (domplate, BaseRep) {
   
   //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
 
   with(domplate.tags) {
-
-    ConsoleEntryRep = domplate.domplate({
+    var StackFrameRep =  domplate.domplate(
+      BaseRep, 
+      {
+        stackFrameTag:
+              TR({'class':'callStackFrame', }, 
+                TD('$object|getFunctionName'),
+                TD({'title':'$object.url'},
+                   BaseRep.PARTLINK('$object.url|getResourceName')
+                )
+              )
+      });
+      
+    ConsoleEntryRep = domplate.domplate(
+      StackFrameRep,
+      {
       tag: DIV({'class': 'console-$object.message.type hasMore', 'onclick': '$toggleMore'}, '$object.message.text',
         TABLE({'class':'callStack'},
-          FOR('frame', '$object.message.stack|getFrames',
-            TR({'class':'callStackFrame'}, 
-              TD('$frame|getFunctionName'),
-              TD({'class':'partLink', 'title':'$frame.url'},
-                 '$frame.url|getResourceName'
-              )
-            )      
+          TBODY(
+            FOR('frame', '$object.message.stack|getFrames',
+              TAG(StackFrameRep.stackFrameTag, {object: '$frame'})
+            )
           )
         )
       ),
@@ -56,8 +63,8 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
           FOR('frame', '$object.stack|getFrames',
             TR({'class':'callStackFrame'}, 
               TD('$frame.fnName'),
-              TD({'class':'objectLink', 'title':'$frame.url'},
-                 '$frame.url|getResourceName'
+              TD({'title':'$frame.url'},
+                 BaseRep.PARTLINK('$frame.url|getResourceName')
               )
             )      
           )
