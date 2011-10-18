@@ -24,7 +24,11 @@
 .console-log {
   color: gray;
 }  
-
+.consoleCleared {
+  color: white;
+  background-color: black;
+  text-align: center;
+}
 
 .hasMore * {
  display: none;
