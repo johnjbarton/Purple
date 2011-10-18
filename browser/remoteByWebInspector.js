@@ -97,7 +97,7 @@ define(['../browser/remote'], function (remote) {
   // As ChannelPart
   // 
   RemoteByWebInspector.recv = function(message) {
-    console.log("remote.recv", message);
+    //console.log("remote.recv", message);
     var data = message.data;
     if (data && data.source && data.name) {
       if (data.name === 'response') {
