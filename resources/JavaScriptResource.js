@@ -1,20 +1,24 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/JavaScriptResourceRep'], function (domplate, JavaScriptResourceRep) {
+define(['../lib/domplate/lib/domplate', '../resources/NetworkResource', '../resources/JavaScriptResourceRep'], function (domplate, Resource, JavaScriptResourceRep) {
   
-  function JavaScriptResource(url, isContentScript) {
-    this.url = url;
-    this.isContentScript = isContentScript;
-    this.scripts = {};
-    this.targetPart = "editor";
-    this.rep = JavaScriptResourceRep;
-  }
+  var JavaScriptResource = Resource.extend({
   
-  JavaScriptResource.prototype.appendScript = function(scriptId, startLine, startColumn, endLine, endColumn) {
-    this.scripts = this.scripts || {};
-    this.scripts[scriptId] = [startLine, startColumn, endLine, endColumn];
-  };
+    initialize: function (url, isContentScript) {
+      this.url = url;
+      this.isContentScript = isContentScript;
+      this.scripts = {};
+      this.targetPart = "editor";
+      this.rep = JavaScriptResourceRep;
+    },
+    
+    appendScript: function(scriptId, startLine, startColumn, endLine, endColumn) {
+      this.scripts = this.scripts || {};
+      this.scripts[scriptId] = [startLine, startColumn, endLine, endColumn];
+    }
 
+  });
+  
   return JavaScriptResource;
 });

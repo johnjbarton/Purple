@@ -3,10 +3,36 @@
 
 define(['../lib/domplate/lib/domplate','../resources/ResourceRep'], function (domplate, ResourceRep) {
   
-  function NetworkResource(url) {
-    this.url = url;
-    this.rep = ResourceRep;
-  }
+  var Base = {
+    'new': function() {
+      var obj = Object.create(this);
+      obj.initialize.apply(obj, arguments);
+      return obj;
+    },
+    
+    merge: function() {
+       var result = this;
+       for (var i = 0; i < arguments.length; i++) {
+         var argument = arguments[i];
+         Object.keys(argument).forEach(function mergeOne(key) {
+           result[key] = argument[key];
+         });
+       }
+       return result;
+    },
+    
+    extend: function() {
+      // An empty object with |this| as its prototype, and props from arguments
+      return this.merge.apply(Object.create(this), arguments);
+    },
+  };  
+    
+  var Resource = Base.extend({
+    initialize: function(url) {
+      this.url = url;
+      this.rep = ResourceRep;
+    }
+  });
   
-  return NetworkResource;
+  return Resource;
 });
