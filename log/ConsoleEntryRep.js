@@ -15,8 +15,8 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
         TABLE({'class':'callStack'},
           FOR('frame', '$object.message.stack|getFrames',
             TR({'class':'callStackFrame'}, 
-              TD('$frame.functionName'),
-              TD({'class':'objectLink', 'title':'$frame.url'},
+              TD('$frame|getFunctionName'),
+              TD({'class':'partLink', 'title':'$frame.url'},
                  '$frame.url|getResourceName'
               )
             )      
@@ -31,6 +31,10 @@ define(['../lib/domplate/lib/domplate'], function (domplate) {
       
       getFrames: function(stack) {
         return stack;
+      },
+      
+      getFunctionName: function(frame) {
+        return frame.functionName;
       },
       
       getResourceName: function(url) {
