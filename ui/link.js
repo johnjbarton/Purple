@@ -1,4 +1,3 @@
-// Links 
 // See licence.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 

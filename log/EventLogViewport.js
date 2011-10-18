@@ -3,7 +3,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['ConsoleEntry'], function(ConsoleEntry) {
+define(['ConsoleEntryRep'], function(ConsoleEntryRep) {
   
   'use strict';
   var thePurple = window.purple;
@@ -65,26 +65,26 @@ define(['ConsoleEntry'], function(ConsoleEntry) {
         this.container.appendChild(dataView);
       } 
     },
-    renderToHTML: function(event) {
+    renderToHTML: function(object) {
       var div = this.container.ownerDocument.createElement('div');
       try {
-        if (event && event.domplateTag) {
-          event.domplateTag.tag.replace(event, div, event.domplateTag);
+        if (object && object.rep) {
+          object.rep.tag.replace({object: object}, div, object);
         } else {
           return;
-          div.innerHTML = this.renderToString(event);
+          div.innerHTML = this.renderToString(object);
         }
       } catch (exc) {
-          ConsoleEntry.InternalExceptionTag.tag.replace(exc, div, ConsoleEntry.InternalExceptionTag);
+          ConsoleEntryRep.InternalExceptionTag.tag.replace(exc, div, ConsoleEntryRep.InternalExceptionTag);
       }
       return div;
     },
-    renderToString: function(event) {
+    renderToString: function(object) {
       var str = "";
-      if(event.toString() === '[object MessageEvent]') {
-        str = event.type +" event " + this.summary(event.data);
+      if(object.toString() === '[object MessageEvent]') {
+        str = object.type +" event " + this.summary(object.data);
       } else {
-        str = 'Not a MessageEvent,' + this.summary(event);
+        str = 'Not a MessageEvent,' + this.summary(object);
       }
       return str;
     },
@@ -112,40 +112,10 @@ define(['ConsoleEntry'], function(ConsoleEntry) {
     }
   };
   
-  EventLogViewport.onClick = function(event) {
-    console.log("click:", event);
-    var link = event.target.link;
-    if (link && link.source) {
-      var target = null;
-      thePurple.forEachPart(function findTarget(part) {
-        if (part.hasFeature('editor')) {
-          target = part;
-          return true;
-        }
-      });
-      if (target) {    
-        target.open(link.source);
-      } else {
-        throw new Error("No "+link.target+" found");
-      }
-    }
-  };
-  
-  EventLogViewport.bindHandlers = function() {
-    this.onClick = this.onClick.bind(this);
-  };
-  
-  EventLogViewport.addListeners = function() {
-    document.addEventListener('click', this.onClick, true);
-  };
-      
   EventLogViewport.initializeUI = function () {
     var logElement = document.getElementById('log');
     logElement.style.overflowY = 'scroll';
     renderedLines.connect(logElement);
-    
-    this.bindHandlers();
-    this.addListeners();
   };
 
   EventLogViewport.dataAppended = function(data, index) {

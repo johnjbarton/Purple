@@ -3,19 +3,28 @@
  * johnjbarton@google.com
  */
  
-.objectLink:hover {
+.partLink:hover {
   cursor: pointer;
   text-decoration: underline;
 }
 
-.objectLink {
+.partLink {
   font-weight: bold;
   color: blue;
 }
   
-.internalError {
+.console-error {
   color: red;
 }  
+
+.console-warn {
+  color: yellow;
+}  
+
+.console-log {
+  color: gray;
+}  
+
 
 .hasMore * {
  display: none;
@@ -38,6 +47,6 @@
   padding-left: 25px;
 }
 
-.callStackFrame .objectLink {
+.callStackFrame .partLink {
   text-align: right;
 }
