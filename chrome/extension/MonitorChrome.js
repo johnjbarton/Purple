@@ -13,6 +13,7 @@ window.MonitorChrome = window.MonitorChrome || {};
 var MonitorChrome = window.MonitorChrome;
 
 MonitorChrome.connect = function(clientOrigin, tabId, errback) {
+  var deferred = Q.defer();
   function heardProxyClientHello(event) {
     // Someone has sent a message
     console.log("heardProxyClientHello", arguments);
@@ -30,10 +31,12 @@ MonitorChrome.connect = function(clientOrigin, tabId, errback) {
       MonitorChrome.proxy.connect(event.data);
       MonitorChrome.registerProxy(clientName, clientVersion, MonitorChrome.proxy);
       MonitorChrome.registerTab(MonitorChrome.proxy, tabId, errback);
+      deferred.resolve(MonitorChrome);
     }
   }
   // Wait for the client to connect
   window.addEventListener('message', heardProxyClientHello, false);
+  return deferred.promise;
 };
 
 MonitorChrome.registerProxy = function(name, version, proxy) {

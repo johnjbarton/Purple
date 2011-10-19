@@ -13,6 +13,12 @@
   </head>
   <body>
     <script>
+      /* 
+       * Returns a number or null
+       */
+      function insureNumber(n) {
+         return isFinite(n) ? n : null;
+      }
       /**
        * Returns a handler which will open a new window when activated.
        */
@@ -22,11 +28,14 @@
           var createData = {url: 'ppa.html#' + tab.id, type: 'popup' };
 
           var width = parseInt(window.localStorage.getItem('windowWidth'));
-          if (width) createData.width = width;
+          createData.width = insureNumber(width) || (Math.floor(window.screen.availWidth / 2) - 2);
 
           var height = parseInt(window.localStorage.getItem('windowHeight'));
-          if (width) createData.height = height;
+          createData.height = insureNumber(height) || window.screen.availHeight;
 
+          var left = parseInt(window.localStorage.getItem('windowLeft'));
+          createData.left = insureNumber(left) || (window.screen.availLeft + (window.screen.availWidth - createData.width) );
+   console.log("chrome.windows.create:", createData);
           // Open Purple in a new window.
           chrome.windows.create(createData);
         };
