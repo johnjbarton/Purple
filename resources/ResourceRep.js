@@ -12,7 +12,10 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep'], function (dompl
       {
       tag: DIV({'class': 'resource'},
           BaseRep.PARTLINK("$object.url")   
-        )
+        ),
+      getPartLinkClass: function(object) {
+        return object.requestId ? 'partLink' : ""; 
+      }
     });
   
   }

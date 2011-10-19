@@ -6,10 +6,13 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
   var thePurple = window.purple;
   
   with(domplate.tags) {
-    var PARTLINK = A({"class":"PartLink PartLink-$.targetPart a11yFocus", _target: "$targetPart", _repObject: '$object', 'onclick': '$clickLink'});
+    var PARTLINK = A({"class":"$object|getPartLinkClass PartLink-$targetPart a11yFocus", _target: "$targetPart", _repObject: '$object', 'onclick': '$clickLink'});
     
     var BaseRep = domplate.domplate({
-      PARTLINK: PARTLINK
+      PARTLINK: PARTLINK,
+      getPartLinkClass: function(object) {
+        return '';  // no part link
+      }
     });
   
   }
@@ -22,16 +25,20 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
     var destinationFeature = target.getAttribute('target');
     var repObject = target.repObject;
     var resource = repObject;
-    if (! repObject.fetchObject) {
+    if (! repObject.fetchContent) {
       var url = repObject.url;
       if (url) {
         resource = Resources.get(url);
-      } else {
-        throw new Error("No source associated with clickLink target");
+      } 
+      if (! resource.fetchContent) {
+        BaseRep.onError("No source associated with clickLink target");
       }
     }
-    
-    this.openPartWith(destinationFeature, resource);
+    try {
+      this.openPartWith(destinationFeature, resource);
+    } catch(exc) {
+      BaseRep.onError(exc);
+    }
     event.stopPropagation(); // we only want this one action
     event.preventDefault();
   };
@@ -41,8 +48,13 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
     if (destinationPart) {    
       destinationPart.open(resource);
     } else {
-      throw new Error("No part with feature "+feature+" found");
+      BaseRep.onError("No part with feature "+feature+" found");
     }
+  }
+  
+  BaseRep.onError = function() {
+    console.error.apply(console, arguments);
+    alert(arguments[0]);
   }
   return BaseRep;
 });

@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/BaseRep'], function (domplate, BaseRep) {
+define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Resources'], function (domplate, BaseRep, Resources) {
   
   //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
 
@@ -12,7 +12,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep'], function (dompl
         stackFrameTag:
               TR({'class':'callStackFrame', }, 
                 TD('$object|getFunctionName'),
-                TD({'title':'$object.url'},
+                TD({'title':'$object.url', 'class': '$object|getPartLinkClass'},
                    BaseRep.PARTLINK('$object.url|getResourceName')
                 )
               )
@@ -43,7 +43,11 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep'], function (dompl
       getFunctionName: function(frame) {
         return frame.functionName;
       },
-      
+      getPartLinkClass: function(frame) {
+        var url = frame.url;
+        var resource = Resources.get(url);
+        return resource.hasSource ? 'partLink' : '';
+      },
       getResourceName: function(url) {
         var splits = url.split('/');
         return splits.slice(-1);

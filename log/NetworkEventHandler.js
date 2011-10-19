@@ -17,12 +17,26 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
   };
   
   networkEventHandler.requests = {};
+
+  // close over the handler here to narrow the interface to Resource
+  // |this| will be bound to a Resource
   
+  function fetchContent(fncOfContent, fncOfError) {
+    if (this.requestId) {
+      networkEventHandler.remote.setResponseCallbacks(fncOfContent, fncOfError);
+      networkEventHandler.remote.Network.getResponseBody(this.requestId);
+    } else {
+      fncOfError("Resource not loaded: "+this.url);
+    }
+  }
+
   networkEventHandler.setRequestById = function(requestId, resource) {
     if (this.requests.hasOwnProperty(requestId)) {
       throw new Error("duplicate requestId, "+requestId+" something is wrong ");
     }
-    this.requests[requestId] = resource;  
+    this.requests[requestId] = resource;
+    resource.fetchContent = fetchContent;
+    resource.hasSource = true;
   };
   
   networkEventHandler.getRequestById = function(requestId) {
@@ -33,17 +47,6 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
     }
   };
   
-  // close over the handler here to narrow the interface to Resource
-  // |this| will be bound to a Resource
-  
-  Resource.fetchContent = function(fncOfContent, fncOfError) {
-    if (this.requestId) {
-      networkEventHandler.remote.setResponseCallbacks(fncOfContent, fncOfError);
-      networkEventHandler.remote.Network.getResponseBody(this.requestId);
-    } else {
-      fncOfError("Resource not loaded: "+this.url);
-    }
-  };
 
   //---------------------------------------------------------------------------------------------
   // Implement Remote.events
