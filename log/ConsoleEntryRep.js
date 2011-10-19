@@ -46,7 +46,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
       getPartLinkClass: function(frame) {
         var url = frame.url;
         var resource = Resources.get(url);
-        return resource.hasSource ? 'partLink' : '';
+        return (resource && resource.hasSource) ? 'partLink' : '';
       },
       getResourceName: function(url) {
         var splits = url.split('/');
