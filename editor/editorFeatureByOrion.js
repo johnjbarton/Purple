@@ -188,9 +188,9 @@ var editor = (function(){
   editorFeatureByOrion._unclaimedIndicators = []; 
   
   editorFeatureByOrion.open = function(source, lineNumber, columnNumber, endNumber) {
-    this.sourceName = source.url;
+    editor.sourceName = source.url;
     source.fetchContent(
-      this.setContent.bind(this, this.sourceName, lineNumber, columnNumber, endNumber), 
+      this.setContent.bind(this, editor.sourceName, lineNumber, columnNumber, endNumber), 
       function(msg) { 
         throw new Error(msg); 
       }
@@ -198,7 +198,7 @@ var editor = (function(){
   };
   
   editorFeatureByOrion.setContent = function(name, line, col, end, src) {
-    this.sourceName = name;  // TODO multiple editors
+    editor.sourceName = name;  // TODO multiple editors
     if (typeof src !== 'string') {
       src = src.body; // TODO deal with base64
     }
@@ -266,8 +266,8 @@ var editor = (function(){
     var model = editor.getTextView().getModel();
     var startDamage = event.start; 
     var endDamage = event.start - event.removedCharCount + event.addedCharCount;
-    editorFeatureByOrion._sourceChange(this.sourceName, model.getText(), startDamage, endDamage); 
-    //syntaxHighlighter.highlight(this.sourceName, editor.getTextView());
+    editorFeatureByOrion._sourceChange(editor.sourceName, model.getText(), startDamage, endDamage); 
+    //syntaxHighlighter.highlight(editor.sourceName, editor.getTextView());
   };
   
   editorFeatureByOrion._onLineStyle = function(event) {
@@ -278,7 +278,7 @@ var editor = (function(){
       // know about events and the editor API.
       this.tokenStyles = [];
       var lineEnd = editor.getTextView().getModel().getLineEnd(event.lineIndex);
-      this._lineRevealed(this.sourceName, event.lineStart, lineEnd, this.tokenStyles);
+      this._lineRevealed(editor.sourceName, event.lineStart, lineEnd, this.tokenStyles);
       event.ranges = this.tokenStyles;
   };
   
