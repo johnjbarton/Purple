@@ -180,23 +180,24 @@ var editor = (function(){
   // Errors reported but not used by the highlighter yet.
   editorFeatureByOrion._unclaimedIndicators = []; 
   
-  editorFeatureByOrion.open = function(source) {
+  editorFeatureByOrion.open = function(source, lineNumber, columnNumber, endNumber) {
     this.sourceName = source.url;
     source.fetchContent(
-      this.setContent.bind(this, this.sourceName), 
+      this.setContent.bind(this, this.sourceName, lineNumber, columnNumber, endNumber), 
       function(msg) { 
         throw new Error(msg); 
       }
     );
   };
   
-  editorFeatureByOrion.setContent = function(name, src) {
+  editorFeatureByOrion.setContent = function(name, line, col, end, src) {
     this.sourceName = name;  // TODO multiple editors
     if (typeof src !== 'string') {
       src = src.body; // TODO deal with base64
     }
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
     editor.onInputChange(name, null, src);
+    editor.onGotoLine(line, col, end);
 //    syntaxHighlighter.highlight(name, editor.getTextView());
     // end of code to run when content changes.
   };
