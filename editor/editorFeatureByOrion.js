@@ -11,7 +11,7 @@
 /*global eclipse:true orion:true dojo window*/
 /*jslint devel:true*/
 
-define(['annotationFactory'], function(annotationFactory){
+define(['annotationFactory', 'revisionByOrion', '../lib/q/q'], function(annotationFactory, RevisionControl, Q){
 
 window.purple = window.purple || {};
 var thePurple = window.purple;
@@ -93,8 +93,15 @@ var editor = (function(){
   };
   
   function save(editor) {
+    var url = editor.sourceName;
+    var src = editor.getContents();
+    var saveFinished = RevisionControl.save(url, src);
     editor.onInputChange(null, null, null, true);
-    window.alert("Save hook.");
+    Q.when(saveFinished, function(saveFinished) {
+      console.log(url + ' save results ', saveFinished);
+    }, function(error) {
+      console.error(error);
+    });
   }
   
   var keyBindingFactory = function(editor, keyModeStack, undoStack, contentAssist) {
@@ -197,7 +204,9 @@ var editor = (function(){
     }
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
     editor.onInputChange(name, null, src);
-    editor.onGotoLine(line, col, end);
+    if (line) {
+      editor.onGotoLine(line, col, end);
+    }
 //    syntaxHighlighter.highlight(name, editor.getTextView());
     // end of code to run when content changes.
   };
