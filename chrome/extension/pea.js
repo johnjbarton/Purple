@@ -25,7 +25,7 @@ function getOrigin(url) {
 
 function startMonitor(url, tabId, errback) {
   var clientOrigin = getOrigin(url);
-  MonitorChrome.connect(clientOrigin, tabId, errback);
+  return MonitorChrome.connect(clientOrigin, tabId, errback);
 };
 
 function stopMonitor(errback) {
@@ -102,9 +102,13 @@ function onOuterWindowLoad(event) {
       var monitorReady = startMonitor(purpleURL, debuggeeTabInfo.id, debuggerError);
       // load purple in the iframe and call back to monitor when set up
       var purpleReady = promisePurpleReady(purpleURL);
-      Q.join(monitorReady, purpleReady, function() {
+      var done = Q.join(monitorReady, purpleReady, function(monitorReady, purpleReady) {
+	      console.log("monitorReady: %o", monitorReady);
+              console.log("purpleReady %o", purpleReady);
      	// we have a blank window, with debuggeeTabInfo.id being monitored. Load the page
+	      window.alert('ready to update');
         chrome.tabs.update(debuggeeTabInfo.id, {url: tabInfo.url});
+        return (monitorReady && purpleReady) ? 'Purple ready' : 'FAIL';
       });
 
       var unloadOuterWindow = promiseUnloadOuterWindow();
@@ -112,9 +116,10 @@ function onOuterWindowLoad(event) {
         stopMonitor(debuggerError);
         chrome.tab.remove(debugeeTabInfo.id);
       });
+      return done;
     });
-  Q.when(done, function() {
-    console.log("Purple is up ", arguments);
+  Q.when(done, function(done) {
+    console.log("Status: "+done);
       }, function() {
           if (arguments[0] instanceof Error) {
               var e = arguments[0];

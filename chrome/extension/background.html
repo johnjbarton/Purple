@@ -33,6 +33,9 @@
           var height = parseInt(window.localStorage.getItem('windowHeight'));
           createData.height = insureNumber(height) || window.screen.availHeight;
 
+          var top = parseInt(window.localStorage.getItem('windowTop'));
+          createData.top = insureNumber(top) || window.screen.availTop;
+
           var left = parseInt(window.localStorage.getItem('windowLeft'));
           createData.left = insureNumber(left) || (window.screen.availLeft + (window.screen.availWidth - createData.width) );
    console.log("chrome.windows.create:", createData);
