@@ -33,7 +33,7 @@
 div.linkedText {
   width: 100%;
 }
-div.linkedText .partLink {
+div.linkedText .messageLink { /* when the link is on a line with a message */
   float: right;
 }
 

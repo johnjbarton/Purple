@@ -24,7 +24,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
       tag: DIV({'class': 'console-$object.message.level'},
         DIV({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
           SPAN('$object.message.text'),
-          SPAN({'title':'$object|getURL', 'class': '$object.message|getPartLinkClass'},
+          SPAN({'title':'$object|getURL', 'class': 'messageLink $object.message|getPartLinkClass'},
                    BaseRep.PARTLINK('$object|getResourceName')
           )
         ),
