@@ -109,9 +109,13 @@ function promiseUnloadOuterWindow() {
 
 function onOuterWindowLoad(event) {
   window.removeEventListener('load', onOuterWindowLoad, false);
- 
+  
+  // Open a blank window to hold the debuggee
   var win = promiseDebuggeeWindow();
+
+  // Get the URL for the debuggee site
   var tabInfo = promiseTabInfo();  
+
   var done = Q.join(tabInfo, win, function(tabInfo, win) {
     var debuggeeTabInfo = win.tabs[0];
   
@@ -120,39 +124,41 @@ function onOuterWindowLoad(event) {
 
     var purpleURL = getPurpleURL();
     // start the monitor and wait for purple to connect
-    var monitorReady = startMonitor(purpleURL, debuggeeTabInfo.id, debuggerError);
-    // load purple in the iframe and call back to monitor when set up
-    var purpleReady = promisePurpleReady(purpleURL);
+    var monitor = startMonitor(purpleURL, debuggeeTabInfo.id, debuggerError);
+ 
+    // load purple in our iframe and postMessage to monitor when set up
+    var purple = promisePurpleReady(purpleURL);
   
-    var done = Q.join(monitorReady, purpleReady, function(monitorReady, purpleReady) {
-      console.log("monitorReady: %o", monitorReady);
-      console.log("purpleReady %o", purpleReady);
+    var purpleConnect = Q.join(monitor, purple, function(monitor, purple) {
       // we have a blank window, with debuggeeTabInfo.id being monitored. Load the page
-      window.alert('ready to update');
       chrome.tabs.update(debuggeeTabInfo.id, {url: tabInfo.url});
-      return (monitorReady && purpleReady) ? 'Purple ready' : 'FAIL';
+      return (monitor && purple) ? 'Purple monitored' : 'FAIL';
     });
 
     var unloadOuterWindow = promiseUnloadOuterWindow();
     Q.when(unloadOuterWindow, function () {
       stopMonitor(debuggerError);
-      chrome.tab.remove(debugeeTabInfo.id);
+      chrome.tab.remove(debuggeeTabInfo.id);
+      unloadOuterWindow.resolve('unload');
     });
    
-    return done;
+    return purpleConnect;
   });
   
-  Q.when(done, function(done) {
-    console.log("Status: "+done);
-  }, function() {
-    if (arguments[0] instanceof Error) {
-      var e = arguments[0];
-      e._stack = e.stack && e.stack.split('\n');
-      console.error("Purple ERROR: "+e, e);
-    } else {
-      console.error("Purple FAILED", arguments);
+  Q.when(done, 
+    function(done) {
+      console.log("Status: "+done);
+    }, 
+    function() {
+      if (arguments[0] instanceof Error) {
+        var e = arguments[0];
+        e._stack = e.stack && e.stack.split('\n');
+        console.error("Purple ERROR: "+e, e);
+      } else {
+        console.error("Purple FAILED", arguments);
+      }
     }
-  });  
+  );  
 }
 
 function hookWebNav() {

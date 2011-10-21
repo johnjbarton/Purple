@@ -24,14 +24,10 @@ MonitorChrome.connect = function(clientOrigin, tabId, errback) {
       var clientName = splits[0];
       var clientVersion = splits[1];  // later we check version numbers
       
-      // send back a channel connector
-      
-      //MonitorChrome.proxy = new ProxyChannel(event.source, event.origin);
       MonitorChrome.proxy = new ProxyPoster(event.source, event.origin);
       MonitorChrome.proxy.connect(event.data);
       MonitorChrome.registerProxy(clientName, clientVersion, MonitorChrome.proxy);
-      MonitorChrome.registerTab(MonitorChrome.proxy, tabId, errback);
-      deferred.resolve(event.origin);
+      MonitorChrome.componentConnect(deferred, MonitorChrome.proxy, tabId, errback);
     }
   }
   // Wait for the client to connect
@@ -45,10 +41,10 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
   MonitorChrome.WebNavigation.connect();
 }
 
-MonitorChrome.registerTab = function(proxy, tabId, debuggerErrorCallback) {
+MonitorChrome.componentConnect = function(deferred, proxy, tabId, debuggerErrorCallback) {
     MonitorChrome.WebNavigation.initialize(tabId);
     MonitorChrome.Debugger.initialize(proxy, tabId, debuggerErrorCallback);
-    MonitorChrome.Debugger.connect();
+    MonitorChrome.Debugger.connect(deferred);
 };
 
 MonitorChrome.disconnect = function(errback) {
@@ -176,10 +172,26 @@ Debugger.initialize = function(proxy, tabId, handleError){
   };
 };
 
-Debugger.connect = function() {
+Debugger.makeOnWasEnabled = function(deferred) {
+  function oneShot(tabId, method, params) {
+    if (tabId !== Debugger.tabId) {
+     return;
+    }
+    if (method === 'Debugger.debuggerWasEnabled') {
+      chrome.experimental.debugger.onEvent.removeListener(oneShot);
+      deferred.resolve(method);
+      console.log("MonitorChrome: Debugger.connect to tab "+tabId);
+    } else {
+      console.error("Debugger.onWasEnabled got unexpected method "+method, params);
+    }
+  }
+  return oneShot;
+}
+
+Debugger.connect = function(deferred) {
   chrome.experimental.debugger.attach(this.tabId, this.reportError);
   chrome.experimental.debugger.onEvent.addListener(this.onEvent.bind(this));
-  console.log("MonitorChrome: Debugger.connect to tab "+this.tabId);
+  chrome.experimental.debugger.onEvent.addListener(this.makeOnWasEnabled(deferred));
 };
 
 Debugger.disconnect = function() {
@@ -188,7 +200,7 @@ Debugger.disconnect = function() {
 };
 
 Debugger.onEvent = function(tabId, method, params) {
-  console.log("MonitorChrome: Debugger.onEvent in tab "+tabId);
+  console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+tabId);
   this.proxy.send({source: "debugger", name: method, params: params}); 
 };
 
