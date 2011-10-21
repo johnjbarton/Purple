@@ -19,6 +19,21 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
   
   BaseRep.targetPart = 'editor', // constant for all instances for now
   
+  BaseRep.getURL = function(object) {
+    // override in reps
+    return object.url;
+  }
+
+  BaseRep.getLineNumber = function(object) {
+    // override in reps
+    return object.line;
+  }
+  
+  BaseRep.getColumnNumber = function(object) {
+    // override in reps
+    return object.col;
+  }
+  
   // Will be called with |this| bound to domplate (rep)
   BaseRep.clickLink = function(event) {
     var target = event.currentTarget;  // the element with the handler
@@ -26,16 +41,19 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
     var repObject = target.repObject;
     var resource = repObject;
     if (! repObject.fetchContent) {
-      var url = repObject.url;
+      var url = this.getURL(repObject);
       if (url) {
         resource = Resources.get(url);
       } 
       if (! resource.fetchContent) {
         BaseRep.onError("No source associated with clickLink target");
+        return;
       }
     }
+    var lineNumber = this.getLineNumber(repObject); // the line comes from eg the error message
+    var columnNumber = this.getColumnNumber(repObject); // the line comes from eg the error message
     try {
-      this.openPartWith(destinationFeature, resource);
+      this.openPartWith(destinationFeature, resource, lineNumber, columnNumber);
     } catch(exc) {
       BaseRep.onError(exc);
     }
@@ -43,10 +61,10 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
     event.preventDefault();
   };
     
-  BaseRep.openPartWith = function(feature, resource) {
+  BaseRep.openPartWith = function(feature, resource, lineNumber, columnNumber) {
     var destinationPart = thePurple.getPartByFeature(feature);      
     if (destinationPart) {    
-      destinationPart.open(resource);
+      destinationPart.open(resource, lineNumber, columnNumber);
     } else {
       BaseRep.onError("No part with feature "+feature+" found");
     }
