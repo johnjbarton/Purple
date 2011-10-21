@@ -77,7 +77,7 @@ define(['ConsoleEntryRep'], function(ConsoleEntryRep) {
           div.innerHTML = this.renderToString(object);
         }
       } catch (exc) {
-          ConsoleEntryRep.InternalExceptionTag.tag.replace(exc, div, ConsoleEntryRep.InternalExceptionTag);
+          ConsoleEntryRep.InternalExceptionTag.tag.replace({object: exc}, div, ConsoleEntryRep.InternalExceptionTag);
       }
       return div;
     },
