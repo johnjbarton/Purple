@@ -16,7 +16,7 @@ MonitorChrome.connect = function(clientOrigin, tabId, errback) {
   var deferred = Q.defer();
   function heardProxyClientHello(event) {
     // Someone has sent a message
-    console.log("heardProxyClientHello", arguments);
+      console.log("heardProxyClientHello "+(event.origin === clientOrigin), arguments);
     if (event.origin === clientOrigin) { // then the sender is our code
       window.removeEventListener('message', heardProxyClientHello, false);
   
@@ -31,7 +31,7 @@ MonitorChrome.connect = function(clientOrigin, tabId, errback) {
       MonitorChrome.proxy.connect(event.data);
       MonitorChrome.registerProxy(clientName, clientVersion, MonitorChrome.proxy);
       MonitorChrome.registerTab(MonitorChrome.proxy, tabId, errback);
-      deferred.resolve(MonitorChrome);
+      deferred.resolve(event.origin);
     }
   }
   // Wait for the client to connect
@@ -188,7 +188,7 @@ Debugger.disconnect = function() {
 };
 
 Debugger.onEvent = function(tabId, method, params) {
-    //console.log("MonitorChrome: Debugger.onEvent "+method);
+  console.log("MonitorChrome: Debugger.onEvent in tab "+tabId);
   this.proxy.send({source: "debugger", name: method, params: params}); 
 };
 

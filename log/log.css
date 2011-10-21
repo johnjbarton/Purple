@@ -30,10 +30,19 @@
   text-align: center;
 }
 
-.hasMore * {
- display: none;
+div.linkedText {
+  width: 100%;
+}
+div.linkedText .messageLink { /* when the link is on a line with a message */
+  float: right;
 }
 
+.hasMore + * {
+  display: none;
+}
+/* .hasMore:first-child {
+  display: block;
+}  DOES NOT WORK */
 .hasMore:before {
   content: url("../ui/icons/from-firebug/twistyClosed.png");
 }

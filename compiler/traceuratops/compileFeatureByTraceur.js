@@ -198,7 +198,7 @@
     
   compilerFeatureByTraceur.connect = function(editor){
     this.editorPart.editor = editor;
-    editor.setContent("purpleDemo.js", "purple");
+    editor.setContent("purpleDemo.js",1,1,1, "purple");
     editor.registerPart(this.editorPart);
   }
   

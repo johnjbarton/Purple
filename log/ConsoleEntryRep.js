@@ -12,8 +12,8 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
         stackFrameTag:
               TR({'class':'callStackFrame', }, 
                 TD('$object|getFunctionName'),
-                TD({'title':'$object.url', 'class': '$object|getPartLinkClass'},
-                   BaseRep.PARTLINK('$object.url|getResourceName')
+                TD({'title':'$object|getURL', 'class': '$object|getPartLinkClass'},
+                   BaseRep.PARTLINK('$object|getResourceName')
                 )
               )
       });
@@ -21,34 +21,46 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
     ConsoleEntryRep = domplate.domplate(
       StackFrameRep,
       {
-      tag: DIV({'class': 'console-$object.message.type hasMore', 'onclick': '$toggleMore'}, '$object.message.text',
+      tag: DIV({'class': 'console-$object.message.level'},
+        DIV({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
+          SPAN('$object.message.text'),
+          SPAN({'title':'$object|getURL', 'class': 'messageLink $object.message|getPartLinkClass'},
+                   BaseRep.PARTLINK('$object|getResourceName')
+          )
+        ),
         TABLE({'class':'callStack'},
           TBODY(
-            FOR('frame', '$object.message.stack|getFrames',
+            FOR('frame', '$object.message|getFrames',
               TAG(StackFrameRep.stackFrameTag, {object: '$frame'})
             )
           )
         )
       ),
+      getURL: function(object) {
+        return object.message.url;
+      },
       toggleMore: function(event) {
         var target = event.currentTarget;  // the element with the handler
         target.classList.toggle('hadMore');
         target.classList.toggle('hasMore');
       },
-      
-      getFrames: function(stack) {
-        return stack;
+      hasMore: function(object) {
+        return this.getFrames(object).length ? 'hasMore' : '';
+      },
+      getFrames: function(consoleMessage) {
+        return consoleMessage.stackTrace || [];
       },
       
       getFunctionName: function(frame) {
         return frame.functionName;
       },
-      getPartLinkClass: function(frame) {
-        var url = frame.url;
+      getPartLinkClass: function(object) {
+        var url = object.url;
         var resource = Resources.get(url);
         return (resource && resource.hasSource) ? 'partLink' : '';
       },
-      getResourceName: function(url) {
+      getResourceName: function(object) {
+        var url = this.getURL(object);
         var splits = url.split('/');
         return splits.slice(-1);
       }
@@ -64,19 +76,20 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
       {
       tag: DIV({'class': 'console-error internalError hasMore', 'onclick': '$toggleMore'}, '$object.message',
         TABLE({'class':'callStack'},
-          FOR('frame', '$object.stack|getFrames',
-            TR({'class':'callStackFrame'}, 
-              TD('$frame.fnName'),
-              TD({'title':'$frame.url'},
-                 BaseRep.PARTLINK('$frame.url|getResourceName')
-              )
-            )      
+          TBODY (
+            FOR('frame', '$object|getFrames',
+              TAG(StackFrameRep.stackFrameTag, {object: '$frame'})
+            )
           )
         )
       ),
-      getFrames: function(stack) {
+      getFrames: function(message) {
+        var stack = message.stack;
         // The internal errors has a funky string stack
         var frames = [];
+        if (!stack) {
+          return frames;
+        }
         var frameStrings = stack.split('\n');
         // zeroth entry is exception message
         for (var i = 1; i < frameStrings.length; i++) {
