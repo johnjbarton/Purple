@@ -47,11 +47,11 @@ function getContextMenuOwnerTabId() {
   return tabId;
 }
 
-function promiseTabInfo() {
+function promiseDebuggeeURL() {
   MonitorChrome.originalTabId = getContextMenuOwnerTabId();
   var deferred = Q.defer();
   chrome.tabs.get(MonitorChrome.originalTabId, function(tabInfo) {
-      deferred.resolve(tabInfo);
+      deferred.resolve(tabInfo.url);
     });
   return deferred.promise;
 }
@@ -114,12 +114,12 @@ function onOuterWindowLoad(event) {
   var win = promiseDebuggeeWindow();
 
   // Get the URL for the debuggee site
-  var tabInfo = promiseTabInfo();  
+  var debuggeeURL = promiseDebuggeeURL();  
 
-  var done = Q.join(tabInfo, win, function(tabInfo, win) {
+  var done = Q.join(debuggeeURL, win, function(debuggeeURL, win) {
     var debuggeeTabInfo = win.tabs[0];
   
-    console.log("ready to load purple with tabInfo and win", tabInfo, win);
+    console.log("ready to load purple with debuggeeURL and win", debuggeeURL, win);
     console.log("starting monitor debugee tab.id", debuggeeTabInfo.id);
 
     var purpleURL = getPurpleURL();
@@ -131,7 +131,7 @@ function onOuterWindowLoad(event) {
   
     var purpleConnect = Q.join(monitor, purple, function(monitor, purple) {
       // we have a blank window, with debuggeeTabInfo.id being monitored. Load the page
-      chrome.tabs.update(debuggeeTabInfo.id, {url: tabInfo.url});
+      chrome.tabs.update(debuggeeTabInfo.id, {url: debuggeeURL});
       return (monitor && purple) ? 'Purple monitored' : 'FAIL';
     });
 
