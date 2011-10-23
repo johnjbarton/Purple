@@ -200,7 +200,7 @@ Debugger.disconnect = function() {
 };
 
 Debugger.onEvent = function(tabId, method, params) {
-  console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+tabId);
+    //console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+tabId);
   this.proxy.send({source: "debugger", name: method, params: params}); 
 };
 

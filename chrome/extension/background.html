@@ -13,6 +13,9 @@
   </head>
   <body>
     <script>
+      eatDogfood = function() {
+        return localStorage.getItem('dogfood');
+      }
       /* 
        * Returns a number or null
        */
@@ -24,8 +27,12 @@
        */
       function getClickHandler() {
         return function(info, tab) {
-
-          var createData = {url: 'ppa.html#' + tab.id, type: 'popup' };
+          var url = 'ppa.html';
+          if (eatDogfood()) {
+            url = url + '?dogfood';
+          }
+          url = url + '#' + tab.id;
+          var createData = {url: url, type: 'popup' };
 
           var width = parseInt(window.localStorage.getItem('windowWidth'));
           createData.width = insureNumber(width) || (Math.floor(window.screen.availWidth / 2) - 2);

@@ -40,17 +40,33 @@ function appendPurple(url, onLoadCallBack) {
   document.body.appendChild(iframe);
 }
 
-function getContextMenuOwnerTabId() {
-  // Our URL is set by background.html, it appends the tabId that we will debug
+function getDebuggeeInfo() {
+  // Our location is set by background.html, it appends info about our debuggee
   var myURL = window.location.toString();
-  var tabId = parseInt(myURL.split('#')[1]);
-  return tabId;
+  var debuggee = {
+      contextMenuTabId: parseInt(window.location.hash.substr(1)),
+      dogfood: window.location.search
+  };
+  console.log(window.location.toString()+' gives debuggeeInfo: ', debuggee);
+  return debuggee;
 }
 
-function promiseDebuggeeURL() {
-  MonitorChrome.originalTabId = getContextMenuOwnerTabId();
+function getDogfoodURL(debuggeeInfo) {
+    var dogfood = debuggeeInfo.dogfood;
+    if (dogfood) { 
+	return localStorage.getItem('dogfoodURL');
+    }
+}
+
+function promiseDebuggeeURL(debuggeeInfo) {
+  if (debuggeeInfo.dogfood) {
+      var dogfoodThisURL = window.location.toString().replace(debuggeeInfo.dogfood,'');
+    console.log("dogfood this:"+dogfoodThisURL);
+    return dogfoodThisURL;
+  }
+
   var deferred = Q.defer();
-  chrome.tabs.get(MonitorChrome.originalTabId, function(tabInfo) {
+  chrome.tabs.get(debuggeeInfo.contextMenuTabId, function(tabInfo) {
       deferred.resolve(tabInfo.url);
     });
   return deferred.promise;
@@ -60,7 +76,7 @@ function insureNumber(n) {
   return isFinite(n) ? n : null;
 }
 
-function promiseDebuggeeWindow() {
+function promiseDebuggeeWindow(debuggeeInfo) {
 
   var createData = { url: 'about:blank', type: 'popup' };
 
@@ -71,7 +87,11 @@ function promiseDebuggeeWindow() {
   createData.height = insureNumber(height) || window.screen.availHeight;
 
   var left = parseInt(window.localStorage.getItem('windowLeft'));
-  createData.left = insureNumber(left) || window.screen.availLeft;
+  var defaultLeft = window.screen.availLeft;
+  if (debuggeeInfo.dogfood) {
+      defaultLeft = window.screen.availLeft + (window.screen.availWidth - createData.width);
+  }
+  createData.left = insureNumber(left) || defaultLeft;
   console.log("chrome.windows.create:", createData);
   var deferred = Q.defer();
   chrome.windows.create(createData, function(win) {
@@ -81,6 +101,13 @@ function promiseDebuggeeWindow() {
 };
 
 function getPurpleURL () {
+  var debuggeeInfo = getDebuggeeInfo();
+  var dogfood = getDogfoodURL(debuggeeInfo);
+  if (dogfood) {
+      console.log("dogfood! "+dogfood);
+    return dogfood;
+  }
+
   var purpleURL = window.localStorage.getItem('messageClientURL');
   if(!purpleURL) {
     purpleURL = "http://localhost:8080/file/f/purple.html";
@@ -109,18 +136,20 @@ function promiseUnloadOuterWindow() {
 
 function onOuterWindowLoad(event) {
   window.removeEventListener('load', onOuterWindowLoad, false);
-  
+
+  var debuggeeInfo = getDebuggeeInfo();
+
   // Open a blank window to hold the debuggee
-  var win = promiseDebuggeeWindow();
+  var win = promiseDebuggeeWindow(debuggeeInfo);
 
   // Get the URL for the debuggee site
-  var debuggeeURL = promiseDebuggeeURL();  
+  var debuggeeURL = promiseDebuggeeURL(debuggeeInfo);  
 
   var done = Q.join(debuggeeURL, win, function(debuggeeURL, win) {
     var debuggeeTabInfo = win.tabs[0];
   
     console.log("ready to load purple with debuggeeURL and win", debuggeeURL, win);
-    console.log("starting monitor debugee tab.id", debuggeeTabInfo.id);
+    console.log("starting monitor debuggee tab.id", debuggeeTabInfo.id);
 
     var purpleURL = getPurpleURL();
     // start the monitor and wait for purple to connect
