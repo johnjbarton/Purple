@@ -63,7 +63,10 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
         var url = this.getURL(object);
         var splits = url.split('/');
         return splits.slice(-1);
-      }
+      },
+      getLineNumber: function(object) {
+        return object.message.line;
+      },
 
     });
     

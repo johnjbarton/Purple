@@ -205,6 +205,7 @@ var editor = (function(){
     // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
     editor.onInputChange(name, null, src);
     if (line) {
+      col = col || 1;
       editor.onGotoLine(line, col, end);
     }
 //    syntaxHighlighter.highlight(name, editor.getTextView());
