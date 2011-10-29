@@ -33,7 +33,7 @@ function save_options() {
   localStorage.setItem('dogfoodURL', url);
 
   var dogfoodCheckbox = document.getElementById('dogfood');
-  localStorage.setItem('dogfood', (dogfoodCheckbox.hasAttribute('checked') ? dogfoodCheckbox.value : false));
+  localStorage.setItem('dogfood', (dogfoodCheckbox.hasAttribute('checked') ? dogfoodCheckbox.value : ""));
 
   // Update status to let user know options were saved.
   var status = document.getElementById("status");
