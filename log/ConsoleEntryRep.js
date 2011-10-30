@@ -37,7 +37,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
         )
       ),
       getURL: function(object) {
-        return object.message.url;
+        return object.url || (object.message ? object.message.url : '');
       },
       toggleMore: function(event) {
         var target = event.currentTarget;  // the element with the handler
