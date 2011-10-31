@@ -23,9 +23,9 @@ function getOrigin(url) {
   return origin;
 }
 
-function startMonitor(url, tabId, errback) {
-  var clientOrigin = getOrigin(url);
-  return MonitorChrome.connect(clientOrigin, tabId, errback);
+function startMonitor(purpleWindow, purpleURL, tabId, errback) {
+  var purpleOrigin = getOrigin(purpleURL);
+  return MonitorChrome.connect(purpleWindow, purpleOrigin, tabId, errback);
 }
 
 function stopMonitor(errback) {
@@ -38,6 +38,7 @@ function appendPurple(url, onLoadCallBack) {
   iframe.onload = onLoadCallBack;
   iframe.setAttribute('src', url);
   document.body.appendChild(iframe);
+  return iframe.contentWindow;
 }
 
 function getDebuggeeInfo() {
@@ -53,7 +54,8 @@ function getDebuggeeInfo() {
 
 function getDogfoodURL(debuggeeInfo) {
     var dogfood = debuggeeInfo.dogfood;
-    if (dogfood) { 
+    if (dogfood) {
+        document.title = "purple dogfood" 
 	return localStorage.getItem('dogfoodURL');
     }
 }
@@ -118,8 +120,10 @@ function getPurpleURL () {
 function promisePurpleReady(purpleURL) {
   var deferred = Q.defer();
 
-  appendPurple(purpleURL, function onPurpleLoad(){
-    deferred.resolve(purpleURL);
+  appendPurple(purpleURL, function onPurpleLoad(event){
+	  console.log("appendPurple load event", event);
+    var purpleWindow = event.target.contentWindow;
+    deferred.resolve(purpleWindow);
   });
   return deferred.promise;
 }
@@ -152,18 +156,20 @@ function onOuterWindowLoad(event) {
     console.log("starting monitor debuggee tab.id", debuggeeTabInfo.id);
 
     var purpleURL = getPurpleURL();
-    // start the monitor and wait for purple to connect
-    var monitor = startMonitor(purpleURL, debuggeeTabInfo.id, debuggerError);
  
     // load purple in our iframe and postMessage to monitor when set up
     var purple = promisePurpleReady(purpleURL);
-  
-    var purpleConnect = Q.join(monitor, purple, function(monitor, purple) {
-      // we have a blank window, with debuggeeTabInfo.id being monitored. Load the page
-      chrome.tabs.update(debuggeeTabInfo.id, {url: debuggeeURL});
-      return (monitor && purple) ? 'Purple monitored' : 'FAIL';
-    });
 
+    var monitored = Q.when(purple, function(purple) {
+      // start the monitor and wait for purple to connect
+      var monitor = startMonitor(purple, purpleURL, debuggeeTabInfo.id, debuggerError);
+  
+      return Q.when(monitor, function(monitor) {
+        // we have a blank window, with debuggeeTabInfo.id being monitored. Load the page
+        chrome.tabs.update(debuggeeTabInfo.id, {url: debuggeeURL});
+        return 'Purple monitored';
+      });
+    });
     var unloadOuterWindow = promiseUnloadOuterWindow();
     Q.when(unloadOuterWindow, function () {
       stopMonitor(debuggerError);
@@ -171,7 +177,7 @@ function onOuterWindowLoad(event) {
       unloadOuterWindow.resolve('unload');
     });
    
-    return purpleConnect;
+    return monitored;
   });
   
   Q.when(done, 

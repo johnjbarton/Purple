@@ -12,12 +12,13 @@
 window.MonitorChrome = window.MonitorChrome || {};
 var MonitorChrome = window.MonitorChrome;
 
-MonitorChrome.connect = function(clientOrigin, tabId, errback) {
+MonitorChrome.connect = function(iframeWindow, iframeURLOrigin, tabId, errback) {
   var deferred = Q.defer();
   function heardProxyClientHello(event) {
     // Someone has sent a message
-      console.log("heardProxyClientHello "+(event.origin === clientOrigin), arguments);
-    if (event.origin === clientOrigin) { // then the sender is our code
+      console.log("heardProxyClientHello "+((event.origin === iframeURLOrigin)?iframeURLOrigin:"not ours"), event);
+      console.log("heardProxyClientHello iframeWindow===event.source "+(iframeWindow === event.source));
+    if (event.origin === iframeURLOrigin) { // then the sender is our code
       window.removeEventListener('message', heardProxyClientHello, false);
   
       var splits = event.data.split(' ');
@@ -25,7 +26,7 @@ MonitorChrome.connect = function(clientOrigin, tabId, errback) {
       var clientVersion = splits[1];  // later we check version numbers
       
       MonitorChrome.proxy = new ProxyPoster(event.source, event.origin);
-      MonitorChrome.proxy.connect(event.data);
+      MonitorChrome.proxy.connect(event.data+" from "+document.title);
       MonitorChrome.registerProxy(clientName, clientVersion, MonitorChrome.proxy);
       MonitorChrome.componentConnect(deferred, MonitorChrome.proxy, tabId, errback);
     }
