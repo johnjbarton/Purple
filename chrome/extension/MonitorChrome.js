@@ -12,12 +12,11 @@
 window.MonitorChrome = window.MonitorChrome || {};
 var MonitorChrome = window.MonitorChrome;
 
-MonitorChrome.connect = function(iframeWindow, iframeURLOrigin, tabId, errback) {
+MonitorChrome.connect = function(iframeURLOrigin, tabId, errback) {
   var deferred = Q.defer();
   function heardProxyClientHello(event) {
     // Someone has sent a message
       console.log("heardProxyClientHello "+((event.origin === iframeURLOrigin)?iframeURLOrigin:"not ours"), event);
-      console.log("heardProxyClientHello iframeWindow===event.source "+(iframeWindow === event.source));
     if (event.origin === iframeURLOrigin) { // then the sender is our code
       window.removeEventListener('message', heardProxyClientHello, false);
   
@@ -42,10 +41,10 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
   MonitorChrome.WebNavigation.connect();
 }
 
-MonitorChrome.componentConnect = function(deferred, proxy, tabId, debuggerErrorCallback) {
+MonitorChrome.componentConnect = function(deferredConnection, proxy, tabId, debuggerErrorCallback) {
     MonitorChrome.WebNavigation.initialize(tabId);
     MonitorChrome.Debugger.initialize(proxy, tabId, debuggerErrorCallback);
-    MonitorChrome.Debugger.connect(deferred);
+    MonitorChrome.Debugger.connect(deferredConnection);
 };
 
 MonitorChrome.disconnect = function(errback) {
@@ -189,10 +188,13 @@ Debugger.makeOnWasEnabled = function(deferred) {
   return oneShot;
 }
 
-Debugger.connect = function(deferred) {
-  chrome.experimental.debugger.attach(this.tabId, this.reportError);
-  chrome.experimental.debugger.onEvent.addListener(this.onEvent.bind(this));
-  chrome.experimental.debugger.onEvent.addListener(this.makeOnWasEnabled(deferred));
+Debugger.connect = function(deferredConnection) {
+  var onEvent = this.onEvent.bind(this);
+  var onEnable = this.makeOnWasEnabled(deferredConnection);
+  chrome.experimental.debugger.attach(this.tabId, function onAttach() {
+    chrome.experimental.debugger.onEvent.addListener(onEvent);
+    chrome.experimental.debugger.onEvent.addListener(onEnable);
+  });
 };
 
 Debugger.disconnect = function() {
@@ -201,8 +203,10 @@ Debugger.disconnect = function() {
 };
 
 Debugger.onEvent = function(tabId, method, params) {
-    //console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+tabId);
-  this.proxy.send({source: "debugger", name: method, params: params}); 
+  if (tabId === this.tabId) {
+      // console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+tabId+" vs this.tabId:"+this.tabId);
+    this.proxy.send({source: "debugger", name: method, params: params}); 
+  }
 };
 
 Debugger.onDetach = function(tabId) {

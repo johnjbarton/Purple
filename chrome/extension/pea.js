@@ -25,7 +25,7 @@ function getOrigin(url) {
 
 function startMonitor(purpleWindow, purpleURL, tabId, errback) {
   var purpleOrigin = getOrigin(purpleURL);
-  return MonitorChrome.connect(purpleWindow, purpleOrigin, tabId, errback);
+  return MonitorChrome.connect(purpleOrigin, tabId, errback);
 }
 
 function stopMonitor(errback) {
