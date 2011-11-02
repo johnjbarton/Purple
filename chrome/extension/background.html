@@ -13,7 +13,10 @@
   </head>
   <body>
     <script>
-      eatDogfood = function() {
+      function reportOnCreate(win) {
+       console.log("reportOnCreate "+win.id);
+      }
+      function eatDogfood() {
         return localStorage.getItem('dogfood');
       }
       /* 
@@ -45,9 +48,9 @@
 
           var left = parseInt(window.localStorage.getItem('windowLeft'));
           createData.left = insureNumber(left) || (window.screen.availLeft + (window.screen.availWidth - createData.width) );
-   console.log("chrome.windows.create:", createData);
+   console.log("chrome.windows.create:"+createData, createData);
           // Open Purple in a new window.
-          chrome.windows.create(createData);
+          chrome.windows.create(createData, reportOnCreate);
         };
       };
 
