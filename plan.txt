@@ -4,3 +4,6 @@ Architecture
  Invisible parts: ? loaded into iframes?
  Built-in parts vs extension parts: loaded via purple.conf
   purple.conf: plain text, shaved JSON
+  
+For DOM proxy
+  WebKit IDL uses perl script to gen bindings, instrument it?
