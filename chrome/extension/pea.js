@@ -23,9 +23,9 @@ function getOrigin(url) {
   return origin;
 }
 
-function startMonitor(purpleURL, tabId, callback, errback) {
+function startMonitor(purpleURL, tabId) {
   var purpleOrigin = getOrigin(purpleURL);
-  return MonitorChrome.connect(purpleOrigin, tabId, callback, errback);
+  return MonitorChrome.connect(purpleOrigin, tabId);
 }
 
 function stopMonitor(errback) {
@@ -169,8 +169,9 @@ function onOuterWindowLoad(event) {
         chrome.tabs.update(debuggeeTabInfo.id, {url: debuggeeURL});
         return 'Purple monitored';
       }
-
-      var monitor = startMonitor(purpleURL, debuggeeTabInfo.id, loadPage, debuggerError);
+      
+      MonitorChrome.setPageAPI({releasePage: loadPage});
+      startMonitor(purpleURL, debuggeeTabInfo.id);
   
     });
     var unloadOuterWindow = promiseUnloadOuterWindow();
