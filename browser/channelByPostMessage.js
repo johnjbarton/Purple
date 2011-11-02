@@ -4,7 +4,7 @@
 // johnjbarton@google.com
 
 
-(function() {
+define(['../lib/q/q'], function(Q) {
   var thePurple = window.purple; 
   var Assembly = thePurple.Assembly;
   var channel__ = new thePurple.PurplePart('channel');
@@ -47,7 +47,11 @@
         };
       }
       channel.features.push('channel');
-      onConnect(channel);
+      // ok we are ready to connect the dependents and let them talk
+      var promiseEnabled = onConnect(channel);
+      Q.when(promiseEnabled, function releasePage() {
+        channel.send({command: 'releasePage'});
+      });
     }  
     
     function requestPort() {
@@ -55,7 +59,9 @@
         // listen for parent window messages
         window.addEventListener('message', recvPort, false);
         // tell our parent we are loaded
-        window.parent.postMessage(channel.protocolName+' '+channel.version, "*"); 
+        var proxyClientHello = channel.protocolName+' '+channel.version;
+        console.log("send proxyClientHello "+proxyClientHello +" to parent of "+window.location);
+        window.parent.postMessage(proxyClientHello, "*"); 
         return true;
       } else {
         console.error("connectToBrowser must be included in an iframe");
@@ -79,7 +85,7 @@
   channel__.initialize = function() {
       this.protocolName ='IAmPurple';
       this.version = 1;
-  }
+  };
   
   channel__.connect = function(onConnect) {
       console.log("Calling Browser.connect");
@@ -93,4 +99,5 @@
   channel__.implementsFeature('channel');
   thePurple.registerPart(channel__);
   
-}());
+  return channel__;
+});
