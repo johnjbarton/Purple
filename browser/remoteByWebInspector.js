@@ -109,6 +109,8 @@ define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
     var data = message.data;
     // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
+      // This impl treats responses to requests similar to events. Perhaps a better 
+      // soln would have two channel objects, one for request/response one for events
       if (data.name === 'response') {
         this.onResponse(data);
       } else {
@@ -151,11 +153,10 @@ define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
         deferred.reject({error:"onResponse with incorrect data"});
       }
       } finally {
+        console.log("onResponse completed "+p_id, data);
         delete deferredById[p_id];
       }
-    } else {
-      throw new Error("no deferred response handler for p_id "+p_id);
-    }
+    } // else another remote may have created the request
   };
   
   
