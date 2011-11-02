@@ -12,12 +12,12 @@
 window.MonitorChrome = window.MonitorChrome || {};
 var MonitorChrome = window.MonitorChrome;
 
-MonitorChrome.connect = function(iframeWindow, iframeURLOrigin, tabId, errback) {
-  var deferred = Q.defer();
+MonitorChrome.connect = function(iframeURLOrigin, tabId, errback) {
+    var monitorReadyDefer = Q.defer();
   function heardProxyClientHello(event) {
     // Someone has sent a message
-      console.log("heardProxyClientHello "+((event.origin === iframeURLOrigin)?iframeURLOrigin:"not ours"), event);
-      console.log("heardProxyClientHello iframeWindow===event.source "+(iframeWindow === event.source));
+    console.log("heardProxyClientHello "+((event.origin === iframeURLOrigin)?iframeURLOrigin:"not ours"), event);
+
     if (event.origin === iframeURLOrigin) { // then the sender is our code
       window.removeEventListener('message', heardProxyClientHello, false);
   
@@ -26,14 +26,22 @@ MonitorChrome.connect = function(iframeWindow, iframeURLOrigin, tabId, errback) 
       var clientVersion = splits[1];  // later we check version numbers
       
       MonitorChrome.proxy = new ProxyPoster(event.source, event.origin);
-      MonitorChrome.proxy.connect(event.data+" from "+document.title);
-      MonitorChrome.registerProxy(clientName, clientVersion, MonitorChrome.proxy);
-      MonitorChrome.componentConnect(deferred, MonitorChrome.proxy, tabId, errback);
+      MonitorChrome.Debugger.initialize(MonitorChrome.proxy, tabId, errback);
+
+      var debuggerAttached = MonitorChrome.Debugger.promiseAttached();
+      
+      // We cannot connect until after Debugger.attach()
+      Q.when(debuggerAttached, function completeConnection(debuggerAttached) {
+        MonitorChrome.proxy.connect(event.data+" from "+document.title);
+        MonitorChrome.WebNavigation.initialize(tabId);
+        MonitorChrome.registerProxy(clientName, clientVersion, MonitorChrome.proxy);
+        monitorReadyDefer.resolve(tabId);
+      });
     }
   }
   // Wait for the client to connect
   window.addEventListener('message', heardProxyClientHello, false);
-  return deferred.promise;
+  return monitorReadyDefer.promise;
 };
 
 MonitorChrome.registerProxy = function(name, version, proxy) {
@@ -42,10 +50,9 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
   MonitorChrome.WebNavigation.connect();
 }
 
-MonitorChrome.componentConnect = function(deferred, proxy, tabId, debuggerErrorCallback) {
-    MonitorChrome.WebNavigation.initialize(tabId);
+MonitorChrome.componentConnect = function(deferredConnection, proxy, tabId, debuggerErrorCallback) {
     MonitorChrome.Debugger.initialize(proxy, tabId, debuggerErrorCallback);
-    MonitorChrome.Debugger.connect(deferred);
+    return MonitorChrome.Debugger.promiseAttached();
 };
 
 MonitorChrome.disconnect = function(errback) {
@@ -53,37 +60,6 @@ MonitorChrome.disconnect = function(errback) {
     MonitorChrome.Debugger.disconnect();
     this.proxy.disconnect();
   }  // else we never connected
-};
-
-//--------------------------------------------------------------------------------------
-// ProxyChannel, the extension half of the channel, sender of chrome events
-// http://dev.w3.org/html5/postmsg/ MessageChannel version
- 
-
-function ProxyChannel(win, origin) {
-  this.otherWindow = win;
-  this.targetOrigin = origin;
-}
-
-ProxyChannel.prototype = {
-  connect: function(messageFromClient) {
-    this.channel = new MessageChannel();
-    this.channel.port1.onmessage = this.recv.bind(this);
-    try {
-      this.otherWindow.postMessage(messageFromClient, [this.channel.port2], this.targetOrigin);
-    } catch(exc) {
-      console.error(exc);
-    }
-  },
-  disconnect: function() {
-    this.channel.port1.close();
-  },
-  send: function(data) {
-    this.channel.port1.postMessage(data);
-  },
-  recv: function(event) {
-    console.log("ProxyChannel.recv ", event);
-  }
 };
 
 //--------------------------------------------------------------------------------------
@@ -101,6 +77,7 @@ ProxyPoster.prototype = {
     try {
       this.onmessage = this.recv.bind(this);
       window.addEventListener('message', this.onmessage, false);
+      // this send will cause purple to enable debugging
       this.send(messageFromClient);
     } catch(exc) {
       console.error(exc);
@@ -113,9 +90,9 @@ ProxyPoster.prototype = {
     this.otherWindow.postMessage(data, this.targetOrigin);
   },
   recv: function(event) {
-    console.log("ProxyPoster.recv ", event);
     var method = event.data.method;
     if (method) {  
+      console.log("ProxyPoster.recv ", event);
       Debugger.send(event.data);  // hack
     }
   }
@@ -173,26 +150,19 @@ Debugger.initialize = function(proxy, tabId, handleError){
   };
 };
 
-Debugger.makeOnWasEnabled = function(deferred) {
-  function oneShot(tabId, method, params) {
-    if (tabId !== Debugger.tabId) {
-     return;
-    }
-    if (method === 'Debugger.debuggerWasEnabled') {
-      chrome.experimental.debugger.onEvent.removeListener(oneShot);
-      deferred.resolve(method);
-      console.log("MonitorChrome: Debugger.connect to tab "+tabId);
+Debugger.promiseAttached = function() {
+  var resolveOnAttach = Q.defer();
+  chrome.experimental.debugger.attach(this.tabId, function onAttach() {
+    if (chrome.extension.lastError) {
+      console.error("Debugger.attach FAILS", chrome.extension.lastError);
     } else {
-      console.error("Debugger.onWasEnabled got unexpected method "+method, params);
+      var onEvent = Debugger.onEvent.bind(Debugger);
+      chrome.experimental.debugger.onEvent.addListener(onEvent);
+      resolveOnAttach.resolve("Attached to "+Debugger.tabId);
+      console.log("MonitorChrome: Debugger.connect attached to tab "+Debugger.tabId);
     }
-  }
-  return oneShot;
-}
-
-Debugger.connect = function(deferred) {
-  chrome.experimental.debugger.attach(this.tabId, this.reportError);
-  chrome.experimental.debugger.onEvent.addListener(this.onEvent.bind(this));
-  chrome.experimental.debugger.onEvent.addListener(this.makeOnWasEnabled(deferred));
+  });
+  return resolveOnAttach;
 };
 
 Debugger.disconnect = function() {
@@ -201,8 +171,10 @@ Debugger.disconnect = function() {
 };
 
 Debugger.onEvent = function(tabId, method, params) {
-    //console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+tabId);
-  this.proxy.send({source: "debugger", name: method, params: params}); 
+    console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+tabId+" vs this.tabId:"+this.tabId);
+  if (tabId === this.tabId) {
+    this.proxy.send({source: "debugger", name: method, params: params}); 
+  }
 };
 
 Debugger.onDetach = function(tabId) {
@@ -224,6 +196,7 @@ Debugger.send = function(data) {
   var params = data.params;
   this.request = data;
   chrome.experimental.debugger.sendRequest(this.tabId, method, params, this.recv.bind(this));
+  console.log("Debugger.send "+method+" to "+ this.tabId);
 };
 
 }());
