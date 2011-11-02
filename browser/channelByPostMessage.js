@@ -52,8 +52,10 @@
     
     function requestPort() {
       if (window.parent !== window) { // we are an iframe
+        // listen for parent window messages
         window.addEventListener('message', recvPort, false);
-        window.parent.postMessage(channel.protocolName+' '+channel.version, "*"); // tell our parent we are loaded
+        // tell our parent we are loaded
+        window.parent.postMessage(channel.protocolName+' '+channel.version, "*"); 
         return true;
       } else {
         console.error("connectToBrowser must be included in an iframe");
