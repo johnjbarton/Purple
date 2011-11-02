@@ -70,7 +70,7 @@ define(['ConsoleEntryRep'], function(ConsoleEntryRep) {
       try {
         if (object && object.rep) {
           // The rep tags are 'controllers/views', $object is their model
-          // The tage use |this| meaning the rep, not the model object.
+          // The tags use |this| meaning the rep, not the model object.
           object.rep.tag.replace({object: object}, div, object.rep);
         } else {
           return;
