@@ -1,9 +1,9 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/Resource'], function (remoteByWebInspector, Resources, Resource) {
+define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/Resource','../lib/q/q'], 
+function (          remoteByWebInspector,                Resources,                Resource,            Q) {
   var thePurple = window.purple;
-  var Assembly = thePurple.Assembly;
   
   var networkEventHandler = new thePurple.PurplePart('networkEventHandler');
   
@@ -23,8 +23,8 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
   
   function fetchContent(fncOfContent, fncOfError) {
     if (this.requestId) {
-      networkEventHandler.remote.setResponseCallbacks(fncOfContent, fncOfError);
-      networkEventHandler.remote.Network.getResponseBody(this.requestId);
+      var responseBody = networkEventHandler.remote.Network.getResponseBody(this.requestId);
+      Q.when(responseBody, fncOfContent, fncOfError);
     } else {
       fncOfError("Resource not loaded: "+this.url);
     }
