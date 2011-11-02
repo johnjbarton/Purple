@@ -13,9 +13,10 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
               TR({'class':'callStackFrame', }, 
                 TD('$object|getFunctionName'),
                 TD({'title':'$object|getURL', 'class': '$object|getPartLinkClass'},
-                   BaseRep.PARTLINK('$object|getResourceName')
+                   BaseRep.makePARTLINK(BaseRep)('$object|getResourceName')
                 )
-              )
+              ),
+        name: "StackFrameRep",
       });
       
     ConsoleEntryRep = domplate.domplate(
@@ -25,7 +26,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
         DIV({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
           SPAN('$object.message.text'),
           SPAN({'title':'$object|getURL', 'class': 'messageLink $object.message|getPartLinkClass'},
-                   BaseRep.PARTLINK('$object|getResourceName')
+                   BaseRep.makePARTLINK(this)('$object|getResourceName')
           )
         ),
         TABLE({'class':'callStack'},
@@ -45,7 +46,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
         target.classList.toggle('hasMore');
       },
       hasMore: function(object) {
-        return this.getFrames(object).length ? 'hasMore' : '';
+        return this.getFrames(object.message).length ? 'hasMore' : '';
       },
       getFrames: function(consoleMessage) {
         return consoleMessage.stackTrace || [];
@@ -67,6 +68,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
       getLineNumber: function(object) {
         return object.message.line;
       },
+      name: 'ConsoleEntryRep',
 
     });
     

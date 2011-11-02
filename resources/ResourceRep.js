@@ -11,7 +11,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep'], function (dompl
       BaseRep, 
       {
       tag: DIV({'class': 'resource'},
-          BaseRep.PARTLINK("$object.url")   
+          BaseRep.makePARTLINK(BaseRep)("$object.url")   
         ),
       getPartLinkClass: function(object) {
         return object.requestId ? 'partLink' : ""; 

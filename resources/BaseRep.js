@@ -6,13 +6,22 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
   var thePurple = window.purple;
   
   with(domplate.tags) {
-    var PARTLINK = A({"class":"$object|getPartLinkClass PartLink-$targetPart a11yFocus", _target: "$targetPart", _repObject: '$object', 'onclick': '$clickLink'});
     
     var BaseRep = domplate.domplate({
-      PARTLINK: PARTLINK,
+      makePARTLINK: function(subject) {
+        var attrs = {
+          "class":"$object|getPartLinkClass PartLink-$targetPart a11yFocus",
+          _target: "$targetPart",
+          _subject: subject,
+          _repObject: '$object', 
+          'onclick': '$clickLink'
+        };
+        return A(attrs);
+      },
       getPartLinkClass: function(object) {
         return '';  // no part link
-      }
+      },
+      name: "BaseRep",
     });
   
   }
@@ -26,12 +35,12 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
 
   BaseRep.getLineNumber = function(object) {
     // override in reps
-    return object.line;
+    return object.lineNumber;
   }
   
   BaseRep.getColumnNumber = function(object) {
     // override in reps
-    return object.col;
+    return object.columnNumber;
   }
   
   // Will be called with |this| bound to domplate (rep)
@@ -39,9 +48,11 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
     var target = event.currentTarget;  // the element with the handler
     var destinationFeature = target.getAttribute('target');
     var repObject = target.repObject;
+    // This is set by makePARTLINK, I don't know if this is the best soln.
+    var rep = target.subject || this;
     var resource = repObject;
     if (! repObject.fetchContent) {
-      var url = this.getURL(repObject);
+      var url = rep.getURL(repObject);
       if (url) {
         resource = Resources.get(url);
       } 
@@ -50,10 +61,10 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
         return;
       }
     }
-    var lineNumber = this.getLineNumber(repObject); // the line comes from eg the error message
-    var columnNumber = this.getColumnNumber(repObject); // the line comes from eg the error message
+    var lineNumber = rep.getLineNumber(repObject); // the line comes from eg the error message
+    var columnNumber = rep.getColumnNumber(repObject); // the line comes from eg the error message
     try {
-      this.openPartWith(destinationFeature, resource, lineNumber, columnNumber);
+      rep.openPartWith(destinationFeature, resource, lineNumber, columnNumber);
     } catch(exc) {
       BaseRep.onError(exc);
     }

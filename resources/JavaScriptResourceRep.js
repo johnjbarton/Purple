@@ -9,7 +9,7 @@ define(['../lib/domplate/lib/domplate', '../resources/ResourceRep'], function (d
       ResourceRep,
       {
         tag: DIV({'class': 'resourceJS'},
-          ResourceRep.PARTLINK("$object.url")   
+          ResourceRep.makePARTLINK(ResourceRep)("$object.url")   
           )
       }
     );
