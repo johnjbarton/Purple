@@ -45,8 +45,8 @@ function getDebuggeeInfo() {
   // Our location is set by background.html, it appends info about our debuggee
   var myURL = window.location.toString();
   var debuggee = {
-      contextMenuTabId: parseInt(window.location.hash.substr(1)),
-      dogfood: window.location.search
+    contextMenuTabId: parseInt(window.location.hash.substr(1)),
+    dogfood: window.location.search
   };
   console.log(window.location.toString()+' gives debuggeeInfo: ', debuggee);
   return debuggee;
@@ -55,14 +55,14 @@ function getDebuggeeInfo() {
 function getDogfoodURL(debuggeeInfo) {
     var dogfood = debuggeeInfo.dogfood;
     if (dogfood) {
-        document.title = "purple dogfood" 
-	return localStorage.getItem('dogfoodURL');
+      document.title = "purple dogfood" 
+      return localStorage.getItem('dogfoodURL');
     }
 }
 
 function promiseDebuggeeURL(debuggeeInfo) {
   if (debuggeeInfo.dogfood) {
-      var dogfoodThisURL = window.location.toString().replace(debuggeeInfo.dogfood,'');
+    var dogfoodThisURL = window.location.toString().replace(debuggeeInfo.dogfood,'');
     console.log("dogfood this:"+dogfoodThisURL);
     return dogfoodThisURL;
   }
@@ -91,7 +91,7 @@ function promiseDebuggeeWindow(debuggeeInfo) {
   var left = parseInt(window.localStorage.getItem('windowLeft'));
   var defaultLeft = window.screen.availLeft;
   if (debuggeeInfo.dogfood) {
-      defaultLeft = window.screen.availLeft + (window.screen.availWidth - createData.width);
+    defaultLeft = window.screen.availLeft + (window.screen.availWidth - createData.width);
   }
   createData.left = insureNumber(left) || defaultLeft;
   console.log("chrome.windows.create:", createData);
@@ -106,7 +106,7 @@ function getPurpleURL () {
   var debuggeeInfo = getDebuggeeInfo();
   var dogfood = getDogfoodURL(debuggeeInfo);
   if (dogfood) {
-      console.log("dogfood! "+dogfood);
+    console.log("dogfood! "+dogfood);
     return dogfood;
   }
 
@@ -121,7 +121,7 @@ function promisePurpleReady(purpleURL) {
   var deferred = Q.defer();
 
   appendPurple(purpleURL, function onPurpleLoad(event){
-	  console.log("appendPurple load event", event);
+    console.log("appendPurple load event", event);
     var purpleWindow = event.target.contentWindow;
     deferred.resolve(purpleWindow);
   });

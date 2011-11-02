@@ -54,13 +54,13 @@ MonitorChrome.registerProxy = function(name, version, proxy) {
 }
 
 MonitorChrome.recv = function(data) {
-    // these functions will control the debuggee
-    var op = data.command;
-    if (MonitorChrome.pageCommands.hasOwnProperty(op)) {
-	MonitorChrome.pageCommands[op].apply(MonitorChrome, [data]);
-    } else {
-	console.error("MonitorChrome recv not a pageCommand", data);
-    }
+  // these functions will control the debuggee
+  var op = data.command;
+  if (MonitorChrome.pageCommands.hasOwnProperty(op)) {
+    MonitorChrome.pageCommands[op].apply(MonitorChrome, [data]);
+  } else {
+    console.error("MonitorChrome recv not a pageCommand", data);
+  }
 }
 
 MonitorChrome.disconnect = function() {
@@ -155,7 +155,7 @@ Debugger.initialize = function(proxy, tabId){
   this.tabId = tabId; // eg from chrome.windows.create() callback
   this.reportError = function () {
     if(chrome.extension.lastError) {
-	console.error("MonitorChrome.Debugger ERROR", chrome.extension.lastError);
+    console.error("MonitorChrome.Debugger ERROR", chrome.extension.lastError);
     } // else not an error
   };
 };
@@ -192,8 +192,8 @@ Debugger.onDetach = function(tabId) {
 
 // callback for sendRequest, from Chrome to Monitor
 Debugger.recv = function(request, result) {
-    var msg = chrome.extension.lastError ? chrome.extension.lastError.message : "no error";
-    console.log("Debugger.recv "+request.id+": "+msg , {result: result, request: request});
+  var msg = chrome.extension.lastError ? chrome.extension.lastError.message : "no error";
+  console.log("Debugger.recv "+request.id+": "+msg , {result: result, request: request});
     // Forward to iframe web app
   if (result) {
     this.proxy.send({source: "debugger", name: "response", result: result, request: request});
