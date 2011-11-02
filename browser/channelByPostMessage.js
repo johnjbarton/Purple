@@ -28,7 +28,7 @@
  
     function recvPort(event) {
       console.log("channelByPostMessage.recvPort "+event.origin, event);
-      if (event.data.indexOf(channel.protocolName) !== 0) {
+      if (!event.data.indexOf || event.data.indexOf(channel.protocolName) !== 0) {
         return; // not for us
       }
       window.removeEventListener('message', recvPort, false);
