@@ -3,8 +3,8 @@
 // johnjbarton@google.com
 
 
-define(['EventLog', 'EventLogFilter', 'EventLogViewport', 'ConsoleEventHandler', 'NetworkEventHandler'], 
-function(log,       filter,            viewport,           consoleEventHandler,   networkEventHandler) {
+define(['EventLog', 'EventLogFilter', 'EventLogViewport', 'ConsoleEventHandler', 'NetworkEventHandler', '../lib/q/q'], 
+function(     log,       filter,               viewport,   consoleEventHandler,   networkEventHandler,            Q) {
 
   'use strict';
   var thePurple = window.purple;
@@ -22,9 +22,13 @@ function(log,       filter,            viewport,           consoleEventHandler, 
     log.connect(this.channel);
     filter.connect(log);
     viewport.connect(filter);
-    this.jsEventHandler.connect(this.channel);
-    this.consoleEventHandler.connect(this.channel);
-    this.networkEventHandler.connect(this.channel);
+    var jsPromise = this.jsEventHandler.connect(this.channel);
+    var consolePromise = this.consoleEventHandler.connect(this.channel);
+    var networkPromise = this.networkEventHandler.connect(this.channel);
+    return Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
+      console.log("js, console, net enabled");
+      // release the page
+    });
   };
   
   eventLogViewAssembly.disconnect = function() {

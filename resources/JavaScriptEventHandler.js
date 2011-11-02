@@ -1,7 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/JavaScriptResource'], function (remoteByWebInspector, Resources, JavaScriptResource) {
+define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/JavaScriptResource', '../lib/q/q'], 
+function (          remoteByWebInspector,                Resources,                JavaScriptResource,            Q) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
@@ -9,8 +10,8 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
   
   //---------------------------------------------------------------------------------------------
   //
-  jsEventHandler.startDebugger = function() {
-    this.remote.Debugger.enable();
+  jsEventHandler.promiseStartDebugger = function() {
+    return this.remote.Debugger.enable();
   };
   
   jsEventHandler.stopDebugger = function() {
@@ -72,7 +73,7 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', '../resourc
       this.remote.connect(channel);
       this.logger = channel.recv.bind(channel);
       Resources.connect(this.logger);
-	  this.startDebugger();
+	  return this.promiseStartDebugger();
   };
   
   jsEventHandler.disconnect = function(channel) {

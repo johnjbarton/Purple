@@ -29,12 +29,14 @@
         <script type="text/javascript" src="compiler/traceuratops/ParseTreeLeafFinder.js"></script>
         <script type="text/javascript" src="compiler/traceuratops/ParseTreeStyler.js"></script>
         <script type="text/javascript" src="compiler/traceuratops/compileFeatureByTraceur.js"></script>
-        <script type="text/javascript" src="browser/channelByPostMessage.js"></script>
         <script type="text/javascript" src="lib/nodelist/nodelist.js"></script>
         <script type="text/javascript" src="ui/flexor.js"></script>
         <script type="text/javascript" src="ui/viewManager.js"></script>
-        <script type="text/javascript" src="ui/part.js"></script>
-        <script type="text/javascript" src="resources/JavaScriptEventHandler.js"></script>
+        <script type="text/javascript"> 
+          require(['browser/channelByPostMessage'], function(channel) {
+            console.log("purple.html AMD load complete"); 
+          });
+        </script>
 </head>
 <body>
 <div id="purpleRoot" class="purpleVBox">

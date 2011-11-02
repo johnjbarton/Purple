@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['../browser/remote'], function (remote) {
+define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
@@ -41,13 +41,20 @@ define(['../browser/remote'], function (remote) {
     return params;
   }
 
+  var commandCounter = 0;
+  var deferredById = {};
+
   function makeSendRemoteCommand(channel, domain, method, paramNames) {
     // we close over the argumentes
     return function sendRemoteCommand() {  // arguments here will depend upon method
       var params = bindParams(paramNames, arguments);
-      var message = {method: domain+'.'+method,  params: params};
+      var message = {method: domain+'.'+method,  params: params, p_id: commandCounter++};
+      // store the deferred for onResponse
+      var deferred = deferredById[message.p_id] = Q.defer();
       channel.send(message);
-    }
+      // callers can wait on the promise to be resolved by onResponse
+      return deferred.promise; 
+    };
   }
   
   // Walk the remote API and implement each function to send over channel.
@@ -61,6 +68,7 @@ define(['../browser/remote'], function (remote) {
       var methods = Object.keys(api[domain]);
       methods.forEach(function buildMethod(method) {
         var paramNames = getParamsFromAPI(api[domain][method]);
+        // each RHS is a function returning a promise
         remoteByWebInspector[domain][method] = makeSendRemoteCommand(remoteByWebInspector.channel, domain, method, paramNames);
       });
     });
@@ -99,6 +107,7 @@ define(['../browser/remote'], function (remote) {
   RemoteByWebInspector.recv = function(message) {
     //console.log("remote.recv", message);
     var data = message.data;
+    // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
       if (data.name === 'response') {
         this.onResponse(data);
@@ -129,22 +138,23 @@ define(['../browser/remote'], function (remote) {
     }
   };
   
-  RemoteByWebInspector.setResponseCallbacks = function(fncOfResponse, fncOfError){
-    this.sendRequestCallback = fncOfResponse;
-    this.sendRequestErrBack = fncOfError;
-  };
-  
   RemoteByWebInspector.onResponse = function(data) {
-    if(this.sendRequestCallback) {
+    var p_id = data.request.p_id; // set by sendRemoteCommand
+    var deferred = deferredById[p_id];
+    if (deferred) {
+      try {
       if (data.result) {
-        this.sendRequestCallback(data.result);
+        deferred.resolve(data.result);
       } else if (data.error) {
-        this.sendRequestErrBack(data.error);
+        deferred.reject(data.error);
       } else {
-        this.sendRequestErrBack({error:"onResponse with incorrect data"});
+        deferred.reject({error:"onResponse with incorrect data"});
       }
-      delete this.sendRequestCallback;  // hey you had your chance
-      delete this.sendRequestErrBack;
+      } finally {
+        delete deferredById[p_id];
+      }
+    } else {
+      throw new Error("no deferred response handler for p_id "+p_id);
     }
   };
   
