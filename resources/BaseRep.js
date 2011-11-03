@@ -8,19 +8,29 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
   with(domplate.tags) {
     
     var BaseRep = domplate.domplate({
-      makePARTLINK: function(subject) {
-        var attrs = {
+      tag: A({
           "class":"$object|getPartLinkClass PartLink-$targetPart a11yFocus",
           _target: "$targetPart",
-          _subject: subject,
           _repObject: '$object', 
           'onclick': '$clickLink'
-        };
-        return A(attrs);
+      }, "$object|getPartLinkText" ),
+      getResourceName: function(object) {
+        var url = this.getURL(object);
+        if (!url) {
+          return "No URL for "+object;
+        }
+        var splits = url.split('/');
+        return splits.slice(-1);
+      },
+      getPartLinkText: function(object) {
+        return this.getResourceName(object);
       },
       getPartLinkClass: function(object) {
-        return '';  // no part link
+        var url = this.getURL(object);
+        var resource = Resources.get(url);
+        return (resource && resource.hasSource) ? 'partLink' : 'noSource';
       },
+
       name: "BaseRep",
     });
   
@@ -48,10 +58,9 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
     var target = event.currentTarget;  // the element with the handler
     var destinationFeature = target.getAttribute('target');
     var repObject = target.repObject;
-    // This is set by makePARTLINK, I don't know if this is the best soln.
-    var rep = target.subject || this;
+    var rep = repObject.rep || BaseRep;
     var resource = repObject;
-    if (! repObject.fetchContent) {
+    if (!repObject.fetchContent) {
       var url = rep.getURL(repObject);
       if (url) {
         resource = Resources.get(url);

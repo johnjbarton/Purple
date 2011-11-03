@@ -9,15 +9,25 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
     var StackFrameRep =  domplate.domplate(
       BaseRep, 
       {
-        stackFrameTag:
+        tag:  // the property |tag| is special, see domplate isTag()
               TR({'class':'callStackFrame', }, 
                 TD('$object|getFunctionName'),
-                TD({'title':'$object|getURL', 'class': '$object|getPartLinkClass'},
-                   BaseRep.makePARTLINK(BaseRep)('$object|getResourceName')
+                TD({'title':'$object|getTooltipText'},
+                   TAG(BaseRep.tag, {object:'$object'})
                 )
               ),
         name: "StackFrameRep",
-      });
+        
+        getFunctionName: function(frame) {
+          return frame.functionName;
+        },
+
+        getTooltipText: function(object) {
+          var line = this.getLineNumber(object);
+          return this.getURL(object)+(line ? ('@'+line) : "");
+        }
+      }
+    );
       
     ConsoleEntryRep = domplate.domplate(
       StackFrameRep,
@@ -25,20 +35,33 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
       tag: DIV({'class': 'console-$object.message.level'},
         DIV({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
           SPAN('$object.message.text'),
-          SPAN({'title':'$object|getURL', 'class': 'messageLink $object.message|getPartLinkClass'},
-                   BaseRep.makePARTLINK(this)('$object|getResourceName')
+          SPAN({'title':'$object|getTooltipText', 'class': 'messageLink'},
+            TAG(BaseRep.tag, {object:'$object'})
           )
         ),
         TABLE({'class':'callStack'},
           TBODY(
             FOR('frame', '$object.message|getFrames',
-              TAG(StackFrameRep.stackFrameTag, {object: '$frame'})
+              TAG(StackFrameRep.tag, {object: '$frame'})
             )
           )
         )
       ),
       getURL: function(object) {
-        return object.url || (object.message ? object.message.url : '');
+        if (object.url) {
+          return object.url;
+        }
+        if (object.message) { 
+          if (object.message.url) {  
+            return object.message.url;  
+          } else {  // missing or blank
+            if (object.message.stackTrace) {
+              return object.message.stackTrace[0] && object.message.stackTrace[0].url;
+            }
+          }
+        }
+        console.log("getURL fails for %o", object);
+        return "(no URL)";
       },
       toggleMore: function(event) {
         var target = event.currentTarget;  // the element with the handler
@@ -51,22 +74,8 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
       getFrames: function(consoleMessage) {
         return consoleMessage.stackTrace || [];
       },
-      
-      getFunctionName: function(frame) {
-        return frame.functionName;
-      },
-      getPartLinkClass: function(object) {
-        var url = object.url;
-        var resource = Resources.get(url);
-        return (resource && resource.hasSource) ? 'partLink' : '';
-      },
-      getResourceName: function(object) {
-        var url = this.getURL(object);
-        var splits = url.split('/');
-        return splits.slice(-1);
-      },
       getLineNumber: function(object) {
-        return object.message.line;
+        return object.message && object.message.line;
       },
       name: 'ConsoleEntryRep',
 
@@ -83,7 +92,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
         TABLE({'class':'callStack'},
           TBODY (
             FOR('frame', '$object|getFrames',
-              TAG(StackFrameRep.stackFrameTag, {object: '$frame'})
+              TAG(StackFrameRep.tag, {object: '$frame'})
             )
           )
         )
