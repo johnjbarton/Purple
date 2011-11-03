@@ -1,19 +1,19 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Resources'], function (domplate, BaseRep, Resources) {
+define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../resources/Resources'], function (domplate, PartLinkRep, Resources) {
   
   //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
 
   with(domplate.tags) {
     var StackFrameRep =  domplate.domplate(
-      BaseRep, 
+      PartLinkRep, 
       {
         tag:  // the property |tag| is special, see domplate isTag()
               TR({'class':'callStackFrame', }, 
                 TD('$object|getFunctionName'),
                 TD({'title':'$object|getTooltipText'},
-                   TAG(BaseRep.tag, {object:'$object'})
+                   TAG(PartLinkRep.tag, {object:'$object'})
                 )
               ),
         name: "StackFrameRep",
@@ -36,7 +36,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
         DIV({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
           SPAN('$object.message.text'),
           SPAN({'title':'$object|getTooltipText', 'class': 'messageLink'},
-            TAG(BaseRep.tag, {object:'$object'})
+            TAG(PartLinkRep.tag, {object:'$object'})
           )
         ),
         TABLE({'class':'callStack'},

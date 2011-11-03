@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/ResourceRep'], function (domplate, BaseRep, ResourceRep) {
+define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../resources/ResourceRep'], function (domplate, PartLinkRep, ResourceRep) {
   
   with(domplate.tags) {
     
@@ -9,7 +9,7 @@ define(['../lib/domplate/lib/domplate', '../resources/BaseRep', '../resources/Re
       ResourceRep,
       {
         tag: DIV({'class': 'resourceJS'},
-          TAG(BaseRep.tag, {object:'$object'})   
+          TAG(PartLinkRep.tag, {object:'$object'})   
           )
       }
     );
