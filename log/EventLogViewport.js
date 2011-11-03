@@ -115,7 +115,6 @@ define(['ConsoleEntryRep'], function(ConsoleEntryRep) {
   
   EventLogViewport.initializeUI = function () {
     var logElement = document.getElementById('log');
-    logElement.style.overflowY = 'scroll';
     renderedLines.connect(logElement);
   };
 

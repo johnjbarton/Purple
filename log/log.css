@@ -2,7 +2,11 @@
  * see Purple/license.txt for BSD license
  * johnjbarton@google.com
  */
- 
+
+#log > DIV { /* a bit of space on each end of the log rows */
+  padding-left: 1ex; 
+  padding-right: 1ex;
+}
 .partLink:hover {
   cursor: pointer;
   text-decoration: underline;
