@@ -70,11 +70,10 @@ define(['ConsoleEntryRep'], function(ConsoleEntryRep) {
       try {
         if (object && object.rep) {
           // The rep tags are 'controllers/views', $object is their model
-          // The tags use |this| meaning the rep, not the model object.
-          object.rep.tag.replace({object: object}, div, object.rep);
+          // tag.subject is set by domplate() to the tag, use the default here
+          object.rep.tag.replace({object: object}, div);
         } else {
           return;
-          div.innerHTML = this.renderToString(object);
         }
       } catch (exc) {
           ConsoleEntryRep.InternalExceptionTag.tag.replace({object: exc}, div, ConsoleEntryRep.InternalExceptionTag);

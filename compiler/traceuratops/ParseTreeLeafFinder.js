@@ -719,7 +719,7 @@ thePurple.ParseTreeLeafFinder = (function() {
       var cmp = this.getDistanceToMark(treeOrToken);
       if (cmp === 0) {
         this.pathToIndex = this.nestingStack.slice(0); // clone one level deep
-        console.log("ParseTreeLeafFinder found mark "+this.mark+" at depth "+this.pathToIndex.length, this.pathToIndex);
+        //console.log("ParseTreeLeafFinder found mark "+this.mark+" at depth "+this.pathToIndex.length, this.pathToIndex);
       }
       return cmp;
     },
