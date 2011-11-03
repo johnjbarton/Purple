@@ -17,7 +17,7 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', 'ConsoleEnt
           consoleEventHandler.logger.apply(null, [consoleEventHandler.latestEntry]);
         },
         messageRepeatCountUpdated: function(count) {
-          consoleEventHandler.latestEntry.updateCount(count);
+          // ignore this for now
         },
         messagesCleared: function() {
           consoleEventHandler.latestEntry = ConsoleEntry.messagesClearedEntry;
