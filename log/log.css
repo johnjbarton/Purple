@@ -57,9 +57,10 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
 
 .callStackFrame {
   color: green;
-  padding-left: 25px;
 }
-
+.callStackFrame TD {
+  padding-left: 2em;
+}
 .callStackFrame .partLink {
   text-align: right;
 }
