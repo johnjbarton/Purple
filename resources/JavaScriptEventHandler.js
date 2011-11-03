@@ -39,7 +39,8 @@ function (          remoteByWebInspector,                Resources,             
           console.log("JavaScriptEventHandler", arguments);
         },
         paused: function(details) {
-          console.log("JavaScriptEventHandler", arguments);
+          console.log("JavaScriptEventHandler paused", arguments);
+          alert("paused");
         },
         resumed: function() {
           console.log("JavaScriptEventHandler", arguments);
