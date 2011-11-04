@@ -9,13 +9,6 @@ define(['../lib/q/q'], function(Q) {
   var Assembly = thePurple.Assembly;
   var channel__ = new thePurple.PurplePart('channel');
 
-  Assembly.addListenerContainer(channel__);
-  
-  channel__.recv = channel__.toEachListener;
-  
-  thePurple.Browser = {};
-  var Browser = thePurple.Browser;
-  
   /*
    * In:
    * channel.protocolName: string recognized by browser proxy
@@ -24,34 +17,25 @@ define(['../lib/q/q'], function(Q) {
    * Out:
    * channel.send: function(message) callable 
    */
-  Browser.connect = function connectToBrowser(channel, onConnect) {
- 
+  function promiseChannel(channel, recvFunc) {
+    var deferred = Q.defer();
     function recvPort(event) {
       console.log("channelByPostMessage.recvPort "+event.origin, event);
       if (!event.data.indexOf || event.data.indexOf(channel.protocolName) !== 0) {
         return; // not for us
       }
       window.removeEventListener('message', recvPort, false);
-      if (event.ports && event.ports.length) {
-        channel.port = event.ports[0];
-        channel.port.onmessage = channel.recv.bind(channel);
-        channel.send = function(message) { this.port.postMessage(message); };
-      } else {
-        // no MessageChannel support I guess.
-        channel.onmessage = channel.recv.bind(channel);
-        channel.source = event.source;
-        channel.origin = event.origin; 
-        window.addEventListener('message', channel.onmessage, false);
-        channel.send = function(message) { 
-          channel.source.postMessage(message, channel.origin); 
-        };
-      }
+      
+      channel.onmessage = recvFunc;
+      channel.source = event.source;
+      channel.origin = event.origin; 
+      window.addEventListener('message', channel.onmessage, false);
+      channel.send = function(message) { 
+        channel.source.postMessage(message, channel.origin); 
+      };
       channel.features.push('channel');
       // ok we are ready to connect the dependents and let them talk
-      var promiseEnabled = onConnect(channel);
-      Q.when(promiseEnabled, function releasePage() {
-        channel.send({command: 'releasePage'});
-      });
+      deferred.resolve(channel);
     }  
     
     function requestPort() {
@@ -62,22 +46,14 @@ define(['../lib/q/q'], function(Q) {
         var proxyClientHello = channel.protocolName+' '+channel.version;
         console.log("send proxyClientHello "+proxyClientHello +" to parent of "+window.location);
         window.parent.postMessage(proxyClientHello, "*"); 
-        return true;
+        return deferred.promise;
       } else {
         console.error("connectToBrowser must be included in an iframe");
-        return false;
+        return deferred.reject("must be a child window");
       }
     }
     
     return requestPort();
-  };
-  
-  Browser.disconnect = function (channel) {
-    if (channel.port) {
-      channel.port.close();
-    } else {
-      window.removeEventListener('message', channel.onmessage, false);
-    }
   };
   
   //---------------------------------------------------------------------------------------------
@@ -87,13 +63,17 @@ define(['../lib/q/q'], function(Q) {
       this.version = 1;
   };
   
-  channel__.connect = function(onConnect) {
-      console.log("Calling Browser.connect");
-      Browser.connect(this, onConnect);
+  channel__.connect = function(recvFnc) {
+      return promiseChannel(this, recvFnc);
   };
 
-  channel__.destroy = function() {
-      Browser.disconnect(this);
+  channel__.disconnect = function() {
+    var channel = this;
+    if (channel.port) {
+      channel.port.close();
+    } else {
+      window.removeEventListener('message', channel.onmessage, false);
+    }
   };
   
   channel__.implementsFeature('channel');

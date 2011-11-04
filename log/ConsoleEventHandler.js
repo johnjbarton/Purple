@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector', '../resources/Resources', 'ConsoleEntry'], 
-  function (remoteByWebInspector, Resources, ConsoleEntry) {
+define(['../browser/remoteByWebInspector', 'EventIndex', 'ConsoleEntry'], 
+  function (remoteByWebInspector, EventIndex, ConsoleEntry) {
   var thePurple = window.purple;
   
   var consoleEventHandler = new thePurple.PurplePart('consoleEventHandler');
@@ -14,14 +14,14 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', 'ConsoleEnt
     Console: {
         messageAdded: function(message) {
           consoleEventHandler.latestEntry = new ConsoleEntry(message);
-          consoleEventHandler.logger.apply(null, [consoleEventHandler.latestEntry]);
+          return consoleEventHandler.latestEntry;
         },
         messageRepeatCountUpdated: function(count) {
           // ignore this for now
         },
         messagesCleared: function() {
           consoleEventHandler.latestEntry = ConsoleEntry.messagesClearedEntry;
-          consoleEventHandler.logger.apply(null, [consoleEventHandler.latestEntry]);
+          return consoleEventHandler.latestEntry;
         }
       }
   };
@@ -29,16 +29,17 @@ define(['../browser/remoteByWebInspector', '../resources/Resources', 'ConsoleEnt
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  consoleEventHandler.connect = function(channel) {
+  consoleEventHandler.connect = function(log) {
       this.remote = remoteByWebInspector.create('consoleRemote', this.responseHandlers);
-      this.remote.connect(channel);
-      this.logger = channel.recv.bind(channel);
+      this.index = EventIndex.new(this.remote);
+      this.remote.connect(log, this);
 	  this.remote.Console.enable();
   };
   
-  consoleEventHandler.disconnect = function(channel) {
-      this.remote.console.disable();
-      this.remote.disconnect(channel);
+  consoleEventHandler.disconnect = function(log) {
+      this.remote.Console.disable();
+      this.remote.disconnect(log);
+      delete this.index;
   };
 
   thePurple.registerPart(consoleEventHandler);

@@ -16,16 +16,19 @@ define([], function() {
   
   EventLog.initialize = function() {
       this.messages = [];
-      this.sources = {};
+      this.recv = this.recv.bind(this);
       Assembly.addPartContainer(this);
   };
   
   EventLog.connect = function(eventSource) {
-      eventSource.addListener(this.recv);
+    var channel = eventSource.connect(this.recv);
+    return Q.when(channel, function(channel) {
+      return this;
+    });
   };
 
   EventLog.disconnect = function(eventSource) {
-      eventSource.removeListener(this.recv);
+      eventSource.disconnect();
   };
 
   EventLog.destroy = function() {
