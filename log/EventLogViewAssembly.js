@@ -20,14 +20,19 @@ function(     log,       filter,               viewport,   consoleEventHandler, 
   
   eventLogViewAssembly.connect = function() {
     log.connect(this.channel);
-    filter.connect(log);
-    viewport.connect(filter);
-    var jsPromise = this.jsEventHandler.connect(this.channel);
-    var consolePromise = this.consoleEventHandler.connect(this.channel);
-    var networkPromise = this.networkEventHandler.connect(this.channel);
+    // connect the default indexes to the output of the log and the input of the filter
+    var jsPromise = this.jsEventHandler.connect(log, filter);
+    var consolePromise = this.consoleEventHandler.connect(log, filter);
+    var networkPromise = this.networkEventHandler.connect(log, filter);
     return Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
       console.log("js, console, net enabled");
+      // connect the output of the filter to the input of the viewport
+      viewport.connect(filter);
       // release the page
+      var promiseEnabled = onConnect(channel);
+      Q.when(promiseEnabled, function releasePage() {
+        channel.send({command: 'releasePage'});
+      });
     });
   };
   

@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../lib/Reps'], function (domplate, PartLinkRep, Reps) {
+define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../lib/reps'], function (domplate, PartLinkRep, Reps) {
   
   var thePurple = window.purple;
   

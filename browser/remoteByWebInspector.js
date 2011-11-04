@@ -88,16 +88,18 @@ define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
   // Implement PurplePart
   var RemoteByWebInspector = Object.create(thePurple.PurplePart.methods);
   
-  RemoteByWebInspector.connect = function(channel) {
+  RemoteByWebInspector.connect = function(channel, index) {
     this.channel = channel;
     buildImplementation(this);
     this.channel.addListener(this.recv);
+    this.sendToIndex = index.recv;
   };
   
   RemoteByWebInspector.disconnect = function(channel) {
     if (this.channel && this.channel === channel) {
       this.channel.removeListener(this.recv);
       delete this.channel;
+      delete this.sendToIndex;
     }
   };
   
@@ -120,6 +122,26 @@ define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
   };
   
   RemoteByWebInspector.onEvent = function(data) {
+    return this.categorize(data, this.sendToIndex);
+  }
+
+  RemoteByWebInspector.dispatchToHandler = function(data) {
+    return this.categorize(data, this.applyToparsedJSON);
+  }
+  
+  RemoteByWebInspector.applyToparsedJSON = function(data, method) {
+    try {
+      var objFromJSON = data.params;
+      if (typeof(objFromJSON) === 'string') {
+        objFromJSON = JSON.parse(data.params);
+      }
+      return method.apply(null, [objFromJSON]);
+    } catch(exc) {
+      console.error("RemoteByWebInspector ERROR "+exc, exc.stack, data.params);
+    }
+  }
+  
+  RemoteByWebInspector.categorize = function(data, thenFnOfDataMethod) {
     var splits = data.name.split('.');
     var category = splits[0];
     var methodName = splits[1];
@@ -127,15 +149,7 @@ define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
     if (handlers) {
       var method = handlers[methodName];
       if (method) {
-        try {
-          var objFromJSON = data.params;
-          if (typeof(objFromJSON) === 'string') {
-            objFromJSON = JSON.parse(data.params);
-          }
-          method.apply(null, [objFromJSON]);
-        } catch(exc) {
-          console.error("RemoteByWebInspector ERROR "+exc, exc.stack, data.params);
-        }
+        return thenFnOfDataMethod(data, method);
       }
     }
   };

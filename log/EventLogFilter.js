@@ -26,7 +26,7 @@ define([], function() {
   filter.disconnect = function(eventLog) {
     if (this.sourceLog) {
       delete this.filteredMessages;
-      this.sourceLog.unregisterPart(this)
+      this.sourceLog.unregisterPart(this);
       delete this.sourceLog;
     }
   };
