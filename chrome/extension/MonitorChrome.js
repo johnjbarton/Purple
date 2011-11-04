@@ -164,7 +164,7 @@ Debugger.promiseAttached = function(callback) {
   var onEvent = Debugger.onEvent.bind(Debugger);
   chrome.experimental.debugger.onEvent.addListener(onEvent);
 
-  chrome.experimental.debugger.attach(this.tabId, function onAttach() {
+  chrome.experimental.debugger.attach({tabId: this.tabId}, '0.1', function onAttach() {
     if (chrome.extension.lastError) {
       console.error("Debugger.attach FAILS", chrome.extension.lastError);
     } else {
@@ -175,7 +175,7 @@ Debugger.promiseAttached = function(callback) {
 };
 
 Debugger.disconnect = function() {
-  chrome.experimental.debugger.detach(this.tabId, this.reportError);
+    chrome.experimental.debugger.detach({tabId: this.tabId}, this.reportError);
   console.log("MonitorChrome: Debugger.disconnect from tab "+this.tabId);
 };
 
@@ -208,7 +208,7 @@ Debugger.send = function(data) {
   var params = data.params;
   // change the number so we know if the reload worked
   console.log("6) Debugger.send "+method+" to "+ this.tabId, data);
-  chrome.experimental.debugger.sendRequest(this.tabId, method, params, Debugger.recv.bind(Debugger, data));
+  chrome.experimental.debugger.sendCommand({tabId: this.tabId}, method, params, Debugger.recv.bind(Debugger, data));
 };
 
 }());
