@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep'], function (domplate, PartLinkRep) {
+define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../lib/Reps'], function (domplate, PartLinkRep, Reps) {
   
   var thePurple = window.purple;
   
@@ -15,10 +15,17 @@ define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep'], function (d
         ),
       getPartLinkClass: function(object) {
         return object.requestId ? 'partLink' : ""; 
-      }
+      },
+      getOptionalPropertyNames: function() {
+        return PartLinkRep.getOptionalPropertyNames().push('requestId');
+      },
+      name: 'ResourceRep',
     });
   
   }
+  
+  // jjb I guess we could register the reps where we require() them.
+  Reps.registerPart(ResourceRep);
   
   return ResourceRep;
 });

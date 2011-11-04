@@ -1,13 +1,13 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (domplate, Resources) {
+define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps', '../lib/Rep'], function (domplate, Resources, Reps, Rep) {
   
   var thePurple = window.purple;
   
   with(domplate.tags) {
     
-    var BaseRep = domplate.domplate({
+    var PartLinkRep = domplate.domplate(Rep, {
       tag: A({
           "class":"$object|getPartLinkClass PartLink-$targetPart a11yFocus",
           _target: "$targetPart",
@@ -31,34 +31,41 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
         return (resource && resource.hasSource) ? 'partLink' : 'noSource';
       },
 
-      name: "BaseRep",
+      // Implements Rep
+      name: "PartLinkRep",
+      getRequiredPropertyNames: function() {
+        return ['url'];
+      },
+      getOptionalPropertyNames: function() {
+        return ['lineNumber', 'columnNumber']; 
+      }
     });
   
   }
   
-  BaseRep.targetPart = 'editor', // constant for all instances for now
+  PartLinkRep.targetPart = 'editor', // constant for all instances for now
   
-  BaseRep.getURL = function(object) {
+  PartLinkRep.getURL = function(object) {
     // override in reps
     return object.url;
   }
 
-  BaseRep.getLineNumber = function(object) {
+  PartLinkRep.getLineNumber = function(object) {
     // override in reps
     return object.lineNumber;
   }
   
-  BaseRep.getColumnNumber = function(object) {
+  PartLinkRep.getColumnNumber = function(object) {
     // override in reps
     return object.columnNumber;
   }
   
   // Will be called with |this| bound to domplate (rep)
-  BaseRep.clickLink = function(event) {
+  PartLinkRep.clickLink = function(event) {
     var target = event.currentTarget;  // the element with the handler
     var destinationFeature = target.getAttribute('target');
     var repObject = target.repObject;
-    var rep = repObject.rep || BaseRep;
+    var rep = repObject.rep || PartLinkRep;
     var resource = repObject;
     if (!repObject.fetchContent) {
       var url = rep.getURL(repObject);
@@ -66,7 +73,7 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
         resource = Resources.get(url);
       } 
       if (! resource.fetchContent) {
-        BaseRep.onError("No source associated with clickLink target");
+        PartLinkRep.onError("No source associated with clickLink target");
         return;
       }
     }
@@ -75,24 +82,28 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources'], function (dom
     try {
       rep.openPartWith(destinationFeature, resource, lineNumber, columnNumber);
     } catch(exc) {
-      BaseRep.onError(exc);
+      PartLinkRep.onError(exc);
     }
     event.stopPropagation(); // we only want this one action
     event.preventDefault();
   };
     
-  BaseRep.openPartWith = function(feature, resource, lineNumber, columnNumber) {
+  PartLinkRep.openPartWith = function(feature, resource, lineNumber, columnNumber) {
     var destinationPart = thePurple.getPartByFeature(feature);      
     if (destinationPart) {    
       destinationPart.open(resource, lineNumber, columnNumber);
     } else {
-      BaseRep.onError("No part with feature "+feature+" found");
+      PartLinkRep.onError("No part with feature "+feature+" found");
     }
   }
   
-  BaseRep.onError = function() {
+  PartLinkRep.onError = function() {
     console.error.apply(console, arguments);
     alert(arguments[0]);
   }
-  return BaseRep;
+  
+  
+  Reps.registerPart(PartLinkRep);
+  
+  return PartLinkRep;
 });

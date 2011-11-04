@@ -3,7 +3,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['ConsoleEntryRep'], function(ConsoleEntryRep) {
+define(['../log/ConsoleEntryRep'], function(ConsoleEntryRep) {
   
   'use strict';
   var thePurple = window.purple;

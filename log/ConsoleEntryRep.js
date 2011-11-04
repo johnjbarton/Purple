@@ -1,10 +1,9 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../resources/Resources'], function (domplate, PartLinkRep, Resources) {
+define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../resources/Resources', '../lib/Reps',  '../lib/Rep'], 
+function (                    domplate,                PartLinkRep,                Resources,         Reps,           Rep) {
   
-  //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
-
   with(domplate.tags) {
     var StackFrameRep =  domplate.domplate(
       PartLinkRep, 
@@ -16,8 +15,7 @@ define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../resource
                    TAG(PartLinkRep.tag, {object:'$object'})
                 )
               ),
-        name: "StackFrameRep",
-        
+
         getFunctionName: function(frame) {
           return frame.functionName;
         },
@@ -25,12 +23,21 @@ define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../resource
         getTooltipText: function(object) {
           var line = this.getLineNumber(object);
           return this.getURL(object)+(line ? ('@'+line) : "");
+        },
+      
+        name: "StackFrameRep",
+        
+        getRequiredPropertyNames: function() {
+          return ['url', 'functionName']
         }
       }
     );
-      
-    ConsoleEntryRep = domplate.domplate(
-      StackFrameRep,
+    Reps.registerPart(StackFrameRep);
+
+    //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
+
+    var ConsoleEntryRep = domplate.domplate(
+      Rep,
       {
       tag: DIV({'class': 'console-$object.message.level'},
         DIV({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
@@ -78,7 +85,9 @@ define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../resource
         return object.message && object.message.line;
       },
       name: 'ConsoleEntryRep',
-
+      getRequiredPropertyNames: function() {
+        return ['message'];
+      },
     });
     
     ConsoleEntryRep.messagesClearedEntryRep = domplate.domplate({
@@ -122,9 +131,10 @@ define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../resource
         }
         return frames;
       },
-      
     });
   }
+  
+  Reps.registerPart(ConsoleEntryRep);
   
   return ConsoleEntryRep;
 });
