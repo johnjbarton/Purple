@@ -192,12 +192,12 @@ Debugger.onDetach = function(tabId) {
 
 // callback for sendRequest, from Chrome to Monitor
 Debugger.recv = function(request, result) {
-  var msg = chrome.extension.lastError ? chrome.extension.lastError.message : "no error";
-  console.log("Debugger.recv "+request.id+": "+msg , {result: result, request: request});
-    // Forward to iframe web app
-  if (result) {
+  // Forward to iframe web app
+  if (! chrome.extension.lastError) {
+    console.log("Debugger.recv "+request.p_id, {result: result, request: request});
     this.proxy.send({source: "debugger", name: "response", result: result, request: request});
   } else {
+    console.log("Debugger.recv "+request.p_id+": "+ chrome.extension.lastError.message , {result: result, request: request});
     this.proxy.send({source: "debugger", name: "response", error: chrome.extension.lastError, request: request});
   }
 }
