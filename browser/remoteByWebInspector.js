@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
+define(['browser/remote', 'lib/q/q'], function (remote, Q) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
@@ -88,23 +88,23 @@ define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
   // Implement PurplePart
   var RemoteByWebInspector = Object.create(thePurple.PurplePart.methods);
   
-  RemoteByWebInspector.connect = function(channel, index) {
-    this.channel = channel;
+  RemoteByWebInspector.connect = function(log, channel, index) {
+    this.log = log;  // input
+    this.channel = channel;  // used to sendCommands
     buildImplementation(this);
-    this.channel.addListener(this.recv);
-    this.sendToIndex = index.recv;
+    this.sendToIndex = index.recv;  // output
   };
   
-  RemoteByWebInspector.disconnect = function(channel) {
+  RemoteByWebInspector.disconnect = function(log, channel) {
     if (this.channel && this.channel === channel) {
-      this.channel.removeListener(this.recv);
+      delete this.log;
       delete this.channel;
       delete this.sendToIndex;
     }
   };
   
   //---------------------------------------------------------------------------------------------
-  // As ChannelPart
+  // As Channel Part
   // 
   RemoteByWebInspector.recv = function(message) {
     //console.log("remote.recv", message);
@@ -112,7 +112,7 @@ define(['../browser/remote', '../lib/q/q.js'], function (remote, Q) {
     // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
       // This impl treats responses to requests similar to events. Perhaps a better 
-      // soln would have two channel objects, one for request/response one for events
+      // soln would have two log objects, one for request/response one for events
       if (data.name === 'response') {
         this.onResponse(data);
       } else {
