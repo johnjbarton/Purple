@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/Resource','EventIndex','../lib/q/q'], 
-function (          remoteByWebInspector,                Resources,                Resource,  EventIndex,           Q) {
+define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/Resource','log/EventIndex','lib/q/q'], 
+function (        remoteByWebInspector,            Resources,             Resource,      EventIndex,         Q) {
   var thePurple = window.purple;
   
   var networkEventHandler = new thePurple.PurplePart('networkEventHandler');
@@ -129,10 +129,10 @@ function (          remoteByWebInspector,                Resources,             
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  networkEventHandler.connect = function(log) {
+  networkEventHandler.connect = function(log, channel) {
       this.remote = remoteByWebInspector.create('networkRemote', this.responseHandlers);
       this.index = EventIndex.new(this.remote);
-      this.remote.connect(log, this);
+      this.remote.connect(log, channel, this);
 	  this.remote.Network.enable();
   };
   

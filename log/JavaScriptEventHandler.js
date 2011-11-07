@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector', '../resources/Resources', '../resources/JavaScriptResource', 'EventIndex', '../lib/q/q'], 
-function (          remoteByWebInspector,                Resources,                JavaScriptResource,   EventIndex,         Q) {
+define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/EventIndex', 'lib/q/q'], 
+function (       remoteByWebInspector,             Resources,             JavaScriptResource,   EventIndex,         Q) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
@@ -69,9 +69,9 @@ function (          remoteByWebInspector,                Resources,             
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  jsEventHandler.connect = function(log) {
+  jsEventHandler.connect = function(log, channel) {
       this.remote = remoteByWebInspector.create('resourceCreationRemote', this.responseHandlers);
-      this.remote.connect(log, this);
+      this.remote.connect(log, channel, this);
       this.index = EventIndex.new(this.remote);
 	  return this.promiseStartDebugger();
   };

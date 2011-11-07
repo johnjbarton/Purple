@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../log/ConsoleEntryRep'], 
+define(['lib/domplate/lib/domplate', 'log/ConsoleEntryRep'], 
 function (domplate,                     ConsoleEntryRep) {
   
   function ConsoleEntry(message) {

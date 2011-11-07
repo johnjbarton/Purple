@@ -11,7 +11,14 @@ window.purple = window.parent.purple;
 
 <script type="text/javascript" src="EventSourceAndSink.js"></script>
 <script>
-require(['EventLogViewAssembly', 'JavaScriptEventHandler'], function init(EventLogViewAssembly, jsEventHandler) {
+require({
+  baseUrl: "..",
+  /*paths: {  // I don't understand why this is needed
+    lib: "/lib",
+    log: "/log"
+  }*/
+  }); 
+require(['log/EventLogViewAssembly', 'log/JavaScriptEventHandler'], function init(EventLogViewAssembly, jsEventHandler) {
     console.log("EventLogAssembly compiled");
 });
 </script>
