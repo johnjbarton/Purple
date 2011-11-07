@@ -3,8 +3,8 @@
 // johnjbarton@google.com
 
 
-define(['EventLog', 'EventLogFilter', 'EventLogViewport', 'ConsoleEventHandler', 'NetworkEventHandler', '../lib/q/q'], 
-function(     log,       filter,               viewport,   consoleEventHandler,   networkEventHandler,            Q) {
+define(['log/EventLog', 'log/EventLogFilter', 'log/EventLogViewport', 'log/ConsoleEventHandler', 'log/NetworkEventHandler', 'lib/q/q'], 
+function(         log,               filter,               viewport,       consoleEventHandler,       networkEventHandler,         Q) {
 
   'use strict';
   var thePurple = window.purple;
@@ -19,20 +19,34 @@ function(     log,       filter,               viewport,   consoleEventHandler, 
   };
   
   eventLogViewAssembly.connect = function() {
-    log.connect(this.channel);
-    // connect the default indexes to the output of the log and the input of the filter
-    var jsPromise = this.jsEventHandler.connect(log, filter);
-    var consolePromise = this.consoleEventHandler.connect(log, filter);
-    var networkPromise = this.networkEventHandler.connect(log, filter);
-    return Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
-      console.log("js, console, net enabled");
-      // connect the output of the filter to the input of the viewport
-      viewport.connect(filter);
-      // release the page
-      var promiseEnabled = onConnect(channel);
-      Q.when(promiseEnabled, function releasePage() {
-        channel.send({command: 'releasePage'});
+    var channel = this.channel;
+    
+    // Attach the output of the JSON pipe from the browser to the input of the message buffer
+    var logReady = log.connect(this.channel);
+    // connect the output of the log to the input of the viewport
+    viewport.connect(log);
+    // connect the input of the filter to the output of the log
+    // TODO
+    
+    var connected = Q.when(logReady, function (logReady) {
+      // connect the default indexes to the output of the log and the input of the filter, enabling each remote category
+      var jsPromise = eventLogViewAssembly.jsEventHandler.connect(logReady, channel, filter);
+      var consolePromise = eventLogViewAssembly.consoleEventHandler.connect(logReady, channel, filter);
+      var networkPromise = eventLogViewAssembly.networkEventHandler.connect(logReady, channel, filter);
+      return Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
+        console.log("js, console, net enabled");
+        // release the page
+        eventLogViewAssembly.channel.send({command: 'releasePage'});
+        return "released page";
       });
+    }, function rejected(val) {
+      console.error("eventLogViewAssembly failed "+val, val);
+    });
+    
+    Q.when(connected, function success(connected) {
+      console.error("eventLogViewAssembly connected "+connected);
+    }, function fail(connected){
+      console.error("eventLogViewAssembly FAILED "+connected, thePurple.fixWI(connected));
     });
   };
   
@@ -64,7 +78,7 @@ function(     log,       filter,               viewport,   consoleEventHandler, 
     if (this.channel && this.jsEventHandler && this.consoleEventHandler && this.networkEventHandler && !this.initialized) {
       this.initialized = true;
       eventLogViewAssembly.initialize();
-      this.channel.connect(this.connect.bind(this));
+      eventLogViewAssembly.connect();
     }
   };
 

@@ -3,7 +3,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['../log/ConsoleEntryRep'], function(ConsoleEntryRep) {
+define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(ConsoleEntryRep, ObjRep, reps) {
   
   'use strict';
   var thePurple = window.purple;
@@ -13,7 +13,11 @@ define(['../log/ConsoleEntryRep'], function(ConsoleEntryRep) {
   var EventLogViewport =  new thePurple.PurplePart('EventLogViewport');  // 
   
   EventLogViewport.initialize = function() {
-    this.viewPort = {
+    this.scrollLock = false; // false means the viewport tracks the bottom of the log
+    this.onPoll = this.poll.bind(this);
+    this.pollInterval = 100;
+    
+    this.viewport = {
       rendered: { // these values are controlled by RenderedLines
         first: 0,
         last: 0
@@ -23,19 +27,25 @@ define(['../log/ConsoleEntryRep'], function(ConsoleEntryRep) {
         last: 0
       },
     }
+    reps.rehash();
   }
     
   EventLogViewport.connect = function(eventLog) {
       this.initializeUI();
-      this.sourceLog = eventLog
-      this.sourceLog.registerPart(this);
+      this.log = eventLog
+      if (this.optionPolling) {
+        this.beginPolling();
+      } else {
+        this.endPolling();
+      }
       this.update();
   };
 
   EventLogViewport.disconnect = function(eventLog) {
-    if (this.sourceLog && this.sourceLog === eventLog) {
-      this.sourceLog.unregisterPart(this);
-      delete this.sourceLog;
+    if (this.log && this.log === eventLog) {
+      this.endPolling();
+      this.log.unregisterPart(this);
+      delete this.log;
       delete this.viewport;
     } 
   };
@@ -68,13 +78,15 @@ define(['../log/ConsoleEntryRep'], function(ConsoleEntryRep) {
     renderToHTML: function(object) {
       var div = this.container.ownerDocument.createElement('div');
       try {
+        var rep;
         if (object && object.rep) {
-          // The rep tags are 'controllers/views', $object is their model
-          // tag.subject is set by domplate() to the tag, use the default here
-          object.rep.tag.replace({object: object}, div);
+          rep = object.rep;
         } else {
-          return;
+          rep = reps.getRepByObject(object);
         }
+        // The rep tags are 'controllers/views', $object is their model
+        // tag.subject is set by domplate() to the tag, use the default here
+        rep.tag.replace({object: object}, div);
       } catch (exc) {
           ConsoleEntryRep.InternalExceptionTag.tag.replace({object: exc}, div, ConsoleEntryRep.InternalExceptionTag);
       }
@@ -118,12 +130,41 @@ define(['../log/ConsoleEntryRep'], function(ConsoleEntryRep) {
     renderedLines.connect(logElement);
   };
 
-  EventLogViewport.dataAppended = function(data, index) {
+  EventLogViewport.pullEntry = function(index) {
+    var data = this.log.get(index);
     renderedLines.append(data, index);
   };
-  
+
   EventLogViewport.update = function() {
+    if (!this.scrollLock) {
+      var logMax = this.log.max();
+      var last = this.viewport.visible.last; 
+      // work bottom up and stop once we fill the viewport
+      for (var ndx = (logMax - 1); ndx > last; ndx--) {
+        this.pullEntry(ndx);
+      }
+    }
+  };
   
+  EventLogViewport.appendData = function (data, index) {
+    this.update();
+  }
+  
+  EventLogViewport.poll = function(event) {
+    console.log("EventLogViewport poll", event);
+    this.update();
+  };
+  
+  EventLogViewport.beginPolling = function() {
+    this.log.unregisterPart(this);
+    this.pollingId = window.setInterval(this.onPoll, this.pollInterval);
+  };
+  
+  EventLogViewport.endPolling = function() {
+    if (this.pollingId) {
+      window.clearInterval(this.pollId);
+    }
+    this.log.registerPart(this);
   };
   
   // ---------------------------------------------------------------------------------

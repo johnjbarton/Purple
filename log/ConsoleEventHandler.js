@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../browser/remoteByWebInspector', 'EventIndex', 'ConsoleEntry'], 
+define(['browser/remoteByWebInspector', 'log/EventIndex', 'log/ConsoleEntry'], 
   function (remoteByWebInspector, EventIndex, ConsoleEntry) {
   var thePurple = window.purple;
   
@@ -29,15 +29,17 @@ define(['../browser/remoteByWebInspector', 'EventIndex', 'ConsoleEntry'],
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  consoleEventHandler.connect = function(log) {
+  // Return a promise that the Console is enabled
+  consoleEventHandler.connect = function(log, channel) {
       this.remote = remoteByWebInspector.create('consoleRemote', this.responseHandlers);
       this.index = EventIndex.new(this.remote);
-      this.remote.connect(log, this);
-	  this.remote.Console.enable();
+      this.remote.connect(log, channel, this);
+	  return this.remote.Console.enable();
   };
   
   consoleEventHandler.disconnect = function(log) {
-      this.remote.Console.disable();
+      var disabled = this.remote.Console.disable();
+      // Q.when(disabled
       this.remote.disconnect(log);
       delete this.index;
   };

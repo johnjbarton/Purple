@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define([], function() {
+define(['../lib/q/q'], function(Q) {
   
   'use strict';
   var thePurple = window.purple;
@@ -23,7 +23,7 @@ define([], function() {
   EventLog.connect = function(eventSource) {
     var channel = eventSource.connect(this.recv);
     return Q.when(channel, function(channel) {
-      return this;
+      return EventLog;
     });
   };
 
@@ -36,6 +36,7 @@ define([], function() {
   }; 
   
   thePurple.registerPart(EventLog);
+  
   window.addEventListener('pagehide', function (){
     thePurple.unregisterPart(EventLog);
   }, false);
@@ -43,13 +44,25 @@ define([], function() {
   // -----------------------------------------------------------------------------------
   //
   EventLog.recv = function(event) {
-    this.messages.push(event);
-    this.toEachPart('appendData', [event]);
+    var data = event.data; // MessageEvent comes from postMessage
+    if(!data) {
+      throw new Error("Log.recv no data", event);
+    }
+    this.messages.push(data);
+    this.toEachPart('appendData', [data, this.messages.length]);
   }.bind(EventLog);
+  
+  EventLog.max = function() {
+    return this.messages.length;
+  }
+  
+  EventLog.get = function(index) {
+    return this.messages[index];
+  }
   
   EventLog.forEachEvent = function(fncOfData) {
     return this.messages.forEach(fncOfData);
   };
   
   return EventLog;
-}());
+});
