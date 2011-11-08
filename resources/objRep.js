@@ -6,9 +6,34 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
   var thePurple = window.purple;
   
   with(domplate.tags) {
+    var PrimitiveRep = domplate.domplate(Rep, {
+      tag: SPAN({"class": 'PrimitiveRep StringRep'}, "$object|getString"),
+      getString: function(object) {
+        return object ? "'"+object+"'" : "";
+      }
+    });
     
-    var ObjRep = domplate.domplate(Rep, {
-      tag: DIV({
+    var StringRep = domplate.domplate(Rep, {
+      tag: SPAN({"class": 'StringRep'}, "$object|getString"),
+      getString: function(object) {
+        return object ? "'"+object+"'" : "";
+      }
+    });
+    
+    var FoldedRep = domplate.domplate(Rep, {
+      foldedTag: SPAN({'onclick': '$toggleMore','onmouseenter':'$popup' },  /*twisty in CSS*/
+        SPAN({"class": "objectLeftBrace", role: "presentation"}, "{"),
+        SPAN({"class": "hasMore objectRightBrace"}, "}")   
+      ),
+      toggleMore: function(object) {
+        alert("open window for "+object);
+      },
+      popup: function(event) {
+        alert("popup");
+      },
+    });
+    
+    var objRepShortTag = SPAN({
              "class":"objectRep",
              _repObject: '$object', 
             },    
@@ -17,11 +42,15 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
             FOR("prop", "$object|shortPropIterator",
                 " $prop.name",
                 SPAN({"class": "objectEqual", role: "presentation"}, "$prop.equal"),
-                TAG("$prop.rep.tag", {object: "$prop.object"}),
+                TAG("$prop.tag", {object: "$prop.value"}),
                 SPAN({"class": "objectComma", role: "presentation"}, "$prop.delim")
             ),
             SPAN({"class": "objectRightBrace"}, "}") 
-          ),
+          );
+    
+    var ObjRep = domplate.domplate(FoldedRep, {
+      shortTag: objRepShortTag,
+      tag: DIV({}, objRepShortTag),
       getTitle: function(object) {
         var protolink = Object.getPrototypeOf(object);
         if (protolink.hasOwnProperty('constructor')) { // then the prototype<->constructor match is probably intact
@@ -33,23 +62,49 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
       },
       showValuesOfTheseNames: ['id', 'name'],
       shortPropIterator: function(object) {
-        var props = [];
+        var idProps = [];
+        var stringProps = [];
+        var otherProps = [];
         for (var p in object) {
-          var prop = {};
-          prop.name = p;
-          prop.equal = ':';
-          prop.object = '';
           if (ObjRep.showValuesOfTheseNames.indexOf(p) !== -1) {
-            var value = object[p];
-            prop.object = value + '';
+            idProps.push(this.idProp(object, p));
+          } else if (typeof object[p] === 'string') {
+            stringProps.push(this.stringProp(object,p));
+          } else {
+            otherProps.push(this.otherProp(object,p));
           }
-          prop.rep = reps.getRepByObject(prop.object);
-          prop.delim = ',';
-          props.push(prop);
         }
-        return props;
+        return idProps.concat(stringProps, otherProps);
       },
-      
+      idProp: function(object, p) {
+        return {
+          name: '', // let the string speak for itself
+          equal: '',
+          tag: StringRep.tag,
+          value: object[p]+'',
+          delim: ',',
+        };
+      },
+      stringProp: function(object, p) {
+        return {
+          name: p,
+          equal: ':',
+          tag: StringRep.tag,
+          value: object[p],
+          delim: ','
+        };
+      },
+      otherProp: function(object, p) {
+        var value = object[p];
+        var rep = reps.getRepByObject(value);
+        return {
+          name: p,
+          equal: ':',
+          value: value,
+          tag: rep.foldedTag || rep.shortTag || rep.tag,
+          delim: ',',
+        };
+      },
       // Implements Rep
       name: "ObjRep",
       getRequiredPropertyNames: function() {
@@ -60,12 +115,6 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
       }
     });
     
-    var PrimitiveRep = domplate.domplate(Rep, {
-      tag: SPAN({"class": 'PrimitiveRep StringRep'}, "$object|getString"),
-      getString: function(object) {
-        return object ? "'"+object+"'" : "";
-      }
-    });
   
   }
    
