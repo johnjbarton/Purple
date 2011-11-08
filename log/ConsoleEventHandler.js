@@ -30,17 +30,17 @@ define(['browser/remoteByWebInspector', 'log/EventIndex', 'log/ConsoleEntry'],
   // Implement PurplePart
   
   // Return a promise that the Console is enabled
-  consoleEventHandler.connect = function(log, channel) {
+  consoleEventHandler.connect = function(channel, filter) {
       this.remote = remoteByWebInspector.create('consoleRemote', this.responseHandlers);
       this.index = EventIndex.new(this.remote);
-      this.remote.connect(log, channel, this);
+      this.remote.connect(channel, this);
 	  return this.remote.Console.enable();
   };
   
-  consoleEventHandler.disconnect = function(log) {
+  consoleEventHandler.disconnect = function(channel) {
       var disabled = this.remote.Console.disable();
       // Q.when(disabled
-      this.remote.disconnect(log);
+      this.remote.disconnect(channel);
       delete this.index;
   };
 

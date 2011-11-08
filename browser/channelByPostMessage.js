@@ -17,8 +17,9 @@ define(['../lib/q/q'], function(Q) {
    * Out:
    * channel.send: function(message) callable 
    */
-  function promiseChannel(channel, recvFunc) {
+  function promiseChannel(channel) {
     var deferred = Q.defer();
+    
     function recvPort(event) {
       console.log("channelByPostMessage.recvPort "+event.origin, event);
       if (!event.data.indexOf || event.data.indexOf(channel.protocolName) !== 0) {
@@ -26,7 +27,7 @@ define(['../lib/q/q'], function(Q) {
       }
       window.removeEventListener('message', recvPort, false);
       
-      channel.onmessage = recvFunc;
+      channel.onmessage = channel.recv.bind(channel);
       channel.source = event.source;
       channel.origin = event.origin; 
       window.addEventListener('message', channel.onmessage, false);
@@ -56,6 +57,8 @@ define(['../lib/q/q'], function(Q) {
     return requestPort();
   };
   
+  Assembly.addListenerContainer(channel__);
+  channel__.recv = channel__.toEachListener;
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   channel__.initialize = function() {
@@ -63,8 +66,8 @@ define(['../lib/q/q'], function(Q) {
       this.version = 1;
   };
   
-  channel__.connect = function(recvFnc) {
-      return promiseChannel(this, recvFnc);
+  channel__.connect = function() {
+      return promiseChannel(this);
   };
 
   channel__.disconnect = function() {

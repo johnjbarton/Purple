@@ -129,16 +129,16 @@ function (        remoteByWebInspector,            Resources,             Resour
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  networkEventHandler.connect = function(log, channel) {
+  networkEventHandler.connect = function(channel, filter) {
       this.remote = remoteByWebInspector.create('networkRemote', this.responseHandlers);
       this.index = EventIndex.new(this.remote);
-      this.remote.connect(log, channel, this);
+      this.remote.connect(channel, this);
 	  this.remote.Network.enable();
   };
   
   networkEventHandler.disconnect = function(channel) {
       this.remote.Network.disable();
-      Resources.disconnect(this.logger);
+      this.remote.disconnect(channel);
       delete this.index;
   };
 

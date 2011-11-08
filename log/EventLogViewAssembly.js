@@ -29,10 +29,10 @@ function(         log,               filter,               viewport,       conso
     // TODO
     
     var connected = Q.when(logReady, function (logReady) {
-      // connect the default indexes to the output of the log and the input of the filter, enabling each remote category
-      var jsPromise = eventLogViewAssembly.jsEventHandler.connect(logReady, channel, filter);
-      var consolePromise = eventLogViewAssembly.consoleEventHandler.connect(logReady, channel, filter);
-      var networkPromise = eventLogViewAssembly.networkEventHandler.connect(logReady, channel, filter);
+      // connect the default indexes to the output of the channel and the input of the filter, enabling each remote category
+      var jsPromise = eventLogViewAssembly.jsEventHandler.connect(channel, filter);
+      var consolePromise = eventLogViewAssembly.consoleEventHandler.connect(channel, filter);
+      var networkPromise = eventLogViewAssembly.networkEventHandler.connect(channel, filter);
       return Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
         console.log("js, console, net enabled");
         // release the page

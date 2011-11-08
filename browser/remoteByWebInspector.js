@@ -49,16 +49,16 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
     return function sendRemoteCommand() {  // arguments here will depend upon method
       var params = bindParams(paramNames, arguments);
       var message = {method: domain+'.'+method,  params: params, p_id: commandCounter++};
-      // store the deferred for onResponse
+      // store the deferred for recvResponseData
       var deferred = deferredById[message.p_id] = Q.defer();
       channel.send(message);
-      // callers can wait on the promise to be resolved by onResponse
+      // callers can wait on the promise to be resolved by recvResponseData
       return deferred.promise; 
     };
   }
   
   // Walk the remote API and implement each function to send over channel.
-  function buildImplementation(remoteByWebInspector) {
+  function buildImplementation(remoteByWebInspector, channel) {
     var Features = thePurple.getPartByName('Features');
     var remote =  Features.getPartByName("remote");
     var api = remote.getAPI();
@@ -69,7 +69,7 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
       methods.forEach(function buildMethod(method) {
         var paramNames = getParamsFromAPI(api[domain][method]);
         // each RHS is a function returning a promise
-        remoteByWebInspector[domain][method] = makeSendRemoteCommand(remoteByWebInspector.channel, domain, method, paramNames);
+        remoteByWebInspector[domain][method] = makeSendRemoteCommand(channel, domain, method, paramNames);
       });
     });
   }
@@ -88,40 +88,40 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
   // Implement PurplePart
   var RemoteByWebInspector = Object.create(thePurple.PurplePart.methods);
   
-  RemoteByWebInspector.connect = function(log, channel, index) {
-    this.log = log;  // input
-    this.channel = channel;  // used to sendCommands
-    buildImplementation(this);
-    this.sendToIndex = index.recv;  // output
+  RemoteByWebInspector.connect = function(channel, index) {
+    buildImplementation(this, channel);         // output via sendCommands
+    this.onResponse = this.recvResponse.bind(this);
+    channel.addListener(this.onResponse);  // input for sendCommand responses
+
+    this.sendToIndex = index.recv;              // output for events
+    this.onEvent = this.recvEvent.bind(this);
+    channel.addListener(this.onEvent);     // input for events
   };
   
   RemoteByWebInspector.disconnect = function(log, channel) {
-    if (this.channel && this.channel === channel) {
-      delete this.log;
-      delete this.channel;
-      delete this.sendToIndex;
-    }
+    if (this.onEvent) {
+      channel.removeListener(this.onEvent);
+      delete onEvent;
+      channel.removeListener(this.onReponse);
+      delete onResponse;
+    } // else not connected
   };
   
   //---------------------------------------------------------------------------------------------
   // As Channel Part
   // 
-  RemoteByWebInspector.recv = function(message) {
+  RemoteByWebInspector.recvEvent = function(message) {
     //console.log("remote.recv", message);
     var data = message.data;
     // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
-      // This impl treats responses to requests similar to events. Perhaps a better 
-      // soln would have two log objects, one for request/response one for events
-      if (data.name === 'response') {
-        this.onResponse(data);
-      } else {
-        this.onEvent(data);
+      if (data.name !== 'response') {
+        this.recvEventData(data);
       }
     }
   };
-  
-  RemoteByWebInspector.onEvent = function(data) {
+
+  RemoteByWebInspector.recvEventData = function(data) {
     return this.categorize(data, this.sendToIndex);
   }
 
@@ -154,7 +154,19 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
     }
   };
   
-  RemoteByWebInspector.onResponse = function(data) {
+  RemoteByWebInspector.recvResponse = function(message) {
+    //console.log("remote.recv", message);
+    var data = message.data;
+    // {source: "debugger", name: "response", result: result, request: request}
+    if (data && data.source && data.name) {
+      if (data.name === 'response') {
+        this.recvResponseData(data);
+      } 
+    }  // else not a response
+  };
+  
+  
+  RemoteByWebInspector.recvResponseData = function(data) {
     var p_id = data.request.p_id; // set by sendRemoteCommand
     var deferred = deferredById[p_id];
     if (deferred) {
@@ -164,10 +176,10 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
       } else if (data.error) {
         deferred.reject(data.error);
       } else {
-        deferred.reject({error:"onResponse with incorrect data"});
+        deferred.reject({error:"recvResponseData with incorrect data"});
       }
       } finally {
-        console.log("onResponse completed "+p_id, data);
+        console.log("recvResponseData completed "+p_id, data);
         delete deferredById[p_id];
       }
     } // else another remote may have created the request
@@ -213,7 +225,6 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
     var remote = Object.create(RemoteByWebInspector);
     thePurple.PurplePart.apply(remote, [name]);
     remote.jsonHandlers = {}; // by domain and function name
-    remote.recv = remote.recv.bind(remote);
     addHandlers(remote, handlers);
     return remote;
   };

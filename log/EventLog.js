@@ -21,8 +21,9 @@ define(['../lib/q/q'], function(Q) {
   };
   
   EventLog.connect = function(eventSource) {
-    var channel = eventSource.connect(this.recv);
-    return Q.when(channel, function(channel) {
+    eventSource.addListener(this.recv);
+    var connected = eventSource.connect();
+    return Q.when(connected, function(connected) {
       return EventLog;
     });
   };
