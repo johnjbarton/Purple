@@ -119,15 +119,17 @@ function (                    domplate,                PartLinkRep,             
           var frame = {};
           //eg:     at Object.<anonymous> (eval at <anonymous> (http://localhost:8080/file/f/lib/domplate/lib/domplate.js:482:34))
           var frameString = frameStrings[i];
-          var splits = frameString.split(/\s/);
-          frame.functionName = splits.slice(5,-1).join(' ');
-          var fileArea = splits.slice(-1)[0];
-          var m = /\(([^\)]*)\)/.exec(fileArea);
-          var colonSplits = m[1].split(':');
-          frame.url = colonSplits.slice(0, -2).join('');
-          frame.lineNumber = colonSplits.slice(-2, -1)[0];
-          frame.columnNumber = colonSplits.slice(-1)[0];
-          frames.push(frame);
+          if (frameString.indexOf('    at') === 0) {
+            var splits = frameString.split(/\s/);
+            frame.functionName = splits.slice(5,-1).join(' ');
+            var fileArea = splits.slice(-1)[0];
+            var m = /\(([^\)]*)\)/.exec(fileArea);
+            var colonSplits = m[1].split(':');
+            frame.url = colonSplits.slice(0, -2).join('');
+            frame.lineNumber = colonSplits.slice(-2, -1)[0];
+            frame.columnNumber = colonSplits.slice(-1)[0];
+            frames.push(frame);
+          }
         }
         return frames;
       },
