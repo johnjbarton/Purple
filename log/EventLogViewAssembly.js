@@ -44,7 +44,7 @@ function(         log,               filter,               viewport,       conso
     });
     
     Q.when(connected, function success(connected) {
-      console.error("eventLogViewAssembly connected "+connected);
+      console.log("eventLogViewAssembly connected "+connected);
     }, function fail(connected){
       console.error("eventLogViewAssembly FAILED "+connected, thePurple.fixWI(connected));
     });
