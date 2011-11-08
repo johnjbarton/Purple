@@ -86,7 +86,8 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
         }
         // The rep tags are 'controllers/views', $object is their model
         // tag.subject is set by domplate() to the tag, use the default here
-        rep.tag.replace({object: object}, div);
+        var tag = rep.shortTag || rep.tag;
+        tag.replace({object: object}, div);
       } catch (exc) {
           ConsoleEntryRep.InternalExceptionTag.tag.replace({object: exc}, div, ConsoleEntryRep.InternalExceptionTag);
       }
