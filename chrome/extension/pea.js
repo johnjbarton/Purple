@@ -135,6 +135,8 @@ function promiseUnloadOuterWindow() {
       window.removeEventListener('load', handle, false);
     }
     window.addEventListener('unload', handle, false);
+    console.log("unload handler attached "+window.location.toString());
+    window.onunload = handle;
     return deferred.promise;
 }
 
@@ -176,12 +178,17 @@ function onOuterWindowLoad(event) {
 	    console.log("purple loaded");
 	    return "ready";
     });
-    var unloadOuterWindow = promiseUnloadOuterWindow();
-    Q.when(unloadOuterWindow, function () {
-      stopMonitor(debuggerError);
-      chrome.tab.remove(debuggeeTabInfo.id);
-      unloadOuterWindow.resolve('unload');
-    });
+
+    window.addEventListener('unload', function() {
+        console.log(window.location+" unloading");
+      try {
+        stopMonitor(debuggerError);
+        chrome.tabs.remove(debuggeeTabInfo.id);
+	console.log(window.location+" unloaded");
+      } catch (exc) {
+	  console.log(window.location+" unload ERROR "+exc, exc);
+      }
+    }, false);
    
     return monitored;
   });
