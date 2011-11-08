@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['browser/remote', 'lib/q/q'], function (remote, Q) {
+define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
@@ -86,33 +86,35 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
   
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  var RemoteByWebInspector = Object.create(thePurple.PurplePart.methods);
+  var RemoteByWebInspector = Base.extend(thePurple.PurplePart.methods);
   
-  RemoteByWebInspector.connect = function(channel, index) {
-    buildImplementation(this, channel);         // output via sendCommands
-    this.onResponse = this.recvResponse.bind(this);
-    channel.addListener(this.onResponse);  // input for sendCommand responses
-
-    this.sendToIndex = index.recv;              // output for events
+  RemoteByWebInspector.connect = function(channel, handlers) {
+      
+    this.jsonHandlers = {}; // by domain and function name
+    addHandlers(this, handlers); 
+    buildImplementation(this, channel);  // route inputs to handlers
+    
     this.onEvent = this.recvEvent.bind(this);
     channel.addListener(this.onEvent);     // input for events
+    
+    
+    this.onResponse = this.recvResponse.bind(this);
+    channel.addListener(this.onResponse);  // input for sendCommand responses
   };
   
   RemoteByWebInspector.disconnect = function(log, channel) {
     if (this.onEvent) {
       channel.removeListener(this.onEvent);
-      delete onEvent;
+      delete this.onEvent;
       channel.removeListener(this.onReponse);
-      delete onResponse;
+      delete this.onResponse;
     } // else not connected
   };
   
   //---------------------------------------------------------------------------------------------
   // As Channel Part
   // 
-  RemoteByWebInspector.recvEvent = function(message) {
-    //console.log("remote.recv", message);
-    var data = message.data;
+  RemoteByWebInspector.recvEvent = function(data) {
     // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
       if (data.name !== 'response') {
@@ -122,12 +124,8 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
   };
 
   RemoteByWebInspector.recvEventData = function(data) {
-    return this.categorize(data, this.sendToIndex);
-  }
-
-  RemoteByWebInspector.dispatchToHandler = function(data) {
     return this.categorize(data, this.applyToparsedJSON);
-  }
+  };
   
   RemoteByWebInspector.applyToparsedJSON = function(data, method) {
     try {
@@ -139,7 +137,7 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
     } catch(exc) {
       console.error("RemoteByWebInspector ERROR "+exc, exc.stack, data.params);
     }
-  }
+  };
   
   RemoteByWebInspector.categorize = function(data, thenFnOfDataMethod) {
     var splits = data.name.split('.');
@@ -154,9 +152,7 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
     }
   };
   
-  RemoteByWebInspector.recvResponse = function(message) {
-    //console.log("remote.recv", message);
-    var data = message.data;
+  RemoteByWebInspector.recvResponse = function(data) {
     // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
       if (data.name === 'response') {
@@ -221,12 +217,8 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
     });
   }
   
-  RemoteByWebInspector.create = function(name, handlers) {
-    var remote = Object.create(RemoteByWebInspector);
+  RemoteByWebInspector.initialize = function(name) {
     thePurple.PurplePart.apply(remote, [name]);
-    remote.jsonHandlers = {}; // by domain and function name
-    addHandlers(remote, handlers);
-    return remote;
   };
   
   return RemoteByWebInspector;

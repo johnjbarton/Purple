@@ -3,8 +3,8 @@
 // johnjbarton@google.com
 
 
-define(['log/EventLog', 'log/EventLogFilter', 'log/EventLogViewport', 'log/ConsoleEventHandler', 'log/NetworkEventHandler', 'lib/q/q'], 
-function(         log,               filter,               viewport,       consoleEventHandler,       networkEventHandler,         Q) {
+define(['log/EventLog', 'log/EventLogFilter', 'log/EventLogViewport', 'log/filterChain','resources/Resources', 'lib/q/q'], 
+function(         log,               filter,               viewport,       filterChain,            resources,         Q) {
 
   'use strict';
   var thePurple = window.purple;
@@ -29,6 +29,8 @@ function(         log,               filter,               viewport,       conso
     // TODO
     
     var connected = Q.when(logReady, function (logReady) {
+      resources.connect(logReady.recv);
+
       // connect the default indexes to the output of the channel and the input of the filter, enabling each remote category
       var jsPromise = eventLogViewAssembly.jsEventHandler.connect(channel, filter);
       var consolePromise = eventLogViewAssembly.consoleEventHandler.connect(channel, filter);

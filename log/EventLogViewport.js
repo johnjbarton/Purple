@@ -131,6 +131,8 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
     renderedLines.connect(logElement);
   };
 
+  //-------------------------------------------------------
+  // input from the raw log
   EventLogViewport.pullEntry = function(index) {
     var data = this.log.get(index);
     renderedLines.append(data, index);
