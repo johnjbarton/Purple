@@ -68,3 +68,7 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
 .callStackFrame .partLink {
   text-align: right;
 }
+
+.StringRep {
+  color: blue;
+}

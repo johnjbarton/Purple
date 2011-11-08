@@ -9,35 +9,45 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
     
     var ObjRep = domplate.domplate(Rep, {
       tag: DIV({
-             "class":"$object|getPartLinkClass PartLink-$targetPart a11yFocus",
-             _target: "$targetPart",
+             "class":"objectRep",
              _repObject: '$object', 
-             'onclick': '$clickLink'
             },    
             SPAN({"class": "objectTitle"}, "$object|getTitle "),
             SPAN({"class": "objectLeftBrace", role: "presentation"}, "{"),
             FOR("prop", "$object|shortPropIterator",
                 " $prop.name",
                 SPAN({"class": "objectEqual", role: "presentation"}, "$prop.equal"),
-                TAG("$prop.tag", {object: "$prop.object"}),
+                TAG("$prop.rep.tag", {object: "$prop.object"}),
                 SPAN({"class": "objectComma", role: "presentation"}, "$prop.delim")
             ),
             SPAN({"class": "objectRightBrace"}, "}") 
           ),
       getTitle: function(object) {
-        return "Constructor";
+        var protolink = Object.getPrototypeOf(object);
+        if (protolink.hasOwnProperty('constructor')) { // then the prototype<->constructor match is probably intact
+          var className = protolink.constructor.name;
+          return  (className !== 'Object' ? className : '') || ''; // || use Nonymous naming to get the function name
+        }
+        // else the object was constructed from a function whose prototype has been walked on.
+        return "";
       },
+      showValuesOfTheseNames: ['id', 'name'],
       shortPropIterator: function(object) {
         var props = [];
         for (var p in object) {
           var prop = {};
           prop.name = p;
           prop.equal = ':';
-          var value = object[p];
-          prop.tag = reps.getRepByObject(value);
-          prop.object = value;
+          prop.object = '';
+          if (ObjRep.showValuesOfTheseNames.indexOf(p) !== -1) {
+            var value = object[p];
+            prop.object = value + '';
+          }
+          prop.rep = reps.getRepByObject(prop.object);
           prop.delim = ',';
+          props.push(prop);
         }
+        return props;
       },
       
       // Implements Rep
@@ -51,9 +61,9 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
     });
     
     var PrimitiveRep = domplate.domplate(Rep, {
-      tag: DIV({"class": 'PrimitiveRep'}, "$object|getString"),
+      tag: SPAN({"class": 'PrimitiveRep StringRep'}, "$object|getString"),
       getString: function(object) {
-        return object+"";
+        return object ? "'"+object+"'" : "";
       }
     });
   
