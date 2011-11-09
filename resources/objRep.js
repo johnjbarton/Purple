@@ -38,12 +38,16 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
         elt.popOver = popOverRep.getPopOverElement(elt);
         rep.tag.replace({object:object}, elt.popOver);
         elt.classList.add('poppedOver');
+        event.stopPropagation(); // support for nesting popOvers
+        event.preventDefault();
       },
       popdown: function(event) {
         var elt = event.currentTarget; /* objectMore has the onclick and the repObject */
         if (elt.popOver) {
           elt.classList.remove('poppedOver');
         }
+        event.stopPropagation();  // support for nesting popOvers
+        event.preventDefault();
         // console.log("FoldedRep  out "+(event.timeStamp - this.mouseOverEvent.timeStamp), {clickEvent: event, overEvent: this.mouseOverEvent}); 
       }
     });

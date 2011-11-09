@@ -69,13 +69,13 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
   padding-left: 2ex;
 }
 
-.objectMore .openedTwisty {
+.objectMore > .openedTwisty { /* immediate child selectors, so nested objectMore works */
   display: none;
 }
-.poppedOver .openedTwisty {
+.poppedOver > .openedTwisty {
   display: inline;
 }
-.poppedOver .closedTwisty {
+.poppedOver > .closedTwisty {
   display: none;
 }
 .poppedOver .popOver {
