@@ -23,7 +23,7 @@ define([], function () {
   Resources.append = function(url, resource) {
     this.resourcesByURL[url] = resource;
     this.resources.push(resource);
-    this.eventSink.apply(null, [resource]);
+    this.eventSink.apply(null, [{name: 'created', url: url, resource: resource}]);
     return resource;
   };
 
@@ -31,7 +31,7 @@ define([], function () {
     var index = this.resources.indexOf(resource);
     this.resources[index] = resource;
     this.resourcesByURL[url] = resource;
-    this.eventSink.apply(null, [resource]);
+    this.eventSink.apply(null, [{name: 'updated', url: url, resource: resource}]);
     return resource;
   };
 

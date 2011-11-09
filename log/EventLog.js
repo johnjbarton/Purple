@@ -44,8 +44,7 @@ define(['../lib/q/q'], function(Q) {
   
   // -----------------------------------------------------------------------------------
   //
-  EventLog.recv = function(event) {
-    var data = event.data; // MessageEvent comes from postMessage
+  EventLog.recv = function(data) {
     if(!data) {
       throw new Error("Log.recv no data", event);
     }

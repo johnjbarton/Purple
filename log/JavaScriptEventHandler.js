@@ -70,9 +70,9 @@ function (       remoteByWebInspector,             Resources,             JavaSc
   // Implement PurplePart
   
   jsEventHandler.connect = function(channel) {
-      this.remote = remoteByWebInspector.create('resourceCreationRemote', this.responseHandlers);
+      this.remote = remoteByWebInspector.new('resourceCreationRemote');
       this.remote.connect(channel, this);
-      this.index = EventIndex.new(this.remote);
+      this.index = EventIndex.new();
 	  return this.promiseStartDebugger();
   };
   

@@ -7,16 +7,7 @@ define(['lib/Base'],
   var EventIndex = {};
   
   EventIndex.recv = function(data) {
-    this.jsonBuffer.push(data);
-  };
-  
-  EventIndex._update = function() {
-    var min = this.objectBuffer.length;
-    var max = this.jsonBuffer.length;
-    for (var i = min; i < max; i++) {
-      var json = this.jsonBuffer[i];
-      this.objectBuffer.push( this.remote.dispatchToHandler(json) );
-    }
+    this.objectBuffer.push(data);
   };
   
   EventIndex._getMatcher = function(constraints) {
@@ -39,16 +30,12 @@ define(['lib/Base'],
     }
   };
   
-  EventIndex.initialize = function(remote) {
-      this.jsonBuffer = [];
+  EventIndex.initialize = function() {
       this.objectBuffer = [];
-      this.remote = remote;
   };
   
   EventIndex.disconnect = function() {
-      delete this.jsonBuffer;
       delete this.objectBuffer;
-      delete this.remote;
   };
 
   return Base.extend(EventIndex);

@@ -1,12 +1,12 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['browser/remoteByWebInspector', 'log/EventIndex', 'log/ConsoleEntry'], 
-  function (remoteByWebInspector, EventIndex, ConsoleEntry) {
+define(['lib/Base', 'browser/remoteByWebInspector', 'log/EventIndex', 'log/ConsoleEntry'], 
+  function (Base,            RemoteByWebInspector,       EventIndex,       ConsoleEntry) {
   var thePurple = window.purple;
   
   var consoleEventHandler = new thePurple.PurplePart('consoleEventHandler');
-  
+
   //---------------------------------------------------------------------------------------------
   // Implement Remote.events
   
@@ -14,14 +14,14 @@ define(['browser/remoteByWebInspector', 'log/EventIndex', 'log/ConsoleEntry'],
     Console: {
         messageAdded: function(message) {
           consoleEventHandler.latestEntry = new ConsoleEntry(message);
-          return consoleEventHandler.latestEntry;
+          this.index.recv( consoleEventHandler.latestEntry );
         },
         messageRepeatCountUpdated: function(count) {
           // ignore this for now
         },
         messagesCleared: function() {
           consoleEventHandler.latestEntry = ConsoleEntry.messagesClearedEntry;
-          return consoleEventHandler.latestEntry;
+          this.index.recv( consoleEventHandler.latestEntry );
         }
       }
   };
@@ -31,8 +31,8 @@ define(['browser/remoteByWebInspector', 'log/EventIndex', 'log/ConsoleEntry'],
   
   // Return a promise that the Console is enabled
   consoleEventHandler.connect = function(channel, filter) {
-      this.remote = remoteByWebInspector.create('consoleRemote', this.responseHandlers);
-      this.index = EventIndex.new(this.remote);
+      this.remote = RemoteByWebInspector.new('consoleRemote');
+      this.index = EventIndex.new();
       this.remote.connect(channel, this);
 	  return this.remote.Console.enable();
   };

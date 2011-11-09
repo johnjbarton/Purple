@@ -81,7 +81,7 @@ function (        remoteByWebInspector,            Resources,             Resour
           resource.initiator = initiator;
           resource.resource = cachedResource;
           networkEventHandler.setRequestById(requestId, resource);
-          networkEventHandler.logger(resource);
+          networkEventHandler.index.recv(resource);
         },
         requestWillBeSent: function(requestId, loaderId, documentURL, request, timestamp, initiator, stackTrace, redirectResponse){
           var url = request.url;
@@ -95,7 +95,7 @@ function (        remoteByWebInspector,            Resources,             Resour
           resource.stackTrace = stackTrace;
           resource.redirectResponse = redirectResponse;
           networkEventHandler.setRequestById(requestId, resource);
-          networkEventHandler.logger(resource);
+          networkEventHandler.index.recv(resource);
         },
         responseRecieved: function(requestId, timestamp, type, response){
           var resource = networkEventHandler.getRequestById(requestId);
@@ -106,22 +106,22 @@ function (        remoteByWebInspector,            Resources,             Resour
       },
       WebNavigation: {
         onBeforeNavigate: function(details){
-          networkEventHandler.logger(details);
+          networkEventHandler.index.recv(details);
         },
         onBeforeRetarget: function(details){
-          networkEventHandler.logger(details);
+          networkEventHandler.index.recv(details);
         },
         onCommitted: function(details){
-          networkEventHandler.logger(details);
+          networkEventHandler.index.recv(details);
         },
         onCompleted: function(details){
-          networkEventHandler.logger(details);
+          networkEventHandler.index.recv(details);
         },
         onDOMContentLoaded: function(details){
-          networkEventHandler.logger(details);
+          networkEventHandler.index.recv(details);
         },
         onErrorOccurred: function(details){
-          networkEventHandler.logger(details);
+          networkEventHandler.index.recv(details);
         }
       }
   };
@@ -130,8 +130,8 @@ function (        remoteByWebInspector,            Resources,             Resour
   // Implement PurplePart
   
   networkEventHandler.connect = function(channel, filter) {
-      this.remote = remoteByWebInspector.create('networkRemote', this.responseHandlers);
-      this.index = EventIndex.new(this.remote);
+      this.remote = remoteByWebInspector.new('networkRemote');
+      this.index = EventIndex.new();
       this.remote.connect(channel, this);
 	  this.remote.Network.enable();
   };
