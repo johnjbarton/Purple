@@ -33,7 +33,7 @@ define(['lib/Base', 'browser/remoteByWebInspector', 'log/EventIndex', 'log/Conso
   consoleEventHandler.connect = function(channel, filter) {
       this.remote = RemoteByWebInspector.new('consoleRemote');
       this.index = EventIndex.new();
-      this.remote.connect(channel, this.responseHandlers);
+      this.remote.connect(channel, this);
 	  return this.remote.Console.enable();
   };
   

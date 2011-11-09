@@ -132,7 +132,7 @@ function (        remoteByWebInspector,            Resources,             Resour
   networkEventHandler.connect = function(channel, filter) {
       this.remote = remoteByWebInspector.new('networkRemote');
       this.index = EventIndex.new();
-      this.remote.connect(channel, this.responseHandlers);
+      this.remote.connect(channel, this);
 	  this.remote.Network.enable();
   };
   

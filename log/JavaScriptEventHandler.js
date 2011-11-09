@@ -71,7 +71,7 @@ function (       remoteByWebInspector,             Resources,             JavaSc
   
   jsEventHandler.connect = function(channel) {
       this.remote = remoteByWebInspector.new('resourceCreationRemote');
-      this.remote.connect(channel, this.responseHandlers);
+      this.remote.connect(channel, this);
       this.index = EventIndex.new();
 	  return this.promiseStartDebugger();
   };

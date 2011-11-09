@@ -74,13 +74,13 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
     });
   }
 
-  function marshallForHandler(handler) {
+  function marshallForHandler(indexer, handler) {
     return function (objFromJSON) {
       var args = [];
       for (var i = 0; i < handler.parameters.length; i++) {
         args[i] = objFromJSON[handler.parameters[i]];
       }
-      handler.apply(null, args);
+      handler.apply(indexer, args);
     };
   }
   
@@ -88,10 +88,9 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
   // Implement PurplePart
   var RemoteByWebInspector = Base.extend(thePurple.PurplePart.methods);
   
-  RemoteByWebInspector.connect = function(channel, handlers) {
+  RemoteByWebInspector.connect = function(channel, indexer) {
       
-    this.jsonHandlers = {}; // by domain and function name
-    addHandlers(this, handlers); 
+    this._addHandlers(indexer); 
     buildImplementation(this, channel);  // route inputs to handlers
     
     this.onEvent = this.recvEvent.bind(this);
@@ -182,14 +181,17 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
   };
   
   
-  function addHandlers(remoteByWebInspector, responseHandlerObject) {
-    this.responseHandlerObject = responseHandlerObject;  // {Debugger:{functions}, Console:{functions}}
+  RemoteByWebInspector._addHandlers = function(indexer) {
+    this.jsonHandlers = {}; // by domain and function name
+    var responseHandlerObject = indexer.responseHandlers;  // {Debugger:{functions}, Console:{functions}}
+    var remoteImpl = this;
+    
     var Features = thePurple.getPartByName('Features');
     var remote =  Features.getPartByName("remote");
     var events = remote.getEvents();
     var domainNames = Object.keys(events);
     domainNames.forEach(function buildDomainResponse(domainName) {
-      remoteByWebInspector.jsonHandlers[domainName] = {};
+      remoteImpl.jsonHandlers[domainName] = {};
       var handlerNames = Object.keys(events[domainName]);
       handlerNames.forEach(function buildHandler(handlerName) {
         var handlerSpec = events[domainName][handlerName]; // an empty function
@@ -212,7 +214,7 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
             handler.parameters[i] = param;
           }
         }
-        remoteByWebInspector.jsonHandlers[domainName][handlerName] = marshallForHandler(handler);
+        remoteImpl.jsonHandlers[domainName][handlerName] = marshallForHandler(indexer, handler);
       }.bind(this));
     });
   }
