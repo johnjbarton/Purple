@@ -41,19 +41,52 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
   float: right;
 }
 
+
+.vCentering img {
+  vertical-align: middle;
+}
+
+.objectMore {
+  position: relative; /* Allow nested popOver elements to be position absolute */
+}
+
+.popOver {
+  position: absolute;
+  outline:none;
+  -webkit-transition: all 0.25s ease-in-out;
+  border-radius: 3px;
+  color:gray;
+  box-shadow: 0 0 15px gray;
+  border:1px solid gray; 
+  background-color: lightyellow;
+  padding: 1ex;
+  z-index: 1;
+  display: none; /* show while poppedOver */
+}
+
+.popOver .objectProperties {
+  display: block; /* shortTag narrow in popOver */
+  padding-left: 2ex;
+}
+
+.objectMore .openedTwisty {
+  display: none;
+}
+.poppedOver .openedTwisty {
+  display: inline;
+}
+.poppedOver .closedTwisty {
+  display: none;
+}
+.poppedOver .popOver {
+  display: block;
+}
+
 .hasMore + * {
   display: none;
 }
-/* .hasMore:first-child {
-  display: block;
-}  DOES NOT WORK */
-.hasMore:before {
-  content: url("../ui/icons/from-firebug/twistyClosed.png");
-}
 
-.hadMore:before {
-  content: url("../ui/icons/from-firebug/twistyOpen.png");
-}
+
 
 .callStack {
   padding-left: 1em;

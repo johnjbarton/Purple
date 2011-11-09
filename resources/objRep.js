@@ -21,16 +21,43 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
     });
     
     var FoldedRep = domplate.domplate(Rep, {
-      foldedTag: SPAN({'class':'objectMore', 'onclick': '$toggleMore','onmouseenter':'$popup' },  /*twisty in CSS*/
+      foldedTag: SPAN({'class':'objectMore vCentering', _repObject:'$object', 'onclick': '$toggleMore','onmouseover':'$popup', 'onmouseout':'$popdown' },   
         SPAN({"class": "objectLeftBrace", role: "presentation"}, "{"),
-        SPAN({"class": "hasMore objectRightBrace"}, "}")   
+        IMG({'class':'closedTwisty', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
+        IMG({'class':'openedTwisty', 'src':"../ui/icons/from-firebug/twistyOpen.png"}),
+        SPAN({"class": "objectRightBrace"}, "}")   
       ),
-      toggleMore: function(object) {
-        alert("open window for "+object);
+      toggleMore: function(event) {
+        console.log("FoldedRep click "+(event.timeStamp - this.mouseOverEvent.timeStamp), {clickEvent: event, overEvent: this.mouseOverEvent}); 
       },
       popup: function(event) {
-        alert("popup");
+        this.mouseOverEvent = event;
+        var elt = event.currentTarget; /* objectMore has the onclick and the repObject */
+        var object = elt.repObject;
+        var rep = reps.getRepByObject(object);
+        elt.popOver = popOverRep.getPopOverElement(elt);
+        rep.tag.replace({object:object}, elt.popOver);
+        elt.classList.add('poppedOver');
       },
+      popdown: function(event) {
+        var elt = event.currentTarget; /* objectMore has the onclick and the repObject */
+        if (elt.popOver) {
+          elt.classList.remove('poppedOver');
+        }
+        // console.log("FoldedRep  out "+(event.timeStamp - this.mouseOverEvent.timeStamp), {clickEvent: event, overEvent: this.mouseOverEvent}); 
+      }
+    });
+    
+    var popOverRep = domplate.domplate(Rep, {
+      tag: DIV({'class':'popOver'}, TAG('$rep.tag', {'object':'$object'})),
+      getPopOverElement: function(elt) {
+        if (!elt.popOver) { 
+          elt.popOver = elt.ownerDocument.createElement('div');
+          elt.popOver.classList.add('popOver');
+          elt.appendChild(elt.popOver);
+        }
+        return elt.popOver;
+      }
     });
     
     var objRepShortTag = SPAN({
@@ -40,10 +67,12 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
             SPAN({"class": "objectTitle"}, "$object|getTitle "),
             SPAN({"class": "objectLeftBrace", role: "presentation"}, "{"),
             FOR("prop", "$object|shortPropIterator",
+              SPAN({'class':'objectProperties'},
                 " $prop.name",
                 SPAN({"class": "objectEqual", role: "presentation"}, "$prop.equal"),
                 TAG("$prop.tag", {object: "$prop.value"}),
                 SPAN({"class": "objectComma", role: "presentation"}, "$prop.delim")
+              )
             ),
             SPAN({"class": "objectRightBrace"}, "}") 
           );
@@ -117,6 +146,7 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
     
   
   }
+  
    
   reps.registerPart(ObjRep);
   reps.primitiveRep = PrimitiveRep;
