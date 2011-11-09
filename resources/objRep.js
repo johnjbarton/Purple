@@ -21,7 +21,7 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
     });
     
     var FoldedRep = domplate.domplate(Rep, {
-      foldedTag: SPAN({'onclick': '$toggleMore','onmouseenter':'$popup' },  /*twisty in CSS*/
+      foldedTag: SPAN({'class':'objectMore', 'onclick': '$toggleMore','onmouseenter':'$popup' },  /*twisty in CSS*/
         SPAN({"class": "objectLeftBrace", role: "presentation"}, "{"),
         SPAN({"class": "hasMore objectRightBrace"}, "}")   
       ),
