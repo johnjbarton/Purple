@@ -143,9 +143,10 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
       var logMax = this.log.max();
       var last = this.viewport.visible.last; 
       // work bottom up and stop once we fill the viewport
-      for (var ndx = (logMax - 1); ndx > last; ndx--) {
+      for (var ndx = (logMax - 1); ndx > (last - 1); ndx--) {
         this.pullEntry(ndx);
       }
+      this.viewport.visible.last = logMax;
     }
   };
   
