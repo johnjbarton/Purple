@@ -179,9 +179,9 @@ Debugger.disconnect = function() {
   console.log("MonitorChrome: Debugger.disconnect from tab "+this.tabId);
 };
 
-Debugger.onEvent = function(tabId, method, params) {
+Debugger.onEvent = function(debuggee, method, params) {
     // too many events   console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+tabId+" vs this.tabId:"+this.tabId);
-  if (tabId === this.tabId) {
+  if (debuggee.tabId === this.tabId) {
     this.proxy.send({source: "debugger", name: method, params: params}); 
   }
 };
