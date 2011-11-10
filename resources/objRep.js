@@ -31,11 +31,10 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
         console.log("FoldedRep click "+(event.timeStamp - this.mouseOverEvent.timeStamp), {clickEvent: event, overEvent: this.mouseOverEvent}); 
       },
       popup: function(event) {
-        this.mouseOverEvent = event;
         var elt = event.currentTarget; /* objectMore has the onclick and the repObject */
         var object = elt.repObject;
         var rep = reps.getRepByObject(object);
-        elt.popOver = popOverRep.getPopOverElement(elt);
+        elt.popOver = this.getPopOverElement(elt);
         rep.tag.replace({object:object}, elt.popOver);
         elt.classList.add('poppedOver');
         event.stopPropagation(); // support for nesting popOvers
@@ -43,17 +42,12 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
       },
       popdown: function(event) {
         var elt = event.currentTarget; /* objectMore has the onclick and the repObject */
-        if (elt.popOver) {
+       // if (elt.popOver) {
           elt.classList.remove('poppedOver');
-        }
+       // }
         event.stopPropagation();  // support for nesting popOvers
         event.preventDefault();
-        // console.log("FoldedRep  out "+(event.timeStamp - this.mouseOverEvent.timeStamp), {clickEvent: event, overEvent: this.mouseOverEvent}); 
-      }
-    });
-    
-    var popOverRep = domplate.domplate(Rep, {
-      tag: DIV({'class':'popOver'}, TAG('$rep.tag', {'object':'$object'})),
+      },
       getPopOverElement: function(elt) {
         if (!elt.popOver) { 
           elt.popOver = elt.ownerDocument.createElement('div');
