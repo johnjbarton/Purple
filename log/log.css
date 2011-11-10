@@ -50,8 +50,14 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
   position: relative; /* Allow nested popOver elements to be position absolute */
 }
 
-.popOver {
+.popOverEnlarger {  /* Wrap the popover in a invisible border so small mouse motion after popup does not popdown */
   position: absolute;
+  padding: 2ex;
+  z-index: 1;
+  display: none; /* show while poppedOver */
+}
+
+.popOver {
   outline:none;
 /*  -webkit-transition: all 0.25s ease-in-out; */
   border-radius: 3px;
@@ -60,8 +66,6 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
   border:1px solid gray; 
   background-color: lightyellow;
   padding: 1ex;
-  z-index: 1;
-  display: none; /* show while poppedOver */
 }
 
 .popOver .objectProperties {
@@ -78,7 +82,7 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
 .poppedOver > .closedTwisty {
   display: none;
 }
-.poppedOver > .popOver { /* immediate child selector so nested objectMore works */
+.poppedOver > .popOverEnlarger { /* immediate child selector so nested objectMore works */
   display: inline;
 }
 

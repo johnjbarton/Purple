@@ -66,7 +66,10 @@ function (                   domplate,                Resources,       Element, 
         if (!elt.popOver) { // cached, is it a good idea?
           elt.popOver = elt.ownerDocument.createElement('div');
           elt.popOver.classList.add('popOver');
-          elt.appendChild(elt.popOver);
+          var popOverEnlarger = elt.ownerDocument.createElement('div');
+          popOverEnlarger.classList.add('popOverEnlarger');
+          popOverEnlarger.appendChild(elt.popOver);
+          elt.appendChild(popOverEnlarger);
         }
         return elt.popOver;
       },
