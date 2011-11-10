@@ -1,7 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps', '../lib/Rep'], function (domplate, Resources, reps, Rep) {
+define(['../lib/domplate/lib/domplate', '../resources/Resources', 'lib/element', 'lib/reps', 'lib/Rep'], 
+function (                   domplate,                Resources,       Element,        reps,      Rep) {
   
   var thePurple = window.purple;
   
@@ -21,7 +22,7 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
     });
     
     var FoldedRep = domplate.domplate(Rep, {
-      foldedTag: SPAN({'class':'objectMore vCentering', _repObject:'$object', 'onclick': '$toggleMore','onmouseover':'$popup', 'onmouseout':'$popdown' },   
+      foldedTag: SPAN({'class':'objectMore vCentering', _repObject:'$object', 'onclick': '$toggleMore','onmouseover':'$over', 'onmouseout':'$out' },   
         SPAN({"class": "objectLeftBrace", role: "presentation"}, "{"),
         IMG({'class':'closedTwisty', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
         IMG({'class':'openedTwisty', 'src':"../ui/icons/from-firebug/twistyOpen.png"}),
@@ -30,31 +31,47 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
       toggleMore: function(event) {
         console.log("FoldedRep click "+(event.timeStamp - this.mouseOverEvent.timeStamp), {clickEvent: event, overEvent: this.mouseOverEvent}); 
       },
-      popup: function(event) {
-        var elt = event.currentTarget; /* objectMore has the onclick and the repObject */
-        var object = elt.repObject;
+      over: function(event) {
+        var objectMoreElt = event.currentTarget; /* objectMore has the onclick and the repObject */
+        var enteredFrom = event.relatedTarget;
+        // Mimic mouseenter http://www.ruby-forum.com/topic/112071
+        if (enteredFrom === objectMoreElt || Element.isAncestorOf(objectMoreElt, enteredFrom)) {  // then we are still within the poppedOver
+          return;
+        }
+        objectMoreElt.classList.add('poppedOver');
+        if (objectMoreElt.popOver) {
+          return;
+        }
+        this.debugEvent(event);
+        var object = objectMoreElt.repObject;
         var rep = reps.getRepByObject(object);
-        elt.popOver = this.getPopOverElement(elt);
-        rep.tag.replace({object:object}, elt.popOver);
-        elt.classList.add('poppedOver');
+        objectMoreElt.popOver = this.getPopOverElement(objectMoreElt);
+        rep.tag.replace({object:object}, objectMoreElt.popOver);
+        
         event.stopPropagation(); // support for nesting popOvers
         event.preventDefault();
       },
-      popdown: function(event) {
-        var elt = event.currentTarget; /* objectMore has the onclick and the repObject */
-       // if (elt.popOver) {
-          elt.classList.remove('poppedOver');
-       // }
+      out: function(event) {
+        var objectMoreElt = event.currentTarget; /* objectMore has the onclick and the repObject */
+        var exitedTo = event.relatedTarget;
+        if (exitedTo === objectMoreElt || Element.isAncestorOf(objectMoreElt, exitedTo)) {  // then we did not exit the poppedOver
+          return;
+        }
+        this.debugEvent(event);
+        objectMoreElt.classList.remove('poppedOver');  // hide the popOver via CSS
         event.stopPropagation();  // support for nesting popOvers
         event.preventDefault();
       },
       getPopOverElement: function(elt) {
-        if (!elt.popOver) { 
+        if (!elt.popOver) { // cached, is it a good idea?
           elt.popOver = elt.ownerDocument.createElement('div');
           elt.popOver.classList.add('popOver');
           elt.appendChild(elt.popOver);
         }
         return elt.popOver;
+      },
+      debugEvent: function(event) {
+        console.log(event.type+' '+event.eventPhase+": "+event.currentTarget.localName+event.currentTarget.textContent+'\n('+event.target.localName+event.target.textContent+" <- \n"+event.relatedTarget.localName+event.relatedTarget.textContent+')\n');
       }
     });
     

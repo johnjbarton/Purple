@@ -53,7 +53,7 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
 .popOver {
   position: absolute;
   outline:none;
-  -webkit-transition: all 0.25s ease-in-out;
+/*  -webkit-transition: all 0.25s ease-in-out; */
   border-radius: 3px;
   color:gray;
   box-shadow: 0 0 15px gray;
@@ -78,8 +78,8 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
 .poppedOver > .closedTwisty {
   display: none;
 }
-.poppedOver .popOver {
-  display: block;
+.poppedOver > .popOver { /* immediate child selector so nested objectMore works */
+  display: inline;
 }
 
 .hasMore + * {
