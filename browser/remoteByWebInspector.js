@@ -48,9 +48,9 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
     // we close over the argumentes
     return function sendRemoteCommand() {  // arguments here will depend upon method
       var params = bindParams(paramNames, arguments);
-      var message = {method: domain+'.'+method,  params: params, p_id: commandCounter++};
+      var message = {method: domain+'.'+method,  params: params, cmd_id: commandCounter++};
       // store the deferred for recvResponseData
-      var deferred = deferredById[message.p_id] = Q.defer();
+      var deferred = deferredById[message.cmd_id] = Q.defer();
       channel.send(message);
       // callers can wait on the promise to be resolved by recvResponseData
       return deferred.promise; 
@@ -75,11 +75,12 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
   }
 
   function marshallForHandler(indexer, handler) {
-    return function (objFromJSON) {
+    return function (objFromJSON, p_id) {
       var args = [];
       for (var i = 0; i < handler.parameters.length; i++) {
         args[i] = objFromJSON[handler.parameters[i]];
       }
+      args.push(p_id);  // purple specific clock tick postpended
       handler.apply(indexer, args);
     };
   }
@@ -113,32 +114,20 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
   //---------------------------------------------------------------------------------------------
   // As Channel Part
   // 
-  RemoteByWebInspector.recvEvent = function(data) {
+  RemoteByWebInspector.recvEvent = function(p_id, data) {
     // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
       if (data.name !== 'response') {
-        this.recvEventData(data);
+        this.recvEventData(p_id, data);
       }
     }
   };
 
-  RemoteByWebInspector.recvEventData = function(data) {
-    return this.categorize(data, this.applyToparsedJSON);
+  RemoteByWebInspector.recvEventData = function(p_id, data) {
+    return this.categorize(p_id, data, this.applyToparsedJSON);
   };
-  
-  RemoteByWebInspector.applyToparsedJSON = function(data, method) {
-    try {
-      var objFromJSON = data.params;
-      if (typeof(objFromJSON) === 'string') {
-        objFromJSON = JSON.parse(data.params);
-      }
-      return method.apply(null, [objFromJSON]);
-    } catch(exc) {
-      console.error("RemoteByWebInspector ERROR "+exc, exc.stack, data.params);
-    }
-  };
-  
-  RemoteByWebInspector.categorize = function(data, thenFnOfDataMethod) {
+
+  RemoteByWebInspector.categorize = function(p_id, data, thenFnOfIdDataMethod) {
     var splits = data.name.split('.');
     var category = splits[0];
     var methodName = splits[1];
@@ -146,24 +135,36 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
     if (handlers) {
       var method = handlers[methodName];
       if (method) {
-        return thenFnOfDataMethod(data, method);
+        return thenFnOfIdDataMethod(p_id, data, method);
       }
     }
   };
   
-  RemoteByWebInspector.recvResponse = function(data) {
+  RemoteByWebInspector.applyToparsedJSON = function(p_id, data, method) {
+    try {
+      var objFromJSON = data.params;
+      if (typeof(objFromJSON) === 'string') {
+        objFromJSON = JSON.parse(data.params);
+      }
+      return method.apply(null, [objFromJSON, p_id]);
+    } catch(exc) {
+      console.error("RemoteByWebInspector ERROR "+exc, exc.stack, data.params);
+    }
+  };
+  
+  RemoteByWebInspector.recvResponse = function(p_id, data) {
     // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
       if (data.name === 'response') {
-        this.recvResponseData(data);
+        this.recvResponseData(p_id, data);
       } 
     }  // else not a response
   };
   
   
-  RemoteByWebInspector.recvResponseData = function(data) {
-    var p_id = data.request.p_id; // set by sendRemoteCommand
-    var deferred = deferredById[p_id];
+  RemoteByWebInspector.recvResponseData = function(p_id, data) {
+    var cmd_id = data.request.cmd_id; // set by sendRemoteCommand
+    var deferred = deferredById[cmd_id];
     if (deferred) {
       try {
       if (data.result) {
@@ -174,8 +175,8 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
         deferred.reject({error:"recvResponseData with incorrect data"});
       }
       } finally {
-        console.log("recvResponseData completed "+p_id, data);
-        delete deferredById[p_id];
+        console.log("recvResponseData completed "+cmd_id, data);
+        delete deferredById[cmd_id];
       }
     } // else another remote may have created the request
   };
@@ -217,7 +218,7 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
         remoteImpl.jsonHandlers[domainName][handlerName] = marshallForHandler(indexer, handler);
       }.bind(this));
     });
-  }
+  };
   
   RemoteByWebInspector.initialize = function(name) {
     thePurple.PurplePart.apply(remote, [name]);

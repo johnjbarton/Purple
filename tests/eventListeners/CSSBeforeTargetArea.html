@@ -1,0 +1,49 @@
+<html>
+<head>
+<style>
+
+.bordered {
+  border: solid blue 1px;
+}
+.transparentBordered {
+  border: solid transparent 1px;
+}
+.hasMore + * {
+  display: none;
+}
+
+.hasMore:before {
+  content: "click here";
+}
+</style>
+<script>
+function handleClick() {
+  alert('click');
+};
+function onload(event) {
+  var elts = document.getElementsByClassName('objectMore');
+  for (var i = 0; i < elts.length; i++) {
+    var elt = elts[i];
+    elt.addEventListener('click', handleClick, false);
+  }
+
+}
+window.addEventListener('load', onload, false);
+</script>
+</head>
+<body>
+<h1>Event Target Area Failure in WebKit</h1>
+<h2>BUG: Click in the text area, should see an alert, FAILS</h2>
+<div>
+<span class="objectMore "><span role="presentation" class="objectLeftBrace ">{</span><span class="hasMore objectRightBrace ">}</span></span>
+</div>
+<h2>With a border: Click in the text area, should see an alert, works</h2>
+<div>
+<span class="objectMore bordered"><span role="presentation" class="objectLeftBrace ">{</span><span class="hasMore objectRightBrace ">}</span></span>
+</div>
+<h2>With a transparent border: Click in the text area, should see an alert, works</h2>
+<div>
+<span class="objectMore transparentBordered"><span role="presentation" class="objectLeftBrace ">{</span><span class="hasMore objectRightBrace ">}</span></span>
+</div>
+</body>
+</html>

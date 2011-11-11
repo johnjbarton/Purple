@@ -58,9 +58,11 @@ define(['../lib/q/q'], function(Q) {
   };
   
   Assembly.addListenerContainer(channel__);
+  
   channel__.recv = function(event) {
     var data = event.data; // MessageEvent comes from postMessage
-    channel__.toEachListener(data);
+    var p_id = thePurple.p_id++;
+    channel__.toEachListener([p_id, data]);
   }
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart

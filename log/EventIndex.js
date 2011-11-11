@@ -4,39 +4,41 @@
 define(['lib/Base'], 
   function (Base) {
   
-  var EventIndex = {};
+  var SparseArray = {};
   
-  EventIndex.recv = function(data) {
-    this.objectBuffer.push(data);
+  SparseArray.set = function(p_id, data) {
+    this.objectsByP_ID[p_id] = data;
+    this.p_ids.push(p_id);
   };
   
-  EventIndex._getMatcher = function(constraints) {
-    return function(obj) { return true; };
+  // maybe undefined.
+  SparseArray.get = function(p_id) {
+    return this.objectsByP_ID[p_id];
   };
-
-  // API
   
-  EventIndex.filter = function(constraints, thenFnOfObject) {
-    // flush any new events to the object buffer
-    this._update();
-    
-    var matcher = this._getMatcher(constraints);
-    var max = this.objectBuffer.length;
-    for (var i = 0; i < max; i++) {
-      var obj = this.objectBuffer[i];
-      if (matcher(obj)) {
-        if (!thenFnOfObject(obj)) break;          
+  SparseArray.Iterator = Base.extend({
+    initialize: function(sparseArray) {
+      this.sparseArray = sparseArray;
+    },
+    next: function() {
+      if (!this.index) {
+        this.index = this.sparseArray.p_ids.length;
+      }
+      this.index--;
+      if (this.index < 0) {
+        return undefined;
+      } else {
+        var p_id = this.p_ids[this.index];
+        return this.sparseArray.objectsByP_ID[p_id];
       }
     }
+  });
+  
+  SparseArray.initialize = function(name) {
+    this.name = name;
+    this.objectsByP_ID = {};
+    this.p_ids = [];
   };
   
-  EventIndex.initialize = function() {
-      this.objectBuffer = [];
-  };
-  
-  EventIndex.disconnect = function() {
-      delete this.objectBuffer;
-  };
-
-  return Base.extend(EventIndex);
+  return Base.extend(SparseArray);
 });

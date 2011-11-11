@@ -12,16 +12,16 @@ define(['lib/Base', 'browser/remoteByWebInspector', 'log/EventIndex', 'log/Conso
   
   consoleEventHandler.responseHandlers = {
     Console: {
-        messageAdded: function(message) {
+        messageAdded: function(message, p_id) {
           consoleEventHandler.latestEntry = new ConsoleEntry(message);
-          this.index.recv( consoleEventHandler.latestEntry );
+          this.store.set(p_id, consoleEventHandler.latestEntry);
         },
         messageRepeatCountUpdated: function(count) {
           // ignore this for now
         },
-        messagesCleared: function() {
+        messagesCleared: function(p_id) {
           consoleEventHandler.latestEntry = ConsoleEntry.messagesClearedEntry;
-          this.index.recv( consoleEventHandler.latestEntry );
+          this.store.set(p_id, consoleEventHandler.latestEntry);
         }
       }
   };
@@ -32,7 +32,8 @@ define(['lib/Base', 'browser/remoteByWebInspector', 'log/EventIndex', 'log/Conso
   // Return a promise that the Console is enabled
   consoleEventHandler.connect = function(channel, filter) {
       this.remote = RemoteByWebInspector.new('consoleRemote');
-      this.index = EventIndex.new();
+      this.store = EventIndex.new('ConsoleEvents');
+      filter.registerPart(this.store);
       this.remote.connect(channel, this);
 	  return this.remote.Console.enable();
   };
@@ -41,7 +42,6 @@ define(['lib/Base', 'browser/remoteByWebInspector', 'log/EventIndex', 'log/Conso
       var disabled = this.remote.Console.disable();
       // Q.when(disabled
       this.remote.disconnect(channel);
-      delete this.index;
   };
 
   thePurple.registerPart(consoleEventHandler);

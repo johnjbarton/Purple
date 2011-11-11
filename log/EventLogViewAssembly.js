@@ -3,8 +3,8 @@
 // johnjbarton@google.com
 
 
-define(['log/EventLog', 'log/EventLogFilter', 'log/EventLogViewport', 'log/filterChain','resources/Resources', 'lib/q/q'], 
-function(         log,               filter,               viewport,       filterChain,            resources,         Q) {
+define(['log/EventLog', 'log/EventLogViewport', 'log/filterChain','resources/Resources', 'lib/q/q'], 
+function(         log,               viewport,       filterChain,            resources,         Q) {
 
   'use strict';
   var thePurple = window.purple;
@@ -14,7 +14,6 @@ function(         log,               filter,               viewport,       filte
   eventLogViewAssembly.initialize = function () {
     this.channel.initialize();
     log.initialize();
-    filter.initialize();
     viewport.initialize();
   };
   
@@ -23,18 +22,17 @@ function(         log,               filter,               viewport,       filte
     
     // Attach the output of the JSON pipe from the browser to the input of the message buffer
     var logReady = log.connect(this.channel);
-    // connect the output of the log to the input of the viewport
-    viewport.connect(log);
-    // connect the input of the filter to the output of the log
-    // TODO
     
     var connected = Q.when(logReady, function (logReady) {
       resources.connect(logReady.recv);
+      // connect the output of the log to the input of the viewport
+      viewport.connect(log);
+      viewport.registerPart(log);
 
       // connect the default indexes to the output of the channel and the input of the filter, enabling each remote category
-      var jsPromise = eventLogViewAssembly.jsEventHandler.connect(channel, filter);
-      var consolePromise = eventLogViewAssembly.consoleEventHandler.connect(channel, filter);
-      var networkPromise = eventLogViewAssembly.networkEventHandler.connect(channel, filter);
+      var jsPromise = eventLogViewAssembly.jsEventHandler.connect(channel, viewport);
+      var consolePromise = eventLogViewAssembly.consoleEventHandler.connect(channel, viewport);
+      var networkPromise = eventLogViewAssembly.networkEventHandler.connect(channel, viewport);
       return Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
         console.log("js, console, net enabled");
         // release the page
@@ -57,14 +55,12 @@ function(         log,               filter,               viewport,       filte
     this.consoleEventHandler.disconnect(this.channel);
     this.jsEventHandler.disconnect(this.channel);
     log.disconnect(this.channel);
-    filter.disconnect(log);
-    viewport.disconnect(filter);
+    viewport.disconnect(log);
   };
   
   eventLogViewAssembly.destroy = function() {
     viewport.destroy();
     log.destroy();
-    filter.destroy();
   };
 
   eventLogViewAssembly.partAdded = function(part) {
