@@ -20,7 +20,9 @@
 .console-error {
   color: red;
 }  
-
+.internalError {
+  color: purple;
+}
 .console-warn {
   color: yellow;
 }  
@@ -90,8 +92,12 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
 .hasMore + * {
   display: none;
 }
-
-
+.hasMore > .openedTwisty {
+  display: none;
+}
+.hadMore > .closedTwisty {
+  display: none;
+}
 
 .callStack {
   padding-left: 1em;
