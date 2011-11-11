@@ -69,13 +69,19 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
       return (p_id >= this.first && p_id < this.first + this.total); 
     },
     append: function(data, p_id) {
-      var dataView = this.renderToHTML(data);
+      var dataView = this.renderToHTML(p_id, data);
       if (dataView) {
+        // debug
+        var p_id_div = this.container.ownerDocument.createElement('span');
+        p_id_div.classList.add('p_id');
+        p_id_div.innerHTML = p_id;
+        dataView.insertBefore(p_id_div, dataView.firstChild);
         this.container.appendChild(dataView);
       } 
     },
-    renderToHTML: function(object) {
+    renderToHTML: function(p_id, object) {
       var div = this.container.ownerDocument.createElement('div');
+
       try {
         var rep;
         if (object && object.rep) {
@@ -163,10 +169,16 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
       }
       this.viewport.visible.last = max;
     }
+    delete this.queueUpdate;
   };
   
+  EventLogViewport.boundUpdate = EventLogViewport.update.bind(EventLogViewport);
+  
   EventLogViewport.appendData = function (data, p_id) {
-    this.update();
+    if (!this.queueUpdate) {
+      this.queueUpdate = EventLogViewport.boundUpdate;
+      window.setTimeout(this.queueUpdate);
+    }
   };
   
   EventLogViewport.poll = function(event) {
