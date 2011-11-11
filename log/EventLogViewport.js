@@ -164,7 +164,7 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
       var max = thePurple.p_id;
       var last = this.viewport.visible.last; 
       // work bottom up and stop once we fill the viewport
-      for (var ndx = (max - 1); ndx > (last - 1); ndx--) {
+      for (var ndx = last; ndx <= max; ndx++) {
         this.pullEntry(ndx);
       }
       this.viewport.visible.last = max;
