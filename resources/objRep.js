@@ -42,7 +42,7 @@ function (                   domplate,                Resources,       Element, 
         if (objectMoreElt.popOver) {
           return;
         }
-        this.debugEvent(event);
+        //this.debugEvent(event);
         var object = objectMoreElt.repObject;
         var rep = reps.getRepByObject(object);
         objectMoreElt.popOver = this.getPopOverElement(objectMoreElt);
@@ -57,7 +57,7 @@ function (                   domplate,                Resources,       Element, 
         if (exitedTo === objectMoreElt || Element.isAncestorOf(objectMoreElt, exitedTo)) {  // then we did not exit the poppedOver
           return;
         }
-        this.debugEvent(event);
+        //this.debugEvent(event);
         objectMoreElt.classList.remove('poppedOver');  // hide the popOver via CSS
         event.stopPropagation();  // support for nesting popOvers
         event.preventDefault();
