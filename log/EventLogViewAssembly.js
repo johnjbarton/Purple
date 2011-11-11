@@ -3,8 +3,8 @@
 // johnjbarton@google.com
 
 
-define(['log/EventLog', 'log/EventLogFilter', 'log/EventLogViewport', 'log/filterChain','resources/Resources', 'lib/q/q'], 
-function(         log,               filter,               viewport,       filterChain,            resources,         Q) {
+define(['log/EventLog', 'log/EventLogViewport', 'log/filterChain','resources/Resources', 'lib/q/q'], 
+function(         log,               viewport,       filterChain,            resources,         Q) {
 
   'use strict';
   var thePurple = window.purple;
