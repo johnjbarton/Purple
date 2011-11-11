@@ -7,10 +7,13 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
   
   'use strict';
   var thePurple = window.purple;
+  var Assembly = thePurple.Assembly;
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
   var EventLogViewport =  new thePurple.PurplePart('EventLogViewport');  // 
+  
+  Assembly.addPartContainer(EventLogViewport);
   
   EventLogViewport.initialize = function() {
     this.scrollLock = false; // false means the viewport tracks the bottom of the log
@@ -25,14 +28,14 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
       visible: {  // these values are controled by VisibleLines
         first: 0,
         last: 0
-      },
-    }
+      }
+    };
     reps.rehash();
-  }
+  };
     
-  EventLogViewport.connect = function(eventLog) {
+  EventLogViewport.connect = function(log) {
+    log.registerPart(this); // for appendData notification that drive input to output (for now)
       this.initializeUI();
-      this.log = eventLog
       if (this.optionPolling) {
         this.beginPolling();
       } else {
@@ -41,16 +44,12 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
       this.update();
   };
 
-  EventLogViewport.disconnect = function(eventLog) {
-    if (this.log && this.log === eventLog) {
+  EventLogViewport.disconnect = function() {
       this.endPolling();
-      this.log.unregisterPart(this);
-      delete this.log;
-      delete this.viewport;
-    } 
   };
   
   thePurple.registerPart(EventLogViewport);
+  
   window.addEventListener('pagehide', function() {
     thePurple.unregisterPart(EventLogViewport);
   }, false);
@@ -66,10 +65,10 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
     connect: function(elt) {
       this.container = elt;
     },
-    isRendered: function(index) {
-      return (index >= this.first && index < this.first + this.total); 
+    isRendered: function(p_id) {
+      return (p_id >= this.first && p_id < this.first + this.total); 
     },
-    append: function(data, index) {
+    append: function(data, p_id) {
       var dataView = this.renderToHTML(data);
       if (dataView) {
         this.container.appendChild(dataView);
@@ -132,27 +131,43 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
   };
 
   //-------------------------------------------------------
-  // input from the raw log
-  EventLogViewport.pullEntry = function(index) {
-    var data = this.log.get(index);
-    renderedLines.append(data, index);
+  // Query the indexes for entries from event p_id that match the constraints.
+  EventLogViewport.pullEntry = function(p_id) {
+    var constraint = {  // TODO from findAnything
+      matches: function(entry) {
+        return true;
+      }
+    };
+    // We want to visit each index so they all can contribute items from p_id.
+    // p_id is a proxy for 'time': 
+    //   every log entry that can ever appear in the viewport must have a p_id
+    //   p_id increase monotonically
+    //   an index may or may not have an entry for a p_id
+    this.forEachPart(function filterAndAppendMatches(index) {
+      var indexEntry = index.get(p_id);
+      if (indexEntry) {
+        if(constraint.matches(indexEntry)) {
+            renderedLines.append(indexEntry, p_id);
+        }
+      }
+    });
   };
 
   EventLogViewport.update = function() {
     if (!this.scrollLock) {
-      var logMax = this.log.max();
+      var max = thePurple.p_id;
       var last = this.viewport.visible.last; 
       // work bottom up and stop once we fill the viewport
-      for (var ndx = (logMax - 1); ndx > (last - 1); ndx--) {
+      for (var ndx = (max - 1); ndx > (last - 1); ndx--) {
         this.pullEntry(ndx);
       }
-      this.viewport.visible.last = logMax;
+      this.viewport.visible.last = max;
     }
   };
   
-  EventLogViewport.appendData = function (data, index) {
+  EventLogViewport.appendData = function (data, p_id) {
     this.update();
-  }
+  };
   
   EventLogViewport.poll = function(event) {
     console.log("EventLogViewport poll", event);
@@ -160,7 +175,6 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
   };
   
   EventLogViewport.beginPolling = function() {
-    this.log.unregisterPart(this);
     this.pollingId = window.setInterval(this.onPoll, this.pollInterval);
   };
   
@@ -168,7 +182,6 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
     if (this.pollingId) {
       window.clearInterval(this.pollId);
     }
-    this.log.registerPart(this);
   };
   
   // ---------------------------------------------------------------------------------
