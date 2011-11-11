@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/EventIndex', 'lib/q/q'], 
-function (       remoteByWebInspector,             Resources,             JavaScriptResource,   EventIndex,         Q) {
+define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray', 'lib/q/q'], 
+function (       remoteByWebInspector,             Resources,             JavaScriptResource,   SparseArray,         Q) {
   var thePurple = window.purple;
   var Assembly = thePurple.Assembly;
   
@@ -72,7 +72,7 @@ function (       remoteByWebInspector,             Resources,             JavaSc
   jsEventHandler.connect = function(channel, filter) {
       this.remote = remoteByWebInspector.new('resourceCreationRemote');
       this.remote.connect(channel, this);
-      this.store = EventIndex.new('JavaScriptEvents');
+      this.store = SparseArray.new('JavaScriptEvents');
       filter.registerPart(this.store);
 	  return this.promiseStartDebugger();
   };

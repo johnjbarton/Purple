@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/EventIndex', '../lib/q/q'], function(SparseArray, Q) {
+define(['log/SparseArray', '../lib/q/q'], function(SparseArray, Q) {
   
   'use strict';
   var thePurple = window.purple;

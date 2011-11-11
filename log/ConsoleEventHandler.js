@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/Base', 'browser/remoteByWebInspector', 'log/EventIndex', 'log/ConsoleEntry'], 
-  function (Base,            RemoteByWebInspector,       EventIndex,       ConsoleEntry) {
+define(['lib/Base', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/ConsoleEntry'], 
+  function (Base,            RemoteByWebInspector,       SparseArray,       ConsoleEntry) {
   var thePurple = window.purple;
   
   var consoleEventHandler = new thePurple.PurplePart('consoleEventHandler');
@@ -32,7 +32,7 @@ define(['lib/Base', 'browser/remoteByWebInspector', 'log/EventIndex', 'log/Conso
   // Return a promise that the Console is enabled
   consoleEventHandler.connect = function(channel, filter) {
       this.remote = RemoteByWebInspector.new('consoleRemote');
-      this.store = EventIndex.new('ConsoleEvents');
+      this.store = SparseArray.new('ConsoleEvents');
       filter.registerPart(this.store);
       this.remote.connect(channel, this);
 	  return this.remote.Console.enable();
