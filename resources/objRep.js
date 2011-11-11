@@ -24,8 +24,8 @@ function (                   domplate,                Resources,       Element, 
     var FoldedRep = domplate.domplate(Rep, {
       foldedTag: SPAN({'class':'objectMore vCentering', _repObject:'$object', 'onclick': '$toggleMore','onmouseover':'$over', 'onmouseout':'$out' },   
         SPAN({"class": "objectLeftBrace", role: "presentation"}, "{"),
-        IMG({'class':'closedTwisty', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
-        IMG({'class':'openedTwisty', 'src':"../ui/icons/from-firebug/twistyOpen.png"}),
+        IMG({'class':'closedTwisty', 'src':"../ui/icons/overClosed.png"}),
+        IMG({'class':'openedTwisty', 'src':"../ui/icons/overOpen.png"}),
         SPAN({"class": "objectRightBrace"}, "}")   
       ),
       toggleMore: function(event) {
