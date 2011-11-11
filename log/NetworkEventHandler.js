@@ -71,7 +71,7 @@ function (        remoteByWebInspector,            Resources,             Resour
           var resource = networkEventHandler.getRequestById(requestId);
           resource.servedFromCache = true;
         },
-        requestServedFromMemoryCache: function(requestId, loaderId, documentURL, timestamp, initiator, cachedResource){
+        requestServedFromMemoryCache: function(requestId, loaderId, documentURL, timestamp, initiator, cachedResource, p_id){
           var url = cachedResource.url;
           var resource = networkEventHandler.getOrCreateResource(url);
           resource.documentURL = documentURL;
@@ -81,9 +81,9 @@ function (        remoteByWebInspector,            Resources,             Resour
           resource.initiator = initiator;
           resource.resource = cachedResource;
           networkEventHandler.setRequestById(requestId, resource);
-          networkEventHandler.index.recv(resource);
+          networkEventHandler.store.set(p_id, resource);
         },
-        requestWillBeSent: function(requestId, loaderId, documentURL, request, timestamp, initiator, stackTrace, redirectResponse){
+        requestWillBeSent: function(requestId, loaderId, documentURL, request, timestamp, initiator, stackTrace, redirectResponse, p_id){
           var url = request.url;
           var resource = networkEventHandler.getOrCreateResource(url);
           resource.documentURL = documentURL;
@@ -95,7 +95,7 @@ function (        remoteByWebInspector,            Resources,             Resour
           resource.stackTrace = stackTrace;
           resource.redirectResponse = redirectResponse;
           networkEventHandler.setRequestById(requestId, resource);
-          networkEventHandler.index.recv(resource);
+          networkEventHandler.store.set(p_id, resource);
         },
         responseRecieved: function(requestId, timestamp, type, response){
           var resource = networkEventHandler.getRequestById(requestId);
@@ -105,23 +105,23 @@ function (        remoteByWebInspector,            Resources,             Resour
         }
       },
       WebNavigation: {
-        onBeforeNavigate: function(details){
-          networkEventHandler.index.recv(details);
+        onBeforeNavigate: function(details, p_id){
+          networkEventHandler.store.set(p_id, details);
         },
-        onBeforeRetarget: function(details){
-          networkEventHandler.index.recv(details);
+        onBeforeRetarget: function(details, p_id){
+          networkEventHandler.store.set(p_id, details);
         },
-        onCommitted: function(details){
-          networkEventHandler.index.recv(details);
+        onCommitted: function(details, p_id){
+          networkEventHandler.store.set(p_id, details);
         },
-        onCompleted: function(details){
-          networkEventHandler.index.recv(details);
+        onCompleted: function(details, p_id){
+          networkEventHandler.store.set(p_id, details);
         },
-        onDOMContentLoaded: function(details){
-          networkEventHandler.index.recv(details);
+        onDOMContentLoaded: function(details, p_id){
+          networkEventHandler.store.set(p_id, details);
         },
-        onErrorOccurred: function(details){
-          networkEventHandler.index.recv(details);
+        onErrorOccurred: function(details, p_id){
+          networkEventHandler.store.set(p_id, details);
         }
       }
   };
@@ -131,7 +131,8 @@ function (        remoteByWebInspector,            Resources,             Resour
   
   networkEventHandler.connect = function(channel, filter) {
       this.remote = remoteByWebInspector.new('networkRemote');
-      this.index = EventIndex.new();
+      this.store = EventIndex.new('NetworkEvents');
+      filter.registerPart(this.store);
       this.remote.connect(channel, this);
 	  this.remote.Network.enable();
   };
@@ -139,7 +140,7 @@ function (        remoteByWebInspector,            Resources,             Resour
   networkEventHandler.disconnect = function(channel) {
       this.remote.Network.disable();
       this.remote.disconnect(channel);
-      delete this.index;
+      delete this.store;
   };
 
   thePurple.registerPart(networkEventHandler);

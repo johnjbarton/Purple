@@ -44,12 +44,12 @@ define(['../lib/q/q'], function(Q) {
   
   // -----------------------------------------------------------------------------------
   //
-  EventLog.recv = function(data) {
+  EventLog.recv = function(p_id, data) {
     if(!data) {
       throw new Error("Log.recv no data", event);
     }
-    this.messages.push(data);
-    this.toEachPart('appendData', [data, this.messages.length]);
+    this.messages.push(data);  // TODO SparseArray
+    this.toEachPart('appendData', [data, p_id]); // TODO swap args
   }.bind(EventLog);
   
   EventLog.max = function() {

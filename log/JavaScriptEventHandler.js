@@ -18,16 +18,16 @@ function (       remoteByWebInspector,             Resources,             JavaSc
     this.remote.Debugger.disable();
   };
   
-  jsEventHandler.getOrCreateJavaScriptResource = function(url, isContentScript) {
+  jsEventHandler.getOrCreateJavaScriptResource = function(url, isContentScript, p_id) {
     var resource = Resources.get(url);
     if (!resource) {
-      resource = JavaScriptResource.new(url, isContentScript);
+      resource = JavaScriptResource.new(url, isContentScript, p_id);
       Resources.append(url, resource);
     } else if ( ! JavaScriptResource.isPrototypeOf(resource) ) {
       // we have a network resource which we just discovered is a JavaScriptResource
       var tmp = JavaScriptResource.new(url, isContentScript);
       resource = tmp.merge(resource);
-      Resources.replace(url, resource);
+      Resources.replace(url, resource, p_id);
     }
     return resource;
   };
@@ -48,8 +48,8 @@ function (       remoteByWebInspector,             Resources,             JavaSc
         scriptFailedToParse: function(data, errorLine, errorMessage, firstLine, url) {
           console.log("JavaScriptEventHandler", arguments);
         },
-        scriptParsed: function(endColumn, endLine, isContentScript, scriptId, startColumn, startLine, url) {
-           var res = jsEventHandler.getOrCreateJavaScriptResource(url, isContentScript);
+        scriptParsed: function(endColumn, endLine, isContentScript, scriptId, startColumn, startLine, url, p_id) {
+           var res = jsEventHandler.getOrCreateJavaScriptResource(url, isContentScript, p_id);
            res.appendScript(scriptId, startLine, startColumn, endLine, endColumn);
         }
       },
@@ -69,17 +69,18 @@ function (       remoteByWebInspector,             Resources,             JavaSc
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  jsEventHandler.connect = function(channel) {
+  jsEventHandler.connect = function(channel, filter) {
       this.remote = remoteByWebInspector.new('resourceCreationRemote');
       this.remote.connect(channel, this);
-      this.index = EventIndex.new();
+      this.store = EventIndex.new('JavaScriptEvents');
+      filter.registerPart(this.store);
 	  return this.promiseStartDebugger();
   };
   
   jsEventHandler.disconnect = function(channel) {
       this.stopDebugger();
       this.remote.disconnect(channel);
-      delete this.index;
+      delete this.store;
   };
 
   thePurple.registerPart(jsEventHandler);
