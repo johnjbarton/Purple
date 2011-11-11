@@ -41,6 +41,8 @@ function (                    domplate,                PartLinkRep,             
       {
       tag: DIV({'class': 'console-$object.message.level'},
         DIV({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
+          IMG({'class':'closedTwisty', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
+          IMG({'class':'openedTwisty', 'src':"../ui/icons/from-firebug/twistyOpen.png"}),
           SPAN('$object.message.text'),
           SPAN({'title':'$object|getTooltipText', 'class': 'messageLink'},
             TAG(PartLinkRep.tag, {object:'$object'})
@@ -69,6 +71,9 @@ function (                    domplate,                PartLinkRep,             
         }
         console.log("getURL fails for %o", object);
         return "(no URL)";
+      },
+      getTooltipText: function(object) {
+        return this.getURL(object);
       },
       toggleMore: function(event) {
         var target = event.currentTarget;  // the element with the handler
