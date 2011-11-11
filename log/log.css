@@ -36,10 +36,10 @@
   text-align: center;
 }
 
-div.linkedText {
+.linkedText {
   width: 100%;
 }
-div.linkedText .messageLink { /* when the link is on a line with a message */
+.linkedText .messageLink { /* when the link is on a line with a message */
   float: right;
 }
 
@@ -115,4 +115,9 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
 
 .StringRep {
   color: blue;
+}
+
+.p_id + * {
+  display: inline;
+  margin-left: 3px;
 }

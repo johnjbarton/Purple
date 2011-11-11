@@ -40,12 +40,12 @@ function (                    domplate,                PartLinkRep,             
       Rep,
       {
       tag: DIV({'class': 'console-$object.message.level'},
-        DIV({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
+        SPAN({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
           IMG({'class':'closedTwisty', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
           IMG({'class':'openedTwisty', 'src':"../ui/icons/from-firebug/twistyOpen.png"}),
           SPAN('$object.message.text'),
           SPAN({'title':'$object|getTooltipText', 'class': 'messageLink'},
-            TAG(PartLinkRep.tag, {object:'$object'})
+            TAG(PartLinkRep.tag, {object:'$object.message'})
           )
         ),
         TABLE({'class':'callStack'},
