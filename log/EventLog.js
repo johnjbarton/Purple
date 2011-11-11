@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['../lib/q/q'], function(Q) {
+define(['log/EventIndex', '../lib/q/q'], function(SparseArray, Q) {
   
   'use strict';
   var thePurple = window.purple;
@@ -15,12 +15,13 @@ define(['../lib/q/q'], function(Q) {
   var EventLog =  new thePurple.PurplePart('EventLog'); 
   
   EventLog.initialize = function() {
-      this.messages = [];
+      this.messages = SparseArray.new('BrwoserEvents');
       this.recv = this.recv.bind(this);
       Assembly.addPartContainer(this);
   };
   
-  EventLog.connect = function(eventSource) {
+  EventLog.connect = function(eventSource, filter) {
+    filter.registerPart(this.messages);
     eventSource.addListener(this.recv);
     var connected = eventSource.connect();
     return Q.when(connected, function(connected) {
@@ -32,10 +33,6 @@ define(['../lib/q/q'], function(Q) {
       eventSource.disconnect();
   };
 
-  EventLog.destroy = function() {
-      delete this.messages;
-  }; 
-  
   thePurple.registerPart(EventLog);
   
   window.addEventListener('pagehide', function (){
@@ -46,19 +43,11 @@ define(['../lib/q/q'], function(Q) {
   //
   EventLog.recv = function(p_id, data) {
     if(!data) {
-      throw new Error("Log.recv no data", event);
+      throw new Error("Log.recv no data");
     }
-    this.messages.push(data);  // TODO SparseArray
+    this.messages.set(p_id, data);  // TODO SparseArray
     this.toEachPart('appendData', [data, p_id]); // TODO swap args
   }.bind(EventLog);
-  
-  EventLog.max = function() {
-    return this.messages.length;
-  }
-  
-  EventLog.get = function(index) {
-    return this.messages[index];
-  }
   
   EventLog.forEachEvent = function(fncOfData) {
     return this.messages.forEach(fncOfData);
