@@ -117,6 +117,11 @@
   color: blue;
 }
 
+.p_id {
+ min-width: 3ex;
+ float: left; /* "you can't assign a width to an inline element, only padding/margin so you'll need to make it float" */
+}
+
 .p_id + * {
   display: inline;
   margin-left: 3px;
