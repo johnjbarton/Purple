@@ -55,6 +55,7 @@ div.linkedText .messageLink { /* when the link is on a line with a message */
   padding: 2ex;
   z-index: 1;
   display: none; /* show while poppedOver */
+  left: 0px; /* XXXjjb I don't understand why this makes the position correct */
 }
 
 .popOver {
