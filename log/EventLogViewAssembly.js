@@ -21,13 +21,12 @@ function(         log,               viewport,       filterChain,            res
     var channel = this.channel;
     
     // Attach the output of the JSON pipe from the browser to the input of the message buffer
-    var logReady = log.connect(this.channel);
+    var logReady = log.connect(this.channel, viewport);
     
     var connected = Q.when(logReady, function (logReady) {
       resources.connect(logReady.recv);
       // connect the output of the log to the input of the viewport
       viewport.connect(log);
-      viewport.registerPart(log);
 
       // connect the default indexes to the output of the channel and the input of the filter, enabling each remote category
       var jsPromise = eventLogViewAssembly.jsEventHandler.connect(channel, viewport);
