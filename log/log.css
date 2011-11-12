@@ -92,10 +92,25 @@
 .hasMore + * {
   display: none;
 }
+
 .hasMore > .openedTwisty {
   display: none;
 }
 .hadMore > .closedTwisty {
+  display: none;
+}
+
+/* LazyDisclosureRep */
+.openedLazy {
+  display: none;
+}
+.closedLazy {
+  display: inline;
+}
+.lazyOpened > .openedTwisty {
+  display: inline;
+}
+.lazyOpened > .closedTwisty {
   display: none;
 }
 

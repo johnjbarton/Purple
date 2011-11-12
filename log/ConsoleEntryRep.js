@@ -5,6 +5,33 @@ define(['lib/domplate/lib/domplate', 'resources/PartLinkRep', 'resources/Resourc
 function (                    domplate,                PartLinkRep,                Resources,         Reps,           Rep) {
   
   with(domplate.tags) {
+  
+    // a twisty that adds elements on click
+    // {action: function (event) { return disclosedElement; } }
+    var LazyDisclosureRep = domplate.domplate({
+      tag: SPAN({'onclick':'$action|setToggleMore'},
+             IMG({'class':'closedLazy', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
+             IMG({'class':'openedLazy', 'src':"../ui/icons/from-firebug/twistyOpen.png"})
+           ),
+
+      // called when the domplate is expanded
+      setToggleMore: function(action) {
+        // called when the user clicks
+        return function toggleMore(event) {  
+          var elt = event.currentTarget;
+          if (!elt.resolved) {
+            elt.resolved = action(event);
+          }
+          elt.classList.toggle('lazyOpened');
+          if (elt.classList.contains('lazeOpened')) {
+            elt.resolved.style.display = 'none';
+          } else {
+            delete elt.resolved.style.display;
+          }
+        }
+      },
+    });
+  
     var StackFrameRep =  domplate.domplate(
       PartLinkRep, 
       {
@@ -63,6 +90,16 @@ function (                    domplate,                PartLinkRep,             
       }
     );
     Reps.registerPart(StackFrameRep);
+    
+    var CallStackRep = domplate.domplate({
+      tag: TABLE({'class':'callStack'},
+             TBODY(
+               FOR('frame', '$frames',
+                 TAG(StackFrameRep.tag, {object: '$frame'})
+               )
+             )
+           ),
+    });
 
     //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
 
@@ -70,19 +107,11 @@ function (                    domplate,                PartLinkRep,             
       Rep,
       {
       tag: DIV({'class': 'console-$object.message.level'},
-        SPAN({'class': 'linkedText $object|hasMore', 'onclick': '$toggleMore'},
-          IMG({'class':'closedTwisty', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
-          IMG({'class':'openedTwisty', 'src':"../ui/icons/from-firebug/twistyOpen.png"}),
+        SPAN({'class': 'linkedText'},
+          TAG(LazyDisclosureRep.tag, {action: '$object.message|expandStack'}),
           SPAN('$object.message.text'),
           SPAN({'title':'$object|getTooltipText', 'class': 'messageLink'},
             TAG(PartLinkRep.tag, {object:'$object.message'})
-          )
-        ),
-        TABLE({'class':'callStack'},
-          TBODY(
-            FOR('frame', '$object.message|getFrames',
-              TAG(StackFrameRep.tag, {object: '$frame'})
-            )
           )
         )
       ),
@@ -105,6 +134,15 @@ function (                    domplate,                PartLinkRep,             
       getTooltipText: function(object) {
         return this.getURL(object);
       },
+      expandStack: function(message) {
+        var stack = this.getFrames(message);
+        return function(event) {
+          var elt = event.currentTarget;
+          var stackElt = CallStackRep.tag.insertAfter({frames: stack}, elt.parentElement);
+          return stackElt;
+        }
+      },
+      
       toggleMore: function(event) {
         var target = event.currentTarget;  // the element with the handler
         target.classList.toggle('hadMore');
