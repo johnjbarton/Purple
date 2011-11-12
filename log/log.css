@@ -113,6 +113,9 @@
 .lazyOpened > .closedTwisty {
   display: none;
 }
+.lazyClosed {
+  display: none;
+}
 
 .callStack {
   padding-left: 1em;

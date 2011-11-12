@@ -23,10 +23,10 @@ function (                    domplate,                PartLinkRep,             
             elt.resolved = action(event);
           }
           elt.classList.toggle('lazyOpened');
-          if (elt.classList.contains('lazeOpened')) {
-            elt.resolved.style.display = 'none';
+          if (elt.classList.contains('lazyOpened')) {
+            elt.resolved.classList.remove('lazyClosed');
           } else {
-            delete elt.resolved.style.display;
+            elt.resolved.classList.add('lazyClosed');
           }
         }
       },
