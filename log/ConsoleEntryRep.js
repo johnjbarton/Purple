@@ -9,8 +9,9 @@ function (                    domplate,                PartLinkRep,             
       PartLinkRep, 
       {
         tag:  // the property |tag| is special, see domplate isTag()
-              TR({'class':'callStackFrame', }, 
-                TD('$object|getFunctionName'),
+              TR({'class':'callStackFrame noSource', }, 
+                TD({'class':'functionName'}, '$object|getFunctionName'), // only one of the next two should be shown
+                TD({'class':'sourceLine', 'id':'$object|getSourceLinePromise'}, "source rsn"),
                 TD({'title':'$object|getTooltipText'},
                    TAG(PartLinkRep.tag, {object:'$object'})
                 )
@@ -18,6 +19,35 @@ function (                    domplate,                PartLinkRep,             
 
         getFunctionName: function(frame) {
           return frame.functionName;
+        },
+        
+        getPromiseId: function() {
+          this.promiseNumber = (this.promiseNumber || 0) + 1;
+          return "sf_"+this.promiseNumber;
+        },
+        
+        getSourceLinePromise: function(object) {
+          var resource = this.getResource(object);
+          var promiseId = this.getPromiseId();
+          if (resource && resource.fetchContent) {
+            resource.fetchContent(
+              this.updateFrameUI.bind(this, object, promiseId ),
+              this.reportFail
+            );
+          }
+          return promiseId;
+        },
+
+        updateFrameUI: function(object, id, content) {
+          // yay we got the content
+          var elt = document.getElementById(id);
+          var line = this.getLineNumber(object);
+          var src = content.body.split('\n');  // TODO window/unis bah
+          elt.innerHTML = src[line - 1];
+        }, 
+        
+        reportFail: function() {
+          console.log("StackFrameRep.getSourceLine FAILED", arguments);
         },
 
         getTooltipText: function(object) {
