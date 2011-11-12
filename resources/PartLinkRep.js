@@ -26,9 +26,14 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
         return this.getResourceName(object);
       },
       getPartLinkClass: function(object) {
+        var resource = this.getResource(object);
+        return (resource && resource.hasSource) ? 'partLink' : 'noSource';
+      },
+      
+      getResource: function(object) {
         var url = this.getURL(object);
         var resource = Resources.get(url);
-        return (resource && resource.hasSource) ? 'partLink' : 'noSource';
+        return resource;
       },
 
       // Implements Rep
