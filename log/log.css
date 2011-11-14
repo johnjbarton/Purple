@@ -107,10 +107,10 @@
 .closedLazy {
   display: inline;
 }
-.lazyOpened > .openedTwisty {
+.lazyOpened > .openedLazy {
   display: inline;
 }
-.lazyOpened > .closedTwisty {
+.lazyOpened > .closedLazy {
   display: none;
 }
 .lazyClosed {
@@ -133,6 +133,12 @@
 
 .StringRep {
   color: blue;
+}
+
+.sourceCodeJS {
+	font-family: monospace;
+	font-size: 10pt;
+	color: black;
 }
 
 .p_id {

@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/domplate/lib/domplate', 'resources/PartLinkRep', 'resources/Resources', 'lib/reps',  'lib/Rep'], 
-function (                    domplate,                PartLinkRep,                Resources,         Reps,           Rep) {
+define(['lib/domplate/lib/domplate', 'resources/PartLinkRep', 'resources/Resources', 'lib/reps',  'lib/Rep', 'lib/string'], 
+function (                domplate,             PartLinkRep,             Resources,       Reps,        Rep,          Str) {
   
   with(domplate.tags) {
   
@@ -38,7 +38,7 @@ function (                    domplate,                PartLinkRep,             
         tag:  // the property |tag| is special, see domplate isTag()
               TR({'class':'callStackFrame noSource', }, 
                 TD({'class':'functionName'}, '$object|getFunctionName'), // only one of the next two should be shown
-                TD({'class':'sourceLine', 'id':'$object|getSourceLinePromise'}, "source rsn"),
+                TD({'class':'sourceCodeJS', 'id':'$object|getPromiseId'}, ""),
                 TD({'title':'$object|getTooltipText'},
                    TAG(PartLinkRep.tag, {object:'$object'})
                 )
@@ -48,29 +48,29 @@ function (                    domplate,                PartLinkRep,             
           return frame.functionName;
         },
         
-        getPromiseId: function() {
-          this.promiseNumber = (this.promiseNumber || 0) + 1;
-          return "sf_"+this.promiseNumber;
+        getUniqueId: function() {
+          this.timesCalled = (this.timesCalled || 0) + 1;
+          return "sf_"+this.timesCalled;
         },
         
-        getSourceLinePromise: function(object) {
+        getPromiseId: function(object) {
           var resource = this.getResource(object);
-          var promiseId = this.getPromiseId();
+          var id = this.getUniqueId();
           if (resource && resource.fetchContent) {
             resource.fetchContent(
-              this.updateFrameUI.bind(this, object, promiseId ),
+              this.updateFrameUI.bind(this, object, id),
               this.reportFail
             );
           }
-          return promiseId;
+          return id;
         },
 
         updateFrameUI: function(object, id, content) {
           // yay we got the content
           var elt = document.getElementById(id);
           var line = this.getLineNumber(object);
-          var src = content.body.split('\n');  // TODO window/unis bah
-          elt.innerHTML = src[line - 1];
+          var src = content.body.split('\n');  // TODO window/unix bah
+          elt.innerHTML = Str.escapeForSourceLine(src[line - 1]);
         }, 
         
         reportFail: function() {
