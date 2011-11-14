@@ -13,11 +13,8 @@ window.purple = window.parent.purple;
 <script>
 require({
   baseUrl: "..",
-  /*paths: {  // I don't understand why this is needed
-    lib: "/lib",
-    log: "/log"
-  }*/
   }); 
+require.onError = function(exc) { console.error(exc+"", exc.stack); }
 require(['log/EventLogViewAssembly', 'log/JavaScriptEventHandler', 'log/ConsoleEventHandler', 'log/NetworkEventHandler'], function init(EventLogViewAssembly, jsEventHandler) {
     console.log("EventLogAssembly compiled");
 });
