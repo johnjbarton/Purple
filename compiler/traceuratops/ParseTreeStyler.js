@@ -6,10 +6,11 @@
 /*
  * Create one or more Style ranges for a source range in a Parse Tree
  */
-define(['compiler/compiler', 'compiler/traceur/trunk/src/traceur.js'], function(compiler, traceur) {
+define(['compiler/compiler','lib/purple'], function(compiler, thePurple) {
   'use strict';
   
-  var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
+  // we need to check that using the compiler cross-window is really a good idea...
+  var traceur = thePurple.traceur;
   
   function ParseTreeStyler(tree) {
     this.tree = tree;
@@ -23,6 +24,7 @@ define(['compiler/compiler', 'compiler/traceur/trunk/src/traceur.js'], function(
     },
     
     styleAny: function(tree, beginLine, endLine) {
+      var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
       var name = getTreeNameForType(tree.type);
       var method = this['style' + name];
       if (method) {

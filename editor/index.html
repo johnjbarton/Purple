@@ -55,9 +55,15 @@ window.onload = function() {
         </script>
         <script>
         window.addEventListener('load', function() {
-          require(['editor/editor', 'editor/editorCompilerAssembly'], function assemble(editor, editorCompilerAssembly) {
-            console.log("editorCompilerAssembly loaded");
-            editorCompilerAssembly.initialize();
+          var loc = window.location.toString();
+          var splits = loc.split('/');
+          var purpleLevel = splits.slice(0, -2).join('/'); // ditch editor/index.html
+          var traceurDep = purpleLevel+"/compiler/traceur/trunk/src/traceur.js";
+          require([traceurDep], function nowEditor(traceurDep) {
+            require(['editor/editor', 'editor/editorCompilerAssembly'], function assemble(editor, editorCompilerAssembly) {
+              console.log("editorCompilerAssembly loaded");
+              editorCompilerAssembly.initialize();
+            });
           });
         }, false);
 

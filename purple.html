@@ -21,7 +21,8 @@
         <script type="text/javascript" src="compiler/traceur/trunk/src/traceur.js"></script>
         <script type="text/javascript" src="compiler/traceuratops/ParseTreeLeafFinder.js"></script>
         <script type="text/javascript" src="lib/nodelist/nodelist.js"></script>
-        <script type="text/javascript"> 
+        <script type="text/javascript">
+          thePurple.traceur;
           require(['ui/purpleAssembly'], function(assembly) {
             console.log("purple.html AMD load complete"); 
           });

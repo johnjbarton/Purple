@@ -7,7 +7,7 @@
  */
 
 
-define(['lib/purple', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceur/trunk/src/traceur.js'], function(thePurple, ParseTreeStyler, traceur) {
+define(['lib/part', 'lib/purple', 'compiler/traceuratops/ParseTreeStyler'], function(PurplePart, thePurple, ParseTreeStyler) {
   'use strict';
   
   //---------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ define(['lib/purple', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceur
   
   function evaluate(res) {
     var source = traceur.codegeneration.ProjectWriter.write(res);
-    thePurple.log("Traceur generated code", source);
+    console.log("Traceur generated code", source);
     try {
       return ('global', eval)(source);
     } catch(ex) {
@@ -191,7 +191,7 @@ define(['lib/purple', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceur
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var compilerFeatureByTraceur =  new thePurple.PurplePart('compilerByTraceur'); 
+  var compilerFeatureByTraceur =  new PurplePart('compilerByTraceur'); 
     
   compilerFeatureByTraceur.connect = function(editor){
     this.editorPart.editor = editor;
@@ -208,7 +208,7 @@ define(['lib/purple', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceur
   
   // -----------------------------------------------------------------------------------
   // From editor
-  compilerFeatureByTraceur.editorPart = new thePurple.PurplePart("compilerByTraceur");
+  compilerFeatureByTraceur.editorPart = new PurplePart("compilerByTraceur");
 
   compilerFeatureByTraceur.editorPart.onSourceChange = function(name, src, startDamage, endDamage) {
     if (src) {
