@@ -2,9 +2,9 @@
 // Copyright 2011 Google, Inc. author: johnjbarton@google.com
 
 
-define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) {
+define(['../lib/domplate/lib/domplate', '../lib/part', '../lib/purple'], function findAnythingFactory(DOMPLATE, PurplePart, thePurple) {
   
-  var anyThingBar = new thePurple.PurplePart('findAnything');
+  var anyThingBar = new PurplePart('findAnything');
 
     anyThingBar.initialize = function() {
       this.buildDomplate();

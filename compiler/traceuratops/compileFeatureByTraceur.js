@@ -7,12 +7,9 @@
  */
 
 
-(function() {
+define(['lib/purple', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceur/trunk/src/traceur.js'], function(thePurple, ParseTreeStyler, traceur) {
   'use strict';
   
-  var thePurple = window.purple;
-  var ParseTreeStyler = thePurple.ParseTreeStyler;
-
   //---------------------------------------------------------------------------------------
   // Private 
   
@@ -154,7 +151,7 @@
     },
     "'}' expected": function(format, args, message) {
       return {token: "}", tooltip: "expected", join: true};
-    },
+    }
   };
 
   function reportToPurple(location, kind, format, args) {
@@ -281,4 +278,4 @@
   thePurple.registerPart(compilerFeatureByTraceur);
 
   return compilerFeatureByTraceur;
-}());
+});

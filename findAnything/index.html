@@ -11,15 +11,19 @@ if (typeof require !== "undefined") {
 </script>
 <script type="text/javascript" src="../lib/requirejs/require.js"></script>
 <script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
-
+        <script>
+        require({
+          baseUrl: "..",
+        }); 
+        </script>
+ 
 <script>
   window.addEventListener('load', function() {
     console.log("load findAnything iframe");
   }, false);
 
-require(['findAnything'], function init(findAnything) {
+require(['findAnything/findAnything'], function init(findAnything) {
     console.log("findAnything compiled");
-
 });
 </script>
 </head>

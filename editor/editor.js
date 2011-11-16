@@ -1,11 +1,9 @@
 // See licence.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-(function () {
-  var thePurple = window.purple;
-  var Feature = thePurple.Feature;
+define(['lib/Feature', 'lib/features'], function (Feature, Features) {
   
-  var editor = thePurple.extend(Object.create(Feature.methods), {
+  var editor = Feature.new({
     name: "editor",
     api: {
       //-------------------
@@ -31,7 +29,8 @@
     }
   });
   
-  var Features = thePurple.getPartByName('Features');
   Features.registerPart(editor);
   
-}());
+  return editor;
+  
+});

@@ -3,13 +3,12 @@
 // johnjbarton@google.com
 
 
-define(['log/EventLog', 'log/EventLogViewport', 'log/filterChain','resources/Resources', 'lib/q/q'], 
-function(         log,               viewport,       filterChain,            resources,         Q) {
+define(['log/EventLog', 'log/EventLogViewport', 'resources/Resources', 'lib/q/q', 'lib/part', 'lib/purple'], 
+function(         log,               viewport,             resources,         Q,  PurplePart,   thePurple) {
 
   'use strict';
-  var thePurple = window.purple;
   
-  var eventLogViewAssembly = new thePurple.PurplePart('eventLogViewAssembly'); 
+  var eventLogViewAssembly = new PurplePart('eventLogViewAssembly'); 
   
   eventLogViewAssembly.initialize = function () {
     this.channel.initialize();

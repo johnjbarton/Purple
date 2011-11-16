@@ -1,11 +1,11 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q'], 
-function (        remoteByWebInspector,            Resources,             Resource,      SparseArray,         Q) {
+define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q', 'lib/part', 'lib/purple'], 
+function (        remoteByWebInspector,            Resources,             Resource,      SparseArray,         Q, PurplePart, thePurple) {
   var thePurple = window.purple;
   
-  var networkEventHandler = new thePurple.PurplePart('networkEventHandler');
+  var networkEventHandler = new PurplePart('networkEventHandler');
   
   networkEventHandler.getOrCreateResource = function(url) {
     var resource = Resources.get(url);

@@ -3,7 +3,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-(function (){
+define(['lib/purple', function (thePurple){
 
 var thePurple = window.purple;
 
@@ -78,4 +78,5 @@ Flexor.remainingHeight = function(boxes) {
 };
 
 return Flexor;
-}());
+
+});

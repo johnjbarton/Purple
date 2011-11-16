@@ -3,17 +3,16 @@
 // johnjbarton@google.com
 
 
-define(['editorFeatureByOrion'], function(editor) {
+define(['lib/part', 'editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur', 'lib/purple'], 
+function(PurplePart,                      editor,                               compilerByTraceur,   thePurple) {
 
   'use strict';
-  var thePurple = window.purple;
   
-  
-  var editorCompilerAssembly = new thePurple.PurplePart('editorCompilerAssembly'); 
+  var editorCompilerAssembly = new PurplePart('editorCompilerAssembly'); 
   
   editorCompilerAssembly.initialize = function () {
       editor.initialize();
-      this.compiler = thePurple.getPartByName('compilerByTraceur');
+      this.compiler = compilerByTraceur;
       this.compiler.initialize();
       this.compiler.connect(editor);
   };
@@ -36,7 +35,5 @@ define(['editorFeatureByOrion'], function(editor) {
     }
   };
 
-  thePurple.registerPart(editorCompilerAssembly);
-  
   return editorCompilerAssembly;
 });

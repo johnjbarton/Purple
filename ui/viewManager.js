@@ -3,9 +3,8 @@
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
   
   
-(function() {
+define(['lib/purple'], function(thePurple) {
 
-  var thePurple = window.purple;
   var Flexor = thePurple.Flexor; 
 
   //------------------------------------------------------------------------------------
@@ -29,4 +28,6 @@
   
   thePurple.registerPart(viewManager);
   
-}());
+  return viewManager;
+  
+});

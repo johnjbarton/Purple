@@ -4,18 +4,16 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/SparseArray', '../lib/q/q'], function(SparseArray, Q) {
+define(['../lib/part', 'log/SparseArray', '../lib/q/q', 'lib/Assembly'], function(PurplePart, SparseArray, Q, Assembly) {
   
   'use strict';
-  var thePurple = window.purple;
-  var Assembly = thePurple.Assembly;
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var EventLog =  new thePurple.PurplePart('EventLog'); 
+  var EventLog =  new PurplePart('EventLog'); 
   
   EventLog.initialize = function() {
-      this.messages = SparseArray.new('BrwoserEvents');
+      this.messages = SparseArray.new('BrowserEvents');
       this.recv = this.recv.bind(this);
       Assembly.addPartContainer(this);
   };
@@ -32,12 +30,6 @@ define(['log/SparseArray', '../lib/q/q'], function(SparseArray, Q) {
   EventLog.disconnect = function(eventSource) {
       eventSource.disconnect();
   };
-
-  thePurple.registerPart(EventLog);
-  
-  window.addEventListener('pagehide', function (){
-    thePurple.unregisterPart(EventLog);
-  }, false);
   
   // -----------------------------------------------------------------------------------
   //

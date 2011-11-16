@@ -4,10 +4,9 @@
 // johnjbarton@google.com
 
 
-define(['../lib/q/q'], function(Q) {
-  var thePurple = window.purple; 
-  var Assembly = thePurple.Assembly;
-  var channel__ = new thePurple.PurplePart('channel');
+define(['../lib/q/q', 'lib/part', 'lib/purple', 'lib/Assembly'], function(Q, PurplePart, thePurple, Assembly) {
+
+  var channel__ = new PurplePart('channel');
 
   /*
    * In:

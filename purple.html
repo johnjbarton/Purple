@@ -18,22 +18,11 @@
 	
 <!-- Purple-integration -->
 
-        <script type="text/javascript" src="lib/purple.js"></script>
-        <script type="text/javascript" src="lib/Assembly.js"></script>
-        <script type="text/javascript" src="lib/part.js"></script>
-        <script type="text/javascript" src="lib/models.js"></script>
-        <script type="text/javascript" src="lib/features.js"></script>
-        <script type="text/javascript" src="browser/channel.js"></script>
         <script type="text/javascript" src="compiler/traceur/trunk/src/traceur.js"></script>
-        <script type="text/javascript" src="compiler/compiler.js"></script>
         <script type="text/javascript" src="compiler/traceuratops/ParseTreeLeafFinder.js"></script>
-        <script type="text/javascript" src="compiler/traceuratops/ParseTreeStyler.js"></script>
-        <script type="text/javascript" src="compiler/traceuratops/compileFeatureByTraceur.js"></script>
         <script type="text/javascript" src="lib/nodelist/nodelist.js"></script>
-        <script type="text/javascript" src="ui/flexor.js"></script>
-        <script type="text/javascript" src="ui/viewManager.js"></script>
         <script type="text/javascript"> 
-          require(['browser/channelByPostMessage'], function(channel) {
+          require(['ui/purpleAssembly'], function(assembly) {
             console.log("purple.html AMD load complete"); 
           });
         </script>

@@ -3,15 +3,14 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(ConsoleEntryRep, ObjRep, reps) {
+define(['log/ConsoleEntryRep','../resources/objRep','lib/reps', 'lib/Assembly', 'lib/part', 'lib/purple' ], 
+function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart, thePurple) {
   
   'use strict';
-  var thePurple = window.purple;
-  var Assembly = thePurple.Assembly;
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var EventLogViewport =  new thePurple.PurplePart('EventLogViewport');  // 
+  var EventLogViewport =  new PurplePart('EventLogViewport');  // 
   
   Assembly.addPartContainer(EventLogViewport);
   

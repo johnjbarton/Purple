@@ -1,0 +1,21 @@
+<html>
+<head>
+<script>
+function recv(event) {
+  var data = event.data;
+  var ary = data.ary;
+  console.log("ary instanceof Array "+(ary instanceof Array), data);
+}
+
+function testArrayOverPostMessage() {
+  window.addEventListener('message', recv, false);
+  var ary = [1,2];
+  var obj = {ary: ary};
+  window.postMessage(obj, '*');
+}
+window.addEventListener('load', testArrayOverPostMessage, false);
+</script>
+</head>
+<body>
+</body>
+</html>

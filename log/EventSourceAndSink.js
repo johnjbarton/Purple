@@ -3,10 +3,9 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-(function() {
+define(['lib/purple'], function(thePurple) {
   
   'use strict';
-  var thePurple = window.purple;
   var Feature = thePurple.Feature;
 
   var EventSource = Object.create(Feature.methods);
@@ -39,5 +38,6 @@
     Features.unregisterPart(EventLog);
   }, false);
     
-  
-}());
+
+  return EventSource;  
+});
