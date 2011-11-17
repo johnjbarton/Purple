@@ -21,8 +21,8 @@ require.onError = function(err) {
   console.error(err+"", {stack: err.stack.split('\n')});
 };
 
-require(['log/EventLogViewAssembly'], function init(eventLogViewAssembly) {
-    console.log("EventLogAssembly compiled");
+require(['log/eventLogViewAssembly'], function init(eventLogViewAssembly) {
+    console.log("eventLogAssembly compiled");
     var thePurple = window.purple;
     eventLogViewAssembly.initialize(thePurple);
     thePurple.registerPart(eventLogViewAssembly);

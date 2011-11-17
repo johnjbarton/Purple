@@ -3,7 +3,7 @@
 // johnjbarton@google.com
 
 
-define(['log/EventLog', 'log/EventLogViewport', 'resources/Resources', 'lib/q/q', 'lib/part', 'log/JavaScriptEventHandler', 'log/ConsoleEventHandler', 'log/NetworkEventHandler'], 
+define(['log/eventLog', 'log/EventLogViewport', 'resources/Resources', 'lib/q/q', 'lib/part', 'log/javaScriptEventHandler', 'log/consoleEventHandler', 'log/networkEventHandler'], 
 function(         log,               viewport,             resources,         Q,  PurplePart,              jsEventHandler,       consoleEventHandler,       networkEventHandler) {
 
   'use strict';

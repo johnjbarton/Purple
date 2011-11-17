@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/domplate/lib/domplate', 'log/ConsoleEntryRep'], 
-function (domplate,                     ConsoleEntryRep) {
+define(['lib/domplate/lib/domplate', 'log/consoleEntryRep'], 
+function (domplate,                     consoleEntryRep) {
   
   function ConsoleEntry(message) {
     //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
@@ -18,11 +18,11 @@ function (domplate,                     ConsoleEntryRep) {
         this.message.line = stack[0].lineNumber;
       }
     }
-    this.rep = ConsoleEntryRep;
+    this.rep = consoleEntryRep;
   }
   
   ConsoleEntry.messagesClearedEntry = new ConsoleEntry("");
-  ConsoleEntry.messagesClearedEntry.rep = ConsoleEntryRep.messagesClearedEntryRep;
+  ConsoleEntry.messagesClearedEntry.rep = consoleEntryRep.messagesClearedEntryRep;
   
   return ConsoleEntry;
 });

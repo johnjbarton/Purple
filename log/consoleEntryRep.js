@@ -32,7 +32,7 @@ function (                domplate,             PartLinkRep,             Resourc
       },
     });
   
-    var StackFrameRep =  domplate.domplate(
+    var stackFrameRep =  domplate.domplate(
       PartLinkRep, 
       {
         tag:  // the property |tag| is special, see domplate isTag()
@@ -74,7 +74,7 @@ function (                domplate,             PartLinkRep,             Resourc
         }, 
         
         reportFail: function() {
-          console.log("StackFrameRep.getSourceLine FAILED", arguments);
+          console.log("stackFrameRep.getSourceLine FAILED", arguments);
         },
 
         getTooltipText: function(object) {
@@ -82,20 +82,20 @@ function (                domplate,             PartLinkRep,             Resourc
           return this.getURL(object)+(line ? ('@'+line) : "");
         },
       
-        name: "StackFrameRep",
+        name: "stackFrameRep",
         
         getRequiredPropertyNames: function() {
           return ['url', 'functionName']
         }
       }
     );
-    Reps.registerPart(StackFrameRep);
+    Reps.registerPart(stackFrameRep);
     
-    var CallStackRep = domplate.domplate({
+    var callStackRep = domplate.domplate({
       tag: TABLE({'class':'callStack'},
              TBODY(
                FOR('frame', '$frames',
-                 TAG(StackFrameRep.tag, {object: '$frame'})
+                 TAG(stackFrameRep.tag, {object: '$frame'})
                )
              )
            ),
@@ -103,7 +103,7 @@ function (                domplate,             PartLinkRep,             Resourc
 
     //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
 
-    var ConsoleEntryRep = domplate.domplate(
+    var consoleEntryRep = domplate.domplate(
       Rep,
       {
       tag: DIV({'class': 'console-$object.message.level'},
@@ -138,7 +138,7 @@ function (                domplate,             PartLinkRep,             Resourc
         var stack = this.getFrames(message);
         return function(event) {
           var elt = event.currentTarget;
-          var stackElt = CallStackRep.tag.insertAfter({frames: stack}, elt.parentElement);
+          var stackElt = callStackRep.tag.insertAfter({frames: stack}, elt.parentElement);
           return stackElt;
         }
       },
@@ -157,24 +157,24 @@ function (                domplate,             PartLinkRep,             Resourc
       getLineNumber: function(object) {
         return object.message && object.message.line;
       },
-      name: 'ConsoleEntryRep',
+      name: 'consoleEntryRep',
       getRequiredPropertyNames: function() {
         return ['message'];
       },
     });
     
-    ConsoleEntryRep.messagesClearedEntryRep = domplate.domplate({
+    consoleEntryRep.messagesClearedEntryRep = domplate.domplate({
         tag: DIV({'class':'consoleCleared'}, "Console Cleared")
       });
     
-    ConsoleEntryRep.InternalExceptionTag = domplate.domplate(
-      ConsoleEntryRep,
+    consoleEntryRep.InternalExceptionTag = domplate.domplate(
+      consoleEntryRep,
       {
       tag: DIV({'class': 'console-error internalError hasMore', 'onclick': '$toggleMore'}, '$object.message',
         TABLE({'class':'callStack'},
           TBODY (
             FOR('frame', '$object|getFrames',
-              TAG(StackFrameRep.tag, {object: '$frame'})
+              TAG(stackFrameRep.tag, {object: '$frame'})
             )
           )
         )
@@ -209,7 +209,7 @@ function (                domplate,             PartLinkRep,             Resourc
     });
   }
   
-  Reps.registerPart(ConsoleEntryRep);
+  Reps.registerPart(consoleEntryRep);
   
-  return ConsoleEntryRep;
+  return consoleEntryRep;
 });

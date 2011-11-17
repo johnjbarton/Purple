@@ -3,7 +3,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/ConsoleEntryRep','../resources/objRep','lib/reps', 'lib/Assembly', 'lib/part' ], 
+define(['log/consoleEntryRep','../resources/objRep','lib/reps', 'lib/Assembly', 'lib/part' ], 
 function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
   
   'use strict';
@@ -87,7 +87,7 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
         var tag = rep.shortTag || rep.tag;
         tag.replace({object: object}, div);
       } catch (exc) {
-          ConsoleEntryRep.InternalExceptionTag.tag.replace({object: exc}, div, ConsoleEntryRep.InternalExceptionTag);
+          consoleEntryRep.InternalExceptionTag.tag.replace({object: exc}, div, consoleEntryRep.InternalExceptionTag);
       }
       return div;
     },

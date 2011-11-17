@@ -10,37 +10,37 @@ define(['../lib/part', 'log/SparseArray', '../lib/q/q', 'lib/Assembly'], functio
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var EventLog =  new PurplePart('EventLog'); 
+  var eventLog =  new PurplePart('eventLog'); 
   
-  EventLog.initialize = function() {
+  eventLog.initialize = function() {
       this.messages = SparseArray.new('BrowserEvents');
       this.recv = this.recv.bind(this);
       Assembly.addPartContainer(this);
   };
   
-  EventLog.connect = function(eventSource, filter) {
+  eventLog.connect = function(eventSource, filter) {
     filter.registerPart(this.messages);
     eventSource.addListener(this.recv);
     return this;
   };
 
-  EventLog.disconnect = function(eventSource) {
+  eventLog.disconnect = function(eventSource) {
       eventSource.disconnect();
   };
   
   // -----------------------------------------------------------------------------------
   //
-  EventLog.recv = function(p_id, data) {
+  eventLog.recv = function(p_id, data) {
     if(!data) {
       throw new Error("Log.recv no data");
     }
     this.messages.set(p_id, data);  // TODO SparseArray
     this.toEachPart('appendData', [data, p_id]); // TODO swap args
-  }.bind(EventLog);
+  }.bind(eventLog);
   
-  EventLog.forEachEvent = function(fncOfData) {
+  eventLog.forEachEvent = function(fncOfData) {
     return this.messages.forEach(fncOfData);
   };
   
-  return EventLog;
+  return eventLog;
 });
