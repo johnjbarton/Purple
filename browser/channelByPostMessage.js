@@ -4,9 +4,9 @@
 // johnjbarton@google.com
 
 
-define(['../lib/q/q', 'lib/part', 'lib/purple', 'lib/Assembly'], function(Q, PurplePart, thePurple, Assembly) {
+define(['../lib/q/q', 'lib/part', 'lib/Assembly'], function(Q, PurplePart, Assembly) {
 
-  var channel__ = new PurplePart('channel');
+  var channel = new PurplePart('channel');
 
   /*
    * In:
@@ -56,25 +56,26 @@ define(['../lib/q/q', 'lib/part', 'lib/purple', 'lib/Assembly'], function(Q, Pur
     return requestPort();
   };
   
-  Assembly.addListenerContainer(channel__);
+  Assembly.addListenerContainer(channel);
   
-  channel__.recv = function(event) {
+  channel.recv = function(event) {
     var data = event.data; // MessageEvent comes from postMessage
-    var p_id = thePurple.p_id++;
-    channel__.toEachListener([p_id, data]);
+    var p_id = channel.thePurple.p_id++;
+    channel.toEachListener([p_id, data]);
   }
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  channel__.initialize = function() {
+  channel.initialize = function(thePurple) {
       this.protocolName ='IAmPurple';
       this.version = 1;
+      this.thePurple = thePurple;
   };
   
-  channel__.connect = function() {
+  channel.connect = function() {
       return promiseChannel(this);
   };
 
-  channel__.disconnect = function() {
+  channel.disconnect = function() {
     var channel = this;
     if (channel.port) {
       channel.port.close();
@@ -83,8 +84,7 @@ define(['../lib/q/q', 'lib/part', 'lib/purple', 'lib/Assembly'], function(Q, Pur
     }
   };
   
-  channel__.implementsFeature('channel');
-  thePurple.registerPart(channel__);
+  channel.implementsFeature('channel');
   
-  return channel__;
+  return channel;
 });

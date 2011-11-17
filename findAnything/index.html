@@ -2,13 +2,10 @@
 <head>
 <link rel="stylesheet" type="text/css" href="../ui/part.css" />
 <link rel="stylesheet" type="text/css" href="findAnything.css" />
-<script>
-window.purple = window.parent.purple;
-var thePurple = window.purple;
-if (typeof require !== "undefined") {
-  debugger;
+console.log("iframe start "+window.location.toString());
+window.onload = function() {
+  console.log("iframe load "+window.location.toString());
 }
-</script>
 <script type="text/javascript" src="../lib/requirejs/require.js"></script>
 <script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
         <script>
@@ -18,13 +15,18 @@ if (typeof require !== "undefined") {
         </script>
  
 <script>
-  window.addEventListener('load', function() {
-    console.log("load findAnything iframe");
-  }, false);
+window.purple = window.parent.purple;
 
 require(['findAnything/findAnything'], function init(findAnything) {
+    var thePurple = window.purple;
+    thePurple.registerPart(findAnything);
     console.log("findAnything compiled");
 });
+
+window.addEventListener('load', function() {
+  console.log("load findAnything iframe");
+}, false);
+
 </script>
 </head>
 <body>

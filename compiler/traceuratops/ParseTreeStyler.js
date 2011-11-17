@@ -6,11 +6,8 @@
 /*
  * Create one or more Style ranges for a source range in a Parse Tree
  */
-define(['compiler/compiler','lib/purple'], function(compiler, thePurple) {
+define(['compiler/compiler'], function(compiler) {
   'use strict';
-  
-  // we need to check that using the compiler cross-window is really a good idea...
-  var traceur = thePurple.traceur;
   
   function ParseTreeStyler(tree) {
     this.tree = tree;

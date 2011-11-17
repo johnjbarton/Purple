@@ -21,10 +21,7 @@ define(['../lib/part', 'log/SparseArray', '../lib/q/q', 'lib/Assembly'], functio
   EventLog.connect = function(eventSource, filter) {
     filter.registerPart(this.messages);
     eventSource.addListener(this.recv);
-    var connected = eventSource.connect();
-    return Q.when(connected, function(connected) {
-      return EventLog;
-    });
+    return this;
   };
 
   EventLog.disconnect = function(eventSource) {

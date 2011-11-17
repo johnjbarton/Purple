@@ -3,49 +3,47 @@
 // johnjbarton@google.com
 
 
-define(['log/EventLog', 'log/EventLogViewport', 'resources/Resources', 'lib/q/q', 'lib/part', 'lib/purple'], 
-function(         log,               viewport,             resources,         Q,  PurplePart,   thePurple) {
+define(['log/EventLog', 'log/EventLogViewport', 'resources/Resources', 'lib/q/q', 'lib/part', 'log/JavaScriptEventHandler', 'log/ConsoleEventHandler', 'log/NetworkEventHandler'], 
+function(         log,               viewport,             resources,         Q,  PurplePart,              jsEventHandler,       consoleEventHandler,       networkEventHandler) {
 
   'use strict';
   
   var eventLogViewAssembly = new PurplePart('eventLogViewAssembly'); 
   
-  eventLogViewAssembly.initialize = function () {
-    this.channel.initialize();
+  eventLogViewAssembly.initialize = function (thePurple) {
     log.initialize();
     viewport.initialize();
+    thePurple.registerPart(resources);
   };
   
-  eventLogViewAssembly.connect = function() {
-    var channel = this.channel;
+  eventLogViewAssembly.connect = function(channel) {
     
     // Attach the output of the JSON pipe from the browser to the input of the message buffer
-    var logReady = log.connect(this.channel, viewport);
+    log.connect(channel, viewport);
     
-    var connected = Q.when(logReady, function (logReady) {
-      resources.connect(logReady.recv);
+    resources.connect(log.recv);
       // connect the output of the log to the input of the viewport
-      viewport.connect(log);
-
+    viewport.connect(log);
+    var channelPromise = channel.connect();
+    Q.when(channelPromise, function(channel) {
       // connect the default indexes to the output of the channel and the input of the filter, enabling each remote category
-      var jsPromise = eventLogViewAssembly.jsEventHandler.connect(channel, viewport);
-      var consolePromise = eventLogViewAssembly.consoleEventHandler.connect(channel, viewport);
-      var networkPromise = eventLogViewAssembly.networkEventHandler.connect(channel, viewport);
-      return Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
+      var jsPromise = jsEventHandler.connect(channel, viewport);
+      var consolePromise = consoleEventHandler.connect(channel, viewport);
+      var networkPromise = networkEventHandler.connect(channel, viewport);
+      var connected = Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
         console.log("js, console, net enabled");
         // release the page
         eventLogViewAssembly.channel.send({command: 'releasePage'});
         return "released page";
       });
-    }, function rejected(val) {
-      console.error("eventLogViewAssembly failed "+val, val);
+      
+      Q.when(connected, function success(connected) {
+        console.log("eventLogViewAssembly connected "+connected);
+      }, function fail(connected){
+        console.error("eventLogViewAssembly FAILED "+connected, connected.stack);
+      });
     });
-    
-    Q.when(connected, function success(connected) {
-      console.log("eventLogViewAssembly connected "+connected);
-    }, function fail(connected){
-      console.error("eventLogViewAssembly FAILED "+connected, thePurple.fixWI(connected));
-    });
+    return viewport;
   };
   
   eventLogViewAssembly.disconnect = function() {
@@ -64,17 +62,7 @@ function(         log,               viewport,             resources,         Q,
   eventLogViewAssembly.partAdded = function(part) {
     if (part.hasFeature('channel')) {
       this.channel = part;
-    } else if (part.name === 'jsEventHandler') {  // TODO this needs to be dynamic some other way.
-      this.jsEventHandler = part;
-    } else if (part.name === 'consoleEventHandler') {
-      this.consoleEventHandler = part;
-    } else if (part.name === 'networkEventHandler') {
-      this.networkEventHandler = part;
-    } 
-    if (this.channel && this.jsEventHandler && this.consoleEventHandler && this.networkEventHandler && !this.initialized) {
-      this.initialized = true;
-      eventLogViewAssembly.initialize();
-      eventLogViewAssembly.connect();
+      eventLogViewAssembly.connect(this.channel);
     }
   };
 
@@ -89,7 +77,6 @@ function(         log,               viewport,             resources,         Q,
     }
   };
 
-  thePurple.registerPart(eventLogViewAssembly);
   
   return eventLogViewAssembly;
 });

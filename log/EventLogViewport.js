@@ -3,8 +3,8 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/ConsoleEntryRep','../resources/objRep','lib/reps', 'lib/Assembly', 'lib/part', 'lib/purple' ], 
-function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart, thePurple) {
+define(['log/ConsoleEntryRep','../resources/objRep','lib/reps', 'lib/Assembly', 'lib/part' ], 
+function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
   
   'use strict';
   //------------------------------------------------------------------------------------
@@ -46,12 +46,6 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart, thePurple) {
   EventLogViewport.disconnect = function() {
       this.endPolling();
   };
-  
-  thePurple.registerPart(EventLogViewport);
-  
-  window.addEventListener('pagehide', function() {
-    thePurple.unregisterPart(EventLogViewport);
-  }, false);
   
   // -----------------------------------------------------------------------------------
   EventLogViewport.computeLineHeight = function() {
@@ -160,7 +154,7 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart, thePurple) {
 
   EventLogViewport.update = function() {
     if (!this.scrollLock) {
-      var max = thePurple.p_id;
+      var max = window.purple.p_id; // TODO via initialize
       var last = this.viewport.visible.last; 
       // work bottom up and stop once we fill the viewport
       for (var ndx = last; ndx <= max; ndx++) {

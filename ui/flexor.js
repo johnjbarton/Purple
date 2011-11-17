@@ -3,11 +3,9 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['lib/purple', function (thePurple){
+define(['lib/nodelist/nodelist'], function (nodelist){
 
-var thePurple = window.purple;
-
-var Flexor = thePurple.Flexor = {};
+var Flexor = {};
 
 Flexor.getChildernByClassName = function(parentBox, classname) {
   var hboxes = [];
@@ -26,7 +24,7 @@ Flexor.sizeHBoxes = function(boxes) {
   var flexibles = this.flexibleBoxes(boxes);
   var remainingHeight = this.remainingHeight(boxes);
   if (remainingHeight <= 0) {
-    thePurple.error("Purple.Flexor: no remaining height");
+    console.error("Purple.Flexor: no remaining height");
     return;
   }
   var remainder = 0;
@@ -48,7 +46,7 @@ Flexor.flexibleBoxes = function(boxes) {
     if (flexibleString) {
       var flexible = parseInt(flexibleString);
       if (!flexible) {
-        thePurple.error("Purple.Flexor: invalid flexible value "+flexibleString, box);
+        console.error("Purple.Flexor: invalid flexible value "+flexibleString, box);
         box.removeAttribute('data-flexible');
         return;
       }
@@ -59,7 +57,7 @@ Flexor.flexibleBoxes = function(boxes) {
   
   if (flexibles.length) {
     if (!flexibles.totalFlexible) {
-      thePurple.error("Purple.Flexor: no valid flexible values", flexibles);
+      console.error("Purple.Flexor: no valid flexible values", flexibles);
       return [];
     }
   } 

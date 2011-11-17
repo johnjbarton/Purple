@@ -3,7 +3,6 @@
 
 define(['lib/Base', 'lib/part', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/ConsoleEntry'], 
   function   (Base,    PurplePart,   RemoteByWebInspector,       SparseArray,       ConsoleEntry) {
-  var thePurple = window.purple;
   
   var consoleEventHandler = new PurplePart('consoleEventHandler');
 
@@ -43,8 +42,6 @@ define(['lib/Base', 'lib/part', 'browser/remoteByWebInspector', 'log/SparseArray
       // Q.when(disabled
       this.remote.disconnect(channel);
   };
-
-  thePurple.registerPart(consoleEventHandler);
 
   return consoleEventHandler;
 });

@@ -3,14 +3,12 @@
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
   
   
-define(['lib/purple'], function(thePurple) {
-
-  var Flexor = thePurple.Flexor; 
+define(['ui/flexor', 'lib/part'], function(Flexor, PurplePart) {
 
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var viewManager =  new thePurple.PurplePart('viewManager');  // the __ bit just makes the method names stand out.
+  var viewManager =  new PurplePart('viewManager');  
   
   viewManager.onload = function() {
       this.setBoxSizes();
@@ -25,8 +23,6 @@ define(['lib/purple'], function(thePurple) {
     var hboxes = Flexor.getChildernByClassName(purpleRoot, 'purpleHBox');
     Flexor.sizeHBoxes(hboxes);
   };
-  
-  thePurple.registerPart(viewManager);
   
   return viewManager;
   

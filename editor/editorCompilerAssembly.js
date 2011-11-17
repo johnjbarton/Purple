@@ -3,15 +3,17 @@
 // johnjbarton@google.com
 
 
-define(['lib/part', 'editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur', 'lib/purple'], 
-function(PurplePart,                      editor,                               compilerByTraceur,   thePurple) {
+define(['lib/part', 'editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur'], 
+function(PurplePart,                      editor,                               compilerByTraceur) {
 
   'use strict';
   
   var editorCompilerAssembly = new PurplePart('editorCompilerAssembly'); 
   
-  editorCompilerAssembly.initialize = function () {
+  editorCompilerAssembly.initialize = function (thePurple) {
       editor.initialize();
+      thePurple.registerPart(compilerByTraceur);
+
       this.compiler = compilerByTraceur;
       this.compiler.initialize();
       this.compiler.connect(editor);

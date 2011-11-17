@@ -7,7 +7,7 @@
  */
 
 
-define(['lib/part', 'lib/purple', 'compiler/traceuratops/ParseTreeStyler'], function(PurplePart, thePurple, ParseTreeStyler) {
+define(['lib/part', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceuratops/ParseTreeLeafFinder'], function(PurplePart, ParseTreeStyler, ParseTreeLeafFinder) {
   'use strict';
   
   //---------------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ define(['lib/part', 'lib/purple', 'compiler/traceuratops/ParseTreeStyler'], func
     if (compilerFeatureByTraceur.compiler) {
        var file = compilerFeatureByTraceur.compiler.project_.getFile(name)
        var tree = compilerFeatureByTraceur.compiler.project_.getParseTree(file);
-       var path = thePurple.ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
+       var path = ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
        if (path && path.length) {
          var treeAtIndex = path.pop();
          var styler = new ParseTreeStyler(treeAtIndex);
@@ -275,7 +275,6 @@ define(['lib/part', 'lib/purple', 'compiler/traceuratops/ParseTreeStyler'], func
   };
 
   compilerFeatureByTraceur.implementsFeature('compiler');
-  thePurple.registerPart(compilerFeatureByTraceur);
 
   return compilerFeatureByTraceur;
 });

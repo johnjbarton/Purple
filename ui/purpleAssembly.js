@@ -5,22 +5,8 @@
 define(['browser/channelByPostMessage'], 
 function(                      channel) {
 
-var purpleAssembly = {
-  wireDefaultEditor: function() {
-    debugger;
-  },
-
-  gcLoad: function (event) {
-    var editorFrame = event.target.getElementById('editor.iframe');
-    if (editorFrame) {
-      return; // not our load
-    }
-    window.removeEventListener('load', purpleAssembly.gcLoad, false);
-    purpleAssembly.wireDefaultEditor(event);
-  }
-};
-
-window.addEventListener('load', purpleAssembly.gcLoad, false);
-
+var thePurple = window.purple;
+channel.initialize(thePurple);
+thePurple.registerPart(channel);
 
 });

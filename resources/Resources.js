@@ -1,7 +1,7 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/part', 'lib/purple'], function (PurplePart, thePurple) {
+define(['lib/part'], function (PurplePart) {
 
   var Resources = new PurplePart('resources');
   
@@ -38,8 +38,6 @@ define(['lib/part', 'lib/purple'], function (PurplePart, thePurple) {
       return this.resourcesByURL[url];
     }
   };
-  
-  thePurple.registerPart(Resources);
   
   return Resources;
 });

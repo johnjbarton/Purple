@@ -4,8 +4,6 @@
 define(['../lib/domplate/lib/domplate', '../resources/Resources', 'lib/element', 'lib/reps', 'lib/Rep'], 
 function (                   domplate,                Resources,       Element,        reps,      Rep) {
   
-  var thePurple = window.purple;
-  
   with(domplate.tags) {
     var PrimitiveRep = domplate.domplate(Rep, {
       tag: SPAN({"class": 'PrimitiveRep StringRep'}, "$object|getString"),

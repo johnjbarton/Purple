@@ -2,10 +2,10 @@
 <head>
 <link rel="stylesheet" type="text/css" href="../ui/part.css" />
 <script>
-//window.purple = window.parent.purple;
-console.log("editor iframe start");
+window.purple = window.parent.purple;
+console.log("iframe start "+window.location.toString());
 window.onload = function() {
-  console.log("editor iframe load");
+  console.log("iframe load "+window.location.toString());
 }
 </script>
 <!-- From Orion embeddededitor -->
@@ -53,18 +53,14 @@ window.onload = function() {
           baseUrl: "..",
         }); 
         </script>
+        <script type="text/javascript" src="../compiler/traceur/trunk/src/traceur.js"></script>
         <script>
         window.addEventListener('load', function() {
-          var loc = window.location.toString();
-          var splits = loc.split('/');
-          var purpleLevel = splits.slice(0, -2).join('/'); // ditch editor/index.html
-          var traceurDep = purpleLevel+"/compiler/traceur/trunk/src/traceur.js";
-          require([traceurDep], function nowEditor(traceurDep) {
             require(['editor/editor', 'editor/editorCompilerAssembly'], function assemble(editor, editorCompilerAssembly) {
               console.log("editorCompilerAssembly loaded");
-              editorCompilerAssembly.initialize();
+              var thePurple = window.purple;
+              editorCompilerAssembly.initialize(thePurple);
             });
-          });
         }, false);
 
         window.addEventListener('unload', function() {

@@ -12,21 +12,25 @@
 <link  rel="stylesheet" type="text/css" href="ui/part.css">
 <link  rel="stylesheet" type="text/css" href="ui/purple.css">
 <link  rel="stylesheet" type="text/css" href="ui/alexRussellFlexbox.css">
+<script>
+console.log("iframe start "+window.location.toString());
+window.onload = function() {
+  console.log("iframe load "+window.location.toString());
+}
+</script>
 
         <script type="text/javascript" src="lib/requirejs/require.js"></script>
-<!--        <script type="text/javascript" src="lib/requirejs/require-debug.js"></script> -->
 	
-<!-- Purple-integration -->
-
-        <script type="text/javascript" src="compiler/traceur/trunk/src/traceur.js"></script>
-        <script type="text/javascript" src="compiler/traceuratops/ParseTreeLeafFinder.js"></script>
-        <script type="text/javascript" src="lib/nodelist/nodelist.js"></script>
-        <script type="text/javascript">
-          thePurple.traceur;
-          require(['ui/purpleAssembly'], function(assembly) {
+<!-- thePurple-initialization -->
+       <script type="text/javascript" src="lib/AssemblyDefined.js"></script>
+       <script type="text/javascript" src="lib/purple.js"></script>
+       
+<!-- Outer UI -->    
+       <script type="text/javascript">
+          require(['ui/purpleAssembly', 'ui/viewManager'], function(assembly) {
             console.log("purple.html AMD load complete"); 
           });
-        </script>
+       </script>
 </head>
 <body>
 <div id="purpleRoot" class="purpleVBox">
