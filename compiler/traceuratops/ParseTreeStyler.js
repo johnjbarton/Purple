@@ -6,15 +6,8 @@
 /*
  * Create one or more Style ranges for a source range in a Parse Tree
  */
-window.purple = window.purple || {}; 
-var thePurple = window.purple;
-
-thePurple.ParseTreeStyler = (function() {
+define(['compiler/compiler'], function(compiler) {
   'use strict';
-  
-  var Features = thePurple.getPartByName('Features');
-  var TokenTypes = Features.getPartByName('compiler').api.TokenTypes;
-  var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
   
   function ParseTreeStyler(tree) {
     this.tree = tree;
@@ -28,12 +21,13 @@ thePurple.ParseTreeStyler = (function() {
     },
     
     styleAny: function(tree, beginLine, endLine) {
+      var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
       var name = getTreeNameForType(tree.type);
       var method = this['style' + name];
       if (method) {
         method.apply(this, arguments);
       } else {
-        thePurple.warn("No ParseTreeStyler for "+name);
+        console.warn("No ParseTreeStyler for "+name);
       }
     },
     
@@ -50,4 +44,4 @@ thePurple.ParseTreeStyler = (function() {
   };
   
   return ParseTreeStyler;
-}());
+});

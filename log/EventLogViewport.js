@@ -3,15 +3,14 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(ConsoleEntryRep, ObjRep, reps) {
+define(['log/consoleEntryRep','../resources/objRep','lib/reps', 'lib/Assembly', 'lib/part' ], 
+function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
   
   'use strict';
-  var thePurple = window.purple;
-  var Assembly = thePurple.Assembly;
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var EventLogViewport =  new thePurple.PurplePart('EventLogViewport');  // 
+  var EventLogViewport =  new PurplePart('EventLogViewport');  // 
   
   Assembly.addPartContainer(EventLogViewport);
   
@@ -47,12 +46,6 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
   EventLogViewport.disconnect = function() {
       this.endPolling();
   };
-  
-  thePurple.registerPart(EventLogViewport);
-  
-  window.addEventListener('pagehide', function() {
-    thePurple.unregisterPart(EventLogViewport);
-  }, false);
   
   // -----------------------------------------------------------------------------------
   EventLogViewport.computeLineHeight = function() {
@@ -94,7 +87,7 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
         var tag = rep.shortTag || rep.tag;
         tag.replace({object: object}, div);
       } catch (exc) {
-          ConsoleEntryRep.InternalExceptionTag.tag.replace({object: exc}, div, ConsoleEntryRep.InternalExceptionTag);
+          consoleEntryRep.InternalExceptionTag.tag.replace({object: exc}, div, consoleEntryRep.InternalExceptionTag);
       }
       return div;
     },
@@ -161,7 +154,7 @@ define(['log/ConsoleEntryRep','../resources/objRep','lib/reps' ], function(Conso
 
   EventLogViewport.update = function() {
     if (!this.scrollLock) {
-      var max = thePurple.p_id;
+      var max = window.purple.p_id; // TODO via initialize
       var last = this.viewport.visible.last; 
       // work bottom up and stop once we fill the viewport
       for (var ndx = last; ndx <= max; ndx++) {

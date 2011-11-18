@@ -1,11 +1,9 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define([], function () {
-  var thePurple = window.purple;
-  var Assembly = thePurple.Assembly;
+define(['lib/part'], function (PurplePart) {
 
-  var Resources = new thePurple.PurplePart('resources');
+  var Resources = new PurplePart('resources');
   
   Resources.resources = [];
   Resources.resourcesByURL = {}; // a Resource or an array of
@@ -40,8 +38,6 @@ define([], function () {
       return this.resourcesByURL[url];
     }
   };
-  
-  thePurple.registerPart(Resources);
   
   return Resources;
 });

@@ -1,11 +1,10 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/Base', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/ConsoleEntry'], 
-  function (Base,            RemoteByWebInspector,       SparseArray,       ConsoleEntry) {
-  var thePurple = window.purple;
+define(['lib/Base', 'lib/part', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/ConsoleEntry'], 
+  function   (Base,    PurplePart,   RemoteByWebInspector,       SparseArray,       ConsoleEntry) {
   
-  var consoleEventHandler = new thePurple.PurplePart('consoleEventHandler');
+  var consoleEventHandler = new PurplePart('consoleEventHandler');
 
   //---------------------------------------------------------------------------------------------
   // Implement Remote.events
@@ -33,7 +32,7 @@ define(['lib/Base', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/Cons
   consoleEventHandler.connect = function(channel, filter) {
       this.remote = RemoteByWebInspector.new('consoleRemote');
       this.store = SparseArray.new('ConsoleEvents');
-      filter.registerPart(this.store);
+      filter.registerPart(this.store);  // this causes the event store to be pulled into the viewport
       this.remote.connect(channel, this);
 	  return this.remote.Console.enable();
   };
@@ -43,8 +42,6 @@ define(['lib/Base', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/Cons
       // Q.when(disabled
       this.remote.disconnect(channel);
   };
-
-  thePurple.registerPart(consoleEventHandler);
 
   return consoleEventHandler;
 });

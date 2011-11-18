@@ -12,10 +12,7 @@
  * looking.  As a side effect of the visit we create a stack of the 
  * trees that enclose the mark, nesting to the right.
  */
-window.purple = window.purple || {}; 
-var thePurple = window.purple;
-
-thePurple.ParseTreeLeafFinder = (function() {
+define([], function() {
   'use strict';
 
   var ParseTreeType = traceur.syntax.trees.ParseTreeType;
@@ -743,4 +740,4 @@ thePurple.ParseTreeLeafFinder = (function() {
 
   // Export
   return ParseTreeLeafFinder;
-}());
+});

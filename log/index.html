@@ -5,21 +5,27 @@
 <script>
 
 window.purple = window.parent.purple;
-
+console.log("iframe start "+window.location.toString());
+window.onload = function() {
+  console.log("iframe load "+window.location.toString());
+}
 </script>
 <script type="text/javascript" src="../lib/requirejs/require.js"></script>
 
-<script type="text/javascript" src="EventSourceAndSink.js"></script>
 <script>
 require({
   baseUrl: "..",
-  /*paths: {  // I don't understand why this is needed
-    lib: "/lib",
-    log: "/log"
-  }*/
   }); 
-require(['log/EventLogViewAssembly', 'log/JavaScriptEventHandler', 'log/ConsoleEventHandler', 'log/NetworkEventHandler'], function init(EventLogViewAssembly, jsEventHandler) {
-    console.log("EventLogAssembly compiled");
+
+require.onError = function(err) {
+  console.error(err+"", {stack: err.stack.split('\n')});
+};
+
+require(['log/eventLogViewAssembly'], function init(eventLogViewAssembly) {
+    console.log("eventLogAssembly compiled");
+    var thePurple = window.purple;
+    eventLogViewAssembly.initialize(thePurple);
+    thePurple.registerPart(eventLogViewAssembly);
 });
 </script>
 

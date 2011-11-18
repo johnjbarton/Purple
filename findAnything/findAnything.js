@@ -2,9 +2,9 @@
 // Copyright 2011 Google, Inc. author: johnjbarton@google.com
 
 
-define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) {
+define(['../lib/domplate/lib/domplate', '../lib/part'], function findAnythingFactory(DOMPLATE, PurplePart) {
   
-  var anyThingBar = new thePurple.PurplePart('findAnything');
+  var anyThingBar = new PurplePart('findAnything');
 
     anyThingBar.initialize = function() {
       this.buildDomplate();
@@ -74,7 +74,6 @@ define(['../lib/domplate/lib/domplate'], function findAnythingFactory(DOMPLATE) 
       resize: anyThingBar.makeListener(window, anyThingBar.resize),
     };
   
-  thePurple.registerPart(anyThingBar);
   
   anyThingBar.onUnload = (function() {
       window.removeEventListener('unload', anyThingBar.onUnload, false);

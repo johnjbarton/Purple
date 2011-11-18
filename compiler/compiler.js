@@ -1,10 +1,9 @@
 // See licence.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-(function () {
-  var thePurple = window.purple;
+define(['lib/Feature', 'lib/features'], function (Feature, Features) {
   
-  var compiler = new thePurple.Feature({
+  var compiler = Feature.new({
     name: "compiler",
     api: {
       // EcmaScript 5: 7.5 Tokens
@@ -17,12 +16,13 @@
 	    'Comment', //  7.4 Comments
 	    'ReservedWord', //  7.6.1 Keywords, FutureReservedWord, NullLiteral, BooleanLiteral
 	    'Experimental', // valid token not in ES5
-	    'Error',
-	    ],
-    },
+	    'Error'
+	    ]
+    }
   });
 
-  var Features = thePurple.getPartByName('Features');  
   Features.registerPart(compiler);
   
-}());
+  return compiler;
+  
+});

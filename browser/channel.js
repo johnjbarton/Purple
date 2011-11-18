@@ -1,10 +1,9 @@
 // See Purple/licence.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-(function () {
-  var thePurple = window.purple;
+define(['lib/Feature', 'lib/features'], function (Feature, Features) {
   
-  var channel = new thePurple.Feature({
+  var channel = Feature.new({
     name: "channel",
     api: {
       //-------------------
@@ -22,7 +21,9 @@
       recv: function(message) {}
     }
   });
-  var Features = thePurple.getPartByName('Features');
+  
   Features.registerPart(channel);
+  
+  return channel;
   
 }());

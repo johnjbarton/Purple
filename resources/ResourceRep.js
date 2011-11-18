@@ -3,8 +3,6 @@
 
 define(['../lib/domplate/lib/domplate', '../resources/PartLinkRep', '../lib/reps'], function (domplate, PartLinkRep, Reps) {
   
-  var thePurple = window.purple;
-  
   with(domplate.tags) {
     
     var ResourceRep = domplate.domplate(

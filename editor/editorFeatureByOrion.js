@@ -11,14 +11,11 @@
 /*global eclipse:true orion:true dojo window*/
 /*jslint devel:true*/
 
-define(['annotationFactory', 'revisionByOrion', '../lib/q/q'], function(annotationFactory, RevisionControl, Q){
-
-window.purple = window.purple || {};
-var thePurple = window.purple;
-var Assembly = thePurple.Assembly; 
+define(['editor/annotationFactory', 'editor/revisionByOrion', '../lib/q/q', 'lib/part', 'lib/Assembly'], 
+function(       annotationFactory,          RevisionControl,            Q, PurplePart,       Assembly){
 
 // Syntax highlighting is triggered by an editor callback 'lineStyle' event
-thePurple.ErrorStyler = (function () {
+var ErrorStyler = (function () {
   function ErrorStyler(view) {
 	view.addEventListener("LineStyle", this, this._onLineStyle);
   }
@@ -74,7 +71,7 @@ var editor = (function(){
         if (splits.length > 0) {
           switch(extension) {
             case "js":
-              this.stylers[extension] = new thePurple.ErrorStyler(textView);
+              this.stylers[extension] = new ErrorStyler(textView);
               break;
             case "java":
               this.stylers[extension] = new examples.textview.TextStyler(textView, "java");
@@ -166,7 +163,7 @@ var editor = (function(){
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
   
-  var editorFeatureByOrion = new thePurple.PurplePart('editorByOrion');
+  var editorFeatureByOrion = new PurplePart('editorByOrion');
   
   //--------------------------------------------------------------------------------------------------------
   // Implement features.editor
@@ -285,7 +282,7 @@ var editor = (function(){
   
   Assembly.addPartContainer(editorFeatureByOrion);
   editorFeatureByOrion.implementsFeature('editor');
-  thePurple.registerPart(editorFeatureByOrion);
+  
   
   window.onbeforeunload = function() {
     if (editor.isDirty()) {
@@ -294,6 +291,6 @@ var editor = (function(){
   };
 
 
-return editorFeatureByOrion;
+  return editorFeatureByOrion;
 
 });

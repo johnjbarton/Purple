@@ -4,54 +4,43 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/SparseArray', '../lib/q/q'], function(SparseArray, Q) {
+define(['../lib/part', 'log/SparseArray', '../lib/q/q', 'lib/Assembly'], function(PurplePart, SparseArray, Q, Assembly) {
   
   'use strict';
-  var thePurple = window.purple;
-  var Assembly = thePurple.Assembly;
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var EventLog =  new thePurple.PurplePart('EventLog'); 
+  var eventLog =  new PurplePart('eventLog'); 
   
-  EventLog.initialize = function() {
-      this.messages = SparseArray.new('BrwoserEvents');
+  eventLog.initialize = function() {
+      this.messages = SparseArray.new('BrowserEvents');
       this.recv = this.recv.bind(this);
       Assembly.addPartContainer(this);
   };
   
-  EventLog.connect = function(eventSource, filter) {
+  eventLog.connect = function(eventSource, filter) {
     filter.registerPart(this.messages);
     eventSource.addListener(this.recv);
-    var connected = eventSource.connect();
-    return Q.when(connected, function(connected) {
-      return EventLog;
-    });
+    return this;
   };
 
-  EventLog.disconnect = function(eventSource) {
+  eventLog.disconnect = function(eventSource) {
       eventSource.disconnect();
   };
-
-  thePurple.registerPart(EventLog);
-  
-  window.addEventListener('pagehide', function (){
-    thePurple.unregisterPart(EventLog);
-  }, false);
   
   // -----------------------------------------------------------------------------------
   //
-  EventLog.recv = function(p_id, data) {
+  eventLog.recv = function(p_id, data) {
     if(!data) {
       throw new Error("Log.recv no data");
     }
     this.messages.set(p_id, data);  // TODO SparseArray
     this.toEachPart('appendData', [data, p_id]); // TODO swap args
-  }.bind(EventLog);
+  }.bind(eventLog);
   
-  EventLog.forEachEvent = function(fncOfData) {
+  eventLog.forEachEvent = function(fncOfData) {
     return this.messages.forEach(fncOfData);
   };
   
-  return EventLog;
+  return eventLog;
 });

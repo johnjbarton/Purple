@@ -3,15 +3,12 @@
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
   
   
-(function() {
-
-  var thePurple = window.purple;
-  var Flexor = thePurple.Flexor; 
+define(['ui/flexor', 'lib/part'], function(Flexor, PurplePart) {
 
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var viewManager =  new thePurple.PurplePart('viewManager');  // the __ bit just makes the method names stand out.
+  var viewManager =  new PurplePart('viewManager');  
   
   viewManager.onload = function() {
       this.setBoxSizes();
@@ -27,6 +24,6 @@
     Flexor.sizeHBoxes(hboxes);
   };
   
-  thePurple.registerPart(viewManager);
+  return viewManager;
   
-}());
+});

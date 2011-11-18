@@ -1,11 +1,10 @@
 // See Purple/licence.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define([],function () {
+define(['lib/Feature', 'lib/features'], function (Feature, Features) {
 
-  var thePurple = window.purple;
   // These methods are defined ultimately in InspectorBackendStub.js on chrome source code
-  var remote = new thePurple.Feature({
+  var remote = Feature.new({
     name: "remote",
     api: { // These will be mapped to functions returning promises
       Console: {
@@ -133,7 +132,6 @@ define([],function () {
     }
   });
   
-  var Features = thePurple.getPartByName('Features');
   Features.registerPart(remote);
   
   return remote;

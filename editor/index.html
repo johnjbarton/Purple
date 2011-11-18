@@ -3,9 +3,9 @@
 <link rel="stylesheet" type="text/css" href="../ui/part.css" />
 <script>
 window.purple = window.parent.purple;
-console.log("editor iframe start");
+console.log("iframe start "+window.location.toString());
 window.onload = function() {
-  console.log("editor iframe load");
+  console.log("iframe load "+window.location.toString());
 }
 </script>
 <!-- From Orion embeddededitor -->
@@ -45,15 +45,22 @@ window.onload = function() {
 	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
 	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
 <!-- End from Orion embeddededitor -->
+
         <script type="text/javascript" src="../lib/requirejs/require.js"></script>
         <script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
-
-        <script type="text/javascript" src="editor.js"></script>
+        <script>
+        require({
+          baseUrl: "..",
+        }); 
+        </script>
+        <script type="text/javascript" src="../compiler/traceur/trunk/src/traceur.js"></script>
         <script>
         window.addEventListener('load', function() {
-          require(['editorCompilerAssembly'], function assy(editorCompilerAssembly) {
-            console.log("editorCompilerAssembly loaded");
-          });
+            require(['editor/editor', 'editor/editorCompilerAssembly'], function assemble(editor, editorCompilerAssembly) {
+              console.log("editorCompilerAssembly loaded");
+              var thePurple = window.purple;
+              editorCompilerAssembly.initialize(thePurple);
+            });
         }, false);
 
         window.addEventListener('unload', function() {

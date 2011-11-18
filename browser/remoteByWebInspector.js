@@ -4,9 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
-  var thePurple = window.purple;
-  var Assembly = thePurple.Assembly;
+define(['browser/remote', 'lib/Base', 'lib/q/q', 'lib/features', 'lib/part'], function (remote, Base, Q, Features, PurplePart) {
   
   // A left paren ( followed by any not-right paren ) followed by right paren
   var reParamList = /\(([^\)]*)\)/; 
@@ -59,8 +57,6 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
   
   // Walk the remote API and implement each function to send over channel.
   function buildImplementation(remoteByWebInspector, channel) {
-    var Features = thePurple.getPartByName('Features');
-    var remote =  Features.getPartByName("remote");
     var api = remote.getAPI();
     var domains = Object.keys(api);
     domains.forEach(function buildSend(domain) {
@@ -87,7 +83,7 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
   
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  var RemoteByWebInspector = Base.extend(thePurple.PurplePart.methods);
+  var RemoteByWebInspector = Base.extend(PurplePart.prototype);
   
   RemoteByWebInspector.connect = function(channel, indexer) {
       
@@ -186,9 +182,6 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
     this.jsonHandlers = {}; // by domain and function name
     var responseHandlerObject = indexer.responseHandlers;  // {Debugger:{functions}, Console:{functions}}
     var remoteImpl = this;
-    
-    var Features = thePurple.getPartByName('Features');
-    var remote =  Features.getPartByName("remote");
     var events = remote.getEvents();
     var domainNames = Object.keys(events);
     domainNames.forEach(function buildDomainResponse(domainName) {
@@ -220,9 +213,6 @@ define(['browser/remote', 'lib/Base', 'lib/q/q'], function (remote, Base, Q) {
     });
   };
   
-  RemoteByWebInspector.initialize = function(name) {
-    thePurple.PurplePart.apply(remote, [name]);
-  };
   
   return RemoteByWebInspector;
 

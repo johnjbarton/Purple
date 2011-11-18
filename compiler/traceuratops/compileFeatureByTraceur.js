@@ -7,12 +7,9 @@
  */
 
 
-(function() {
+define(['lib/part', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceuratops/ParseTreeLeafFinder'], function(PurplePart, ParseTreeStyler, ParseTreeLeafFinder) {
   'use strict';
   
-  var thePurple = window.purple;
-  var ParseTreeStyler = thePurple.ParseTreeStyler;
-
   //---------------------------------------------------------------------------------------
   // Private 
   
@@ -154,7 +151,7 @@
     },
     "'}' expected": function(format, args, message) {
       return {token: "}", tooltip: "expected", join: true};
-    },
+    }
   };
 
   function reportToPurple(location, kind, format, args) {
@@ -183,7 +180,7 @@
   
   function evaluate(res) {
     var source = traceur.codegeneration.ProjectWriter.write(res);
-    thePurple.log("Traceur generated code", source);
+    console.log("Traceur generated code", source);
     try {
       return ('global', eval)(source);
     } catch(ex) {
@@ -194,7 +191,7 @@
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var compilerFeatureByTraceur =  new thePurple.PurplePart('compilerByTraceur'); 
+  var compilerFeatureByTraceur =  new PurplePart('compilerByTraceur'); 
     
   compilerFeatureByTraceur.connect = function(editor){
     this.editorPart.editor = editor;
@@ -211,7 +208,7 @@
   
   // -----------------------------------------------------------------------------------
   // From editor
-  compilerFeatureByTraceur.editorPart = new thePurple.PurplePart("compilerByTraceur");
+  compilerFeatureByTraceur.editorPart = new PurplePart("compilerByTraceur");
 
   compilerFeatureByTraceur.editorPart.onSourceChange = function(name, src, startDamage, endDamage) {
     if (src) {
@@ -246,7 +243,7 @@
     if (compilerFeatureByTraceur.compiler) {
        var file = compilerFeatureByTraceur.compiler.project_.getFile(name)
        var tree = compilerFeatureByTraceur.compiler.project_.getParseTree(file);
-       var path = thePurple.ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
+       var path = ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
        if (path && path.length) {
          var treeAtIndex = path.pop();
          var styler = new ParseTreeStyler(treeAtIndex);
@@ -278,7 +275,6 @@
   };
 
   compilerFeatureByTraceur.implementsFeature('compiler');
-  thePurple.registerPart(compilerFeatureByTraceur);
 
   return compilerFeatureByTraceur;
-}());
+});
