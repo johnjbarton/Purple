@@ -47,6 +47,8 @@
 }
 #findAnything {
    position: relative; /* establish a container for positioning */
+   display: inline-block; /* share line with pre/post buttons */
+   margin-left: 4px; /* space after the pre buttons */
 }
 
 .findAnythingIcon {
@@ -61,8 +63,9 @@
 #findAnythingBackground {
   height: 24px;
   position: absolute; /* within container findAnything */
-  left: 24px;         /* must be with of findAnythingIcon */
+  left: 24px;         /* must be width of findAnythingIcon */
   bottom: 0px;
+  width: 100%; /* should be 100% - 24px I guess */
 }
 
 #findAnythingBackground input {
@@ -75,7 +78,7 @@
 
 div#findAnythingNotify {
   position: absolute;
-  right: 0px;
+  right: 28px; /* 24 for the left interior image (findAnythingIcon), 4 padding */
   bottom: -5px; /* I believe this is (24px - 13px)/2 == (height - fontsize)/2 */
   z-index: 2;
   color: silver;

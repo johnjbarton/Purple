@@ -2,7 +2,8 @@
 // Copyright 2011 Google, Inc. author: johnjbarton@google.com
 
 
-define(['../lib/domplate/lib/domplate', '../lib/part'], function findAnythingFactory(DOMPLATE, PurplePart) {
+define(['../lib/domplate/lib/domplate', '../lib/part', 'ui/ButtonTray/MiniButtonTray'], 
+function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButtonTray) {
   
   var anyThingBar = new PurplePart('findAnything');
 
@@ -16,7 +17,7 @@ define(['../lib/domplate/lib/domplate', '../lib/part'], function findAnythingFac
         this.template = DOMPLATE.domplate({
           tag: DIV({'id': 'findAnythingToolbar','class':'purpleToolbar'},
              FOR('preButton', '$preButtons', 
-               TAG("$buttonTag", {button: "$button"})
+               TAG("$preButton.tag", {object: "$preButton"})
              ),
              DIV({'id': 'findAnything', 'class':'omniboxLikeLeft omniboxLike omniboxLikeRight'}, 
                IMG({'id': 'findAnythingIcon', 'class':'findAnythingIcon omniboxLikeLeft', 'src':'../ui/icons/o2_http_query.png'} ),
@@ -31,9 +32,31 @@ define(['../lib/domplate/lib/domplate', '../lib/part'], function findAnythingFac
       }    
     };
     
+    anyThingBar.miniButton = function(symbol, toggle, feature) {
+      return {
+        object: {
+          symbol: symbol,
+          toggleState: function() {
+            return anyThingBar['toggle'+toggle](feature);
+          }
+        }
+      }
+    };
+    
     anyThingBar.renderDomplate = function() {
       var html = this.template.tag.render({
-        preButtons: [],
+        preButtons: [ 
+          {
+            toolTip:"Enabled Sources", 
+            miniButtons:[
+              anyThingBar.miniButton('C', 'Enable', 'Console'),
+              anyThingBar.miniButton('J', 'Enable', 'JavaScript'),
+              anyThingBar.miniButton('N', 'Enable', 'Network'),
+              anyThingBar.miniButton('B', 'Enable', 'Browser'),
+            ],
+            tag: MiniButtonTray.tag,
+          },
+        ],
       });
   
       var body = document.getElementsByTagName('body')[0];
@@ -45,12 +68,10 @@ define(['../lib/domplate/lib/domplate', '../lib/part'], function findAnythingFac
     // Output
     anyThingBar.resize = function () {
       var toolbar = document.getElementById('findAnythingToolbar');
-      var availableWidth = toolbar.offsetWidth;
-      // remove the width of childern TODO
-      availableWidth -= 24*4;
-      this.setWidth('findAnythingBackground', availableWidth);
-      this.setWidth('findAnythingCompletion', availableWidth);
-      this.setWidth('findAnythingInput', availableWidth);
+      var availableWidth = toolbar.offsetWidth - 24*6;  // TODO compute width of children
+      this.setWidth('findAnything', availableWidth);
+//      this.setWidth('findAnythingCompletion', availableWidth);
+//      this.setWidth('findAnythingInput', availableWidth);
     };
     
     anyThingBar.setWidth = function(id, availableWidth) {
