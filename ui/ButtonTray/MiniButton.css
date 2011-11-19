@@ -8,7 +8,7 @@
 .pMiniButtonTray {
   display: inline-block;
   height: 24px;
-  color: #C6C6C6;
+  color: white;
   cursor: default;
 }
 
@@ -26,6 +26,6 @@ table.pMiniButtonTray {
 }
 
 TD.pSelected {
-  color: black;
+  color: purple;
   background-color: white;
 }

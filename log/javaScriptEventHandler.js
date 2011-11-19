@@ -1,10 +1,10 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray', 'lib/q/q', 'lib/part'], 
-function (       remoteByWebInspector,             Resources,             JavaScriptResource,   SparseArray,         Q,       PurplePart) {
+define(['log/LogBase', 'browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray', 'lib/q/q', 'lib/part'], 
+function (    LogBase,       remoteByWebInspector,             Resources,             JavaScriptResource,   SparseArray,         Q,       PurplePart) {
   
-  var jsEventHandler = new PurplePart('jsEventHandler');
+  var jsEventHandler = LogBase.new('javascriptLog');
   
   //---------------------------------------------------------------------------------------------
   //
@@ -60,8 +60,8 @@ function (       remoteByWebInspector,             Resources,             JavaSc
         },
         stopped: function() {
           console.log("JavaScriptEventHandler", arguments);
-        },
-      },
+        }
+      }
   };
   
    //---------------------------------------------------------------------------------------------
@@ -69,6 +69,8 @@ function (       remoteByWebInspector,             Resources,             JavaSc
   
   jsEventHandler.connect = function(channel, filter) {
       this.remote = remoteByWebInspector.new('resourceCreationRemote');
+      LogBase.connect(this.remote.Debugger);
+      // Timeline ?
       this.remote.connect(channel, this);
       this.store = SparseArray.new('JavaScriptEvents');
       filter.registerPart(this.store);

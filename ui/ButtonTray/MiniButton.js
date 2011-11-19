@@ -8,21 +8,43 @@ function(Base, domplate, reps, Rep, Str){
 
   with(domplate.tags) {
   
-    // {object: {toggleState: function returns boolean, getSymbol: function returns character, tooltip: string}
+    // {object: {
+    //    partName: string
+    //    toggleState: function returns boolean, 
+    //    getSymbol: function returns character, 
+    //    tooltip: string
+    //    addListener:function takes function of event
+    // }
   
     var MiniButton = domplate.domplate({
-      tag: TD({'class':'pMiniButton', 'onclick': '$object|setOnClick', 'title':'$object.toolTip'}, '$object.symbol'),
-      // called with the domplate is expanded
-      setOnClick:function(object) {
-      console.log("setOnClick called with object ", object);
+      tag: TD({'class':'pMiniButton', 'id':'$object|getId', 'onclick':'$object|setOnClick', 'title':'$object.toolTip'}, '$object|getSymbol'),
+      // called when the domplate is expanded
+      setOnClick: function(object) {
+        this.setState = this.setState.bind(this, object);
+        object.addListener(this.setState);
+        
         return function toggleState(event) {
           var elt = event.currentTarget;
-          var selected = object.toggleState();
-          if (selected) {
-            elt.classList.add('pSelected');
-          } else {
-            elt.classlist.remove('pSelected');
-          }
+          object.toggleState();
+        }
+      },
+     
+      getId: function(object) {
+        return object.partName+"_MiniButton";
+      }, 
+      
+      getSymbol: function(object) {
+        return object.symbol;
+      },
+      
+      setState: function(object, event) {
+        if (event.type === 'enable') {
+          var elt = document.getElementById(this.getId(object));
+          if (event.enabled) {
+              elt.classList.add('pSelected');
+            } else {
+              elt.classlist.remove('pSelected');
+            }
         }
       },
     });

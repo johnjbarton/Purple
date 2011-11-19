@@ -7,18 +7,25 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
   
   var anyThingBar = new PurplePart('findAnything');
 
-    anyThingBar.initialize = function() {
+    anyThingBar.initialize = function(thePurple) {
+      this.thePurple = thePurple;
       this.buildDomplate();
       this.renderDomplate();
+      this.removeListeners = addListeners(anyThingBar.eventsToElements);
     };
     
     anyThingBar.buildDomplate = function() {
       with (DOMPLATE.tags) {
+        
+        this.preButtonPlate = DOMPLATE.domplate({
+          tag: FOR('preButton', '$preButtons', 
+                 TAG("$preButton.tag", {object: "$preButton"})
+               ),
+        });
+        
         this.template = DOMPLATE.domplate({
           tag: DIV({'id': 'findAnythingToolbar','class':'purpleToolbar'},
-             FOR('preButton', '$preButtons', 
-               TAG("$preButton.tag", {object: "$preButton"})
-             ),
+                 TAG(anyThingBar.preButtonPlate.tag, {preButtons: '$preButtons'}),
              DIV({'id': 'findAnything', 'class':'omniboxLikeLeft omniboxLike omniboxLikeRight'}, 
                IMG({'id': 'findAnythingIcon', 'class':'findAnythingIcon omniboxLikeLeft', 'src':'../ui/icons/o2_http_query.png'} ),
                DIV({'id':'findAnythingBackground'},
@@ -29,38 +36,59 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
              )
            ),
         });
+        
       }    
     };
     
-    anyThingBar.miniButton = function(symbol, toggle, feature) {
+    anyThingBar.toggleEnable = function(partName, fnOfSelected) {
+      var part = this.thePurple.getPartByName(partName);
+      part.toggleEnable();
+      // ignore the promise returned, we will get an event on update
+    };
+    
+    anyThingBar.logEnableButtonTray = {
+      toolTip:"Enabled Sources", 
+      miniButtons:[  // see partAdded
+        // eg anyThingBar.miniButton('C', 'Enable', 'consoleLog'),
+      ],
+      tag: MiniButtonTray.tag,
+    };
+          
+    anyThingBar.preButtons = [
+      anyThingBar.logEnableButtonTray
+    ];
+    
+    anyThingBar.miniButton = function(symbol, toggle, partName) {
       return {
         object: {
           symbol: symbol,
-          toggleState: function() {
-            return anyThingBar['toggle'+toggle](feature);
+          partName: partName,
+          onToggleState: function(fnOfSelected) {
+            return anyThingBar['toggle'+toggle](partName);
+          },
+          addListener: function(fncOfEvent) {
+            var part = anyThingBar.thePurple.getPartByName(partName);
+            part.addListener(fncOfEvent);
           }
         }
       }
     };
     
+    anyThingBar.partAdded = function(part) {
+      if (part.hasFeature('Log')) {
+        var symbol = part.name[0].toUpperCase(); // a little hacky...
+        anyThingBar.logEnableButtonTray.miniButtons.push(
+          this.miniButton(symbol, 'Enable', part.name)
+        );
+        this.renderDomplate();
+      }
+    };
+    
     anyThingBar.renderDomplate = function() {
-      var html = this.template.tag.render({
-        preButtons: [ 
-          {
-            toolTip:"Enabled Sources", 
-            miniButtons:[
-              anyThingBar.miniButton('C', 'Enable', 'Console'),
-              anyThingBar.miniButton('J', 'Enable', 'JavaScript'),
-              anyThingBar.miniButton('N', 'Enable', 'Network'),
-              anyThingBar.miniButton('B', 'Enable', 'Browser'),
-            ],
-            tag: MiniButtonTray.tag,
-          },
-        ],
-      });
-  
       var body = document.getElementsByTagName('body')[0];
-      body.innerHTML = html;
+      this.template.tag.replace({
+        preButtons: [ anyThingBar.logEnableButtonTray ]
+      }, body);
       this.resize();
     };
     
@@ -70,8 +98,6 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
       var toolbar = document.getElementById('findAnythingToolbar');
       var availableWidth = toolbar.offsetWidth - 24*6;  // TODO compute width of children
       this.setWidth('findAnything', availableWidth);
-//      this.setWidth('findAnythingCompletion', availableWidth);
-//      this.setWidth('findAnythingInput', availableWidth);
     };
     
     anyThingBar.setWidth = function(id, availableWidth) {
@@ -100,11 +126,10 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
       window.removeEventListener('unload', anyThingBar.onUnload, false);
       anyThingBar.removeListeners();
   }).bind(anyThingBar);
-  window.addEventListener('unload', anyThingBar.onLoad, false);
-
-  anyThingBar.initialize();
-  anyThingBar.removeListeners = addListeners(anyThingBar.eventsToElements);
   
+  
+  window.addEventListener('unload', anyThingBar.onUnload, false);
+
   function addListeners(eventHandlers) {
     Object.keys(eventHandlers).forEach(function on(prop) {
       var handler = eventHandlers[prop];

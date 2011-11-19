@@ -1,10 +1,10 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/Base', 'lib/part', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/ConsoleEntry'], 
-  function   (Base,    PurplePart,   RemoteByWebInspector,       SparseArray,       ConsoleEntry) {
+define(['log/LogBase', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/ConsoleEntry'], 
+  function   (LogBase,          RemoteByWebInspector,       SparseArray,       ConsoleEntry) {
   
-  var consoleEventHandler = new PurplePart('consoleEventHandler');
+  var consoleEventHandler = LogBase.new('consoleLog');
 
   //---------------------------------------------------------------------------------------------
   // Implement Remote.events
@@ -31,17 +31,22 @@ define(['lib/Base', 'lib/part', 'browser/remoteByWebInspector', 'log/SparseArray
   // Return a promise that the Console is enabled
   consoleEventHandler.connect = function(channel, filter) {
       this.remote = RemoteByWebInspector.new('consoleRemote');
+      LogBase.connect(this.remote.Console);
+      
       this.store = SparseArray.new('ConsoleEvents');
       filter.registerPart(this.store);  // this causes the event store to be pulled into the viewport
       this.remote.connect(channel, this);
-	  return this.remote.Console.enable();
+      
+      return this.toggleEnable();
   };
   
   consoleEventHandler.disconnect = function(channel) {
-      var disabled = this.remote.Console.disable();
-      // Q.when(disabled
+      if (consoleEventHandler.enabled) {
+        throw new Error("Disable before disconnecting");
+      }
       this.remote.disconnect(channel);
   };
+  
 
   return consoleEventHandler;
 });

@@ -13,7 +13,11 @@ function(         log,               viewport,             resources,         Q,
   eventLogViewAssembly.initialize = function (thePurple) {
     log.initialize();
     viewport.initialize();
+    // register the log indexes as global parts for enable/disable
     thePurple.registerPart(resources);
+    thePurple.registerPart(consoleEventHandler);
+    thePurple.registerPart(jsEventHandler);
+    thePurple.registerPart(networkEventHandler);
   };
   
   eventLogViewAssembly.connect = function(channel) {
