@@ -129,11 +129,11 @@ function (   LogBase,           remoteByWebInspector,            Resources,     
   // Implement PurplePart
   
   networkEventHandler.connect = function(channel, filter) {
-      this.remote = remoteByWebInspector.new('networkRemote');
-      LogBase.connect(this.remote.Network);
       this.store = SparseArray.new('NetworkEvents');
+      this.remote = remoteByWebInspector.new('networkRemote');
       filter.registerPart(this.store);
       this.remote.connect(channel, this);
+      LogBase.connect.apply(this, [this.remote.Network]);
 	  this.remote.Network.enable();
   };
   

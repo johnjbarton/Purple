@@ -68,12 +68,12 @@ function (    LogBase,       remoteByWebInspector,             Resources,       
   // Implement PurplePart
   
   jsEventHandler.connect = function(channel, filter) {
-      this.remote = remoteByWebInspector.new('resourceCreationRemote');
-      LogBase.connect(this.remote.Debugger);
-      // Timeline ?
-      this.remote.connect(channel, this);
       this.store = SparseArray.new('JavaScriptEvents');
+      this.remote = remoteByWebInspector.new('resourceCreationRemote');
+      this.remote.connect(channel, this);
       filter.registerPart(this.store);
+      LogBase.connect.apply(this,[this.remote.Debugger]);
+      // Timeline ?
 	  return this.promiseStartDebugger();
   };
   

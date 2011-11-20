@@ -42,11 +42,11 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
     
     anyThingBar.toggleEnable = function(partName, fnOfSelected) {
       var part = this.thePurple.getPartByName(partName);
-      part.toggleEnable();
-      // ignore the promise returned, we will get an event on update
+      return part.toggleEnable();
     };
     
     anyThingBar.logEnableButtonTray = {
+      name: 'logEnableButtonTray',
       toolTip:"Enabled Sources", 
       miniButtons:[  // see partAdded
         // eg anyThingBar.miniButton('C', 'Enable', 'consoleLog'),
@@ -59,31 +59,42 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
     ];
     
     anyThingBar.miniButton = function(symbol, toggle, partName) {
-      return {
-        object: {
+      var button = {
           symbol: symbol,
           partName: partName,
-          onToggleState: function(fnOfSelected) {
+          toggleState: function() {
             return anyThingBar['toggle'+toggle](partName);
           },
-          addListener: function(fncOfEvent) {
-            var part = anyThingBar.thePurple.getPartByName(partName);
-            part.addListener(fncOfEvent);
+          listener: function(event) {
+            if (event.type === 'logEnable') {
+              MiniButtonTray.setSelected(button, event.enabled);
+            }
           }
-        }
-      }
+      };
+      return button;
     };
     
     anyThingBar.partAdded = function(part) {
       if (part.hasFeature('Log')) {
         var symbol = part.name[0].toUpperCase(); // a little hacky...
-        anyThingBar.logEnableButtonTray.miniButtons.push(
-          this.miniButton(symbol, 'Enable', part.name)
-        );
-        this.renderDomplate();
+        var partEnableButton = this.miniButton(symbol, 'Enable', part.name);
+        MiniButtonTray.addButton(anyThingBar.logEnableButtonTray, partEnableButton);
+        part.addListener(partEnableButton.listener);
       }
     };
     
+    anyThingBar.partRemoved = function(part) {
+      if (part.hasFeature('Log')) {
+        var symbol = part.name[0].toUpperCase(); // a little hacky...
+        var partEnableButton = anyThingBar.logEnableButtonTray.miniButtons.forEach(function(button){
+          if (button.partName === part.name) {
+            MiniButtonTray.removeButton(anyThingBar.logEnableButtonTray, button);
+            part.removeListener(button.listener);
+          }
+        });
+      }
+    };
+
     anyThingBar.renderDomplate = function() {
       var body = document.getElementsByTagName('body')[0];
       this.template.tag.replace({

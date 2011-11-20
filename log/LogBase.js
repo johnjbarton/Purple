@@ -5,10 +5,10 @@ define(['lib/Base', 'lib/part', 'lib/q/q', 'lib/Assembly'],
 function (   Base, PurplePart,         Q,       Assembly) {
   
   var LogBase = Base.extend(PurplePart.prototype);
-  Assembly.addListenerContainer(LogBase);
     
   LogBase.initialize = function(name) {
     PurplePart.apply(this, [name]);
+    Assembly.addListenerContainer(this);
     this.implementsFeature('Log'); // proxy for enable
   };
   
@@ -27,23 +27,24 @@ function (   Base, PurplePart,         Q,       Assembly) {
     return this.remoteCategory;
   };
   
-  // returns promise of new enabled state boolean, and dispatches it to listeners.
   LogBase.toggleEnable = function() {
-    var abler = this.getRemoteCategory.enable;
+    var abler = this.getRemoteCategory().enable;
     if (this.enabled) {
-      abler = this.getRemoteCategory.disable;
+      abler = this.getRemoteCategory().disable;
     }
     
     var promiseAbled = abler.apply(this.getRemoteCategory, []);
     
     var log = this;
-    return Q.when(promiseAbled, function(promiseAbled) {
-      log.enabled = !log.enabled;
-      log.toEachListener({type: 'partEnabled', enabled: log.enabled});
-      return this.enabled;
-    }, function(err) {
-      console.error("Enable FAILED: "+err, {stack: err.stack});
-    });
+    Q.end(
+      Q.when(promiseAbled, function(promiseAbled) {
+        log.enabled = !log.enabled;
+        log.toEachListener({type: 'logEnable', enabled: log.enabled});
+        return this.enabled;
+      }, function(err) {
+        console.error("Enable FAILED: "+err, {stack: err.stack});
+      })
+    );
   };
     
   return LogBase;

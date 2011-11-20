@@ -17,17 +17,7 @@ function(Base, domplate, reps, Rep, Str){
     // }
   
     var MiniButton = domplate.domplate({
-      tag: TD({'class':'pMiniButton', 'id':'$object|getId', 'onclick':'$object|setOnClick', 'title':'$object.toolTip'}, '$object|getSymbol'),
-      // called when the domplate is expanded
-      setOnClick: function(object) {
-        this.setState = this.setState.bind(this, object);
-        object.addListener(this.setState);
-        
-        return function toggleState(event) {
-          var elt = event.currentTarget;
-          object.toggleState();
-        }
-      },
+      tag: TD({'class':'pMiniButton', 'id':'$object|getId', 'onclick':'$object.toggleState', 'title':'$object.toolTip'}, '$object|getSymbol'),
      
       getId: function(object) {
         return object.partName+"_MiniButton";
@@ -36,19 +26,8 @@ function(Base, domplate, reps, Rep, Str){
       getSymbol: function(object) {
         return object.symbol;
       },
-      
-      setState: function(object, event) {
-        if (event.type === 'enable') {
-          var elt = document.getElementById(this.getId(object));
-          if (event.enabled) {
-              elt.classList.add('pSelected');
-            } else {
-              elt.classlist.remove('pSelected');
-            }
-        }
-      },
     });
-    
+     
     return MiniButton;
   };
   
