@@ -34,13 +34,14 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
     
   EventLogViewport.connect = function(log) {
     log.registerPart(this); // for appendData notification that drive input to output (for now)
-      this.initializeUI();
-      if (this.optionPolling) {
-        this.beginPolling();
-      } else {
-        this.endPolling();
-      }
-      this.update();
+    
+    this.initializeUI();
+    if (this.optionPolling) {
+      this.beginPolling();
+    } else {
+      this.endPolling();
+    }
+    this.update();
   };
 
   EventLogViewport.disconnect = function() {
