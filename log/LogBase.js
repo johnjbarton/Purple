@@ -12,28 +12,28 @@ function (   Base, PurplePart,         Q,       Assembly) {
     this.implementsFeature('Log'); // proxy for enable
   };
   
-  LogBase.connect = function(remoteCategory) {
-    this.remoteCategory = remoteCategory;
+  LogBase.connect = function(hasEnableDisable) {
+    this.hasEnableDisable = hasEnableDisable;
   };
   
   LogBase.disconnect = function() {
-    delete this.remoteCategory;
+    delete this.hasEnableDisable;
   };
 
-  LogBase.getRemoteCategory = function() {
-    if (!this.remoteCategory) {
+  LogBase.getHasEnableDisable = function() {
+    if (!this.hasEnableDisable) {
       throw new Error("Connect before using remote category");
     }
-    return this.remoteCategory;
+    return this.hasEnableDisable;
   };
   
   LogBase.toggleEnable = function() {
-    var abler = this.getRemoteCategory().enable;
+    var abler = this.getHasEnableDisable().enable;
     if (this.enabled) {
-      abler = this.getRemoteCategory().disable;
+      abler = this.getHasEnableDisable().disable;
     }
     
-    var promiseAbled = abler.apply(this.getRemoteCategory, []);
+    var promiseAbled = abler.apply(this.getHasEnableDisable, []);
     
     var log = this;
     Q.end(
