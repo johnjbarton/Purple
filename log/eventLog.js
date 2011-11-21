@@ -4,13 +4,26 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['../lib/part', 'log/SparseArray', '../lib/q/q', 'lib/Assembly'], function(PurplePart, SparseArray, Q, Assembly) {
+define(['log/LogBase', 'log/SparseArray', 'lib/Assembly'], function(LogBase, SparseArray, Assembly) {
   
   'use strict';
+  
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var eventLog =  new PurplePart('eventLog'); 
+  var eventLog =  LogBase.new('browserLog'); 
+  
+  eventLog.enabler = {
+    enable: function() {
+      eventLog.channel.addListener(eventLog.recv);
+    },
+    disable: function() {
+      // currently Debugger.onEvent is wired into MonitorChrome, 
+      // need an new path back to implement enable/disable.
+      // For now just disconnect from the channel.
+      eventLog.channel.removeListener(eventLog.recv);
+    }
+  };
   
   eventLog.initialize = function() {
       this.messages = SparseArray.new('BrowserEvents');
@@ -18,14 +31,15 @@ define(['../lib/part', 'log/SparseArray', '../lib/q/q', 'lib/Assembly'], functio
       Assembly.addPartContainer(this);
   };
   
-  eventLog.connect = function(eventSource, filter) {
+  eventLog.connect = function(channel, filter) {
+    this.channel = channel;
+    LogBase.connect.apply(this, [eventLog.enabler]);
     filter.registerPart(this.messages);
-    eventSource.addListener(this.recv);
     return this;
   };
 
   eventLog.disconnect = function(eventSource) {
-      eventSource.disconnect();
+      // TODO
   };
   
   // -----------------------------------------------------------------------------------
@@ -34,7 +48,7 @@ define(['../lib/part', 'log/SparseArray', '../lib/q/q', 'lib/Assembly'], functio
     if(!data) {
       throw new Error("Log.recv no data");
     }
-    this.messages.set(p_id, data);  // TODO SparseArray
+    this.messages.set(p_id, data);  
     this.toEachPart('appendData', [data, p_id]); // TODO swap args
   }.bind(eventLog);
   

@@ -14,6 +14,7 @@ function(         log,               viewport,             resources,         Q,
     log.initialize();
     viewport.initialize();
     // register the log indexes as global parts for enable/disable
+    thePurple.registerPart(log);
     thePurple.registerPart(resources);
     thePurple.registerPart(consoleEventHandler);
     thePurple.registerPart(jsEventHandler);
@@ -29,24 +30,21 @@ function(         log,               viewport,             resources,         Q,
       // connect the output of the log to the input of the viewport
     viewport.connect(log);
     var channelPromise = channel.connect();
-    Q.when(channelPromise, function(channel) {
+    var connected = Q.when(channelPromise, function(channel) {
       // connect the default indexes to the output of the channel and the input of the filter, enabling each remote category
       var jsPromise = jsEventHandler.connect(channel, viewport);
       var consolePromise = consoleEventHandler.connect(channel, viewport);
       var networkPromise = networkEventHandler.connect(channel, viewport);
-      var connected = Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
+      var released = Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
         console.log("js, console, net enabled");
         // release the page
         eventLogViewAssembly.channel.send({command: 'releasePage'});
         return "released page";
       });
-      
-      Q.when(connected, function success(connected) {
-        console.log("eventLogViewAssembly connected "+connected);
-      }, function fail(connected){
-        console.error("eventLogViewAssembly FAILED "+connected, connected.stack);
-      });
+      return released;
     });
+    connected.end();
+    
     return viewport;
   };
   
