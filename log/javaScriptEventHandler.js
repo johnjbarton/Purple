@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['log/LogBase', 'browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray', 'lib/q/q', 'lib/part'], 
-function (    LogBase,       remoteByWebInspector,             Resources,             JavaScriptResource,   SparseArray,         Q,       PurplePart) {
+define(['log/LogBase', 'browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray',  'lib/part'], 
+function (    LogBase,       remoteByWebInspector,             Resources,             JavaScriptResource,   SparseArray,         PurplePart) {
   
   var jsEventHandler = LogBase.new('javascriptLog');
   
@@ -72,7 +72,9 @@ function (    LogBase,       remoteByWebInspector,             Resources,       
       this.remote = remoteByWebInspector.new('resourceCreationRemote');
       this.remote.connect(channel, this);
       filter.registerPart(this.store);
-      LogBase.connect.apply(this,[this.remote.Debugger]);
+      
+      // This allows the UI to enable/disable the inputs, without consulting this object....
+      LogBase.connect.apply(this,[this.remote.Debugger]);  
       // Timeline ?
 	  return this.promiseStartDebugger();
   };
