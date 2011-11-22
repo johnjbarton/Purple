@@ -64,10 +64,17 @@
         "onclick" : getClickHandler()
       });
 
+//-------------------------------------------------------------------------------
+// Page Actions
+
       var editParametersByURL = {};
       var tabIdByURL = {};
 
-      function checkForPageAction() {
+// Show option to Click to open site in Orion editor
+
+      function checkForPageAction(url, tabId) {
+        tabIdByURL[url] = tabId;
+
         var editableURLs = Object.keys(editParametersByURL);
         editableURLs.forEach(function(url) {
            var tabId = tabIdByURL[url];
@@ -77,7 +84,29 @@
         });
       }
 
+
+      function reportListeners(where, like) {
+        console.log(where+" has:"+chrome.webNavigation.onBeforeNavigate.hasListener(like)+" total: "+
+         chrome.webNavigation.onBeforeNavigate.listeners_.length);
+      }
+// reload Orion pages on login
+      
+
+
+      function checkForLogin(url, tabId) {
+        var ndxLoginPath = url.indexOf('/mixloginstatic/LoginWindow.html');
+        if (ndxLoginPath !== -1) {
+          hookLoginCompleted(url, ndxLoginPath, tabId);
+          return true;
+        }
+        return false;
+      }
+
       function checkForEditHeader(details) {
+
+        var url = details.url;
+        var tabId = details.tabId;
+
         delete editParametersByURL[details.url];
 
         var editParams = {};
@@ -88,22 +117,27 @@
           } else if (header.name === "X-Edit-Token") {
             editParams.token = header.value;
           }
-        });
+       });
         if (editParams.server) {
           editParametersByURL[details.url] = editParams;
         }
-        checkForPageAction();
+        checkForPageAction(url, tabId);
       }
   
 
       chrome.experimental.webRequest.onCompleted.addListener(checkForEditHeader, {types:['main_frame']}, ['responseHeaders']);
 
+//--------------------------------------------------------------------------
+// Add Page Action onUpdated tab
+
       function onTabUpdated(tabId, changeInfo, tab) {
-        tabIdByURL[tab.url] = tab.id;
-        checkForPageAction();
+        checkForPageAction(tab.url, tab.id);
       }
 
       chrome.tabs.onUpdated.addListener(onTabUpdated);
+
+//-----------------------------------------------------------------------------
+// Open editor on page action click
 
       function launchEditAction(tab) {
         var editParameters = editParametersByURL[tab.url];
@@ -113,6 +147,47 @@
         }
       }
       chrome.pageAction.onClicked.addListener(launchEditAction);
+
+//------------------------------------------------------------------------------
+//
+  var debugSuperLogin = false;
+
+  chrome.extension.onRequest.addListener(
+    function superLogin(request, sender, sendResponse) {
+      if (debugSuperLogin) console.log(sender.tab ?
+                  "from a content script:" + sender.tab.url :
+                  "from the extension");
+      if (request.orion == "loginUnloading") {
+        sendResponse({farewell: "goodbye"});
+        var host = sender.tab.url.split('/').slice(0,3).join('/');
+        var tabs = [];
+        chrome.windows.getAll({populate: true}, function(wins) {
+          wins.forEach(function(win) {
+            win.tabs.forEach(function(tab) {
+              if (tab.url.indexOf(host) === 0 && tab.id !== sender.tab.id) {
+                tabs.push(tab);
+              }
+            });
+          });
+          msg = "Reload "+tabs.length+" Orion pages?";
+          if (window.confirm(msg)) {
+            if (debugSuperLogin) console.log("need to reload ", tabs);
+            tabs.forEach(function(tab) {
+              chrome.tabs.reload(tab.id, {}, function() {
+                if (chrome.extension.lastError) {
+                  console.error("Reload failed for "+tab.url+" "+chrome.extension.lastError);
+                } else {
+                  if (debugSuperLogin) console.log("Reloaded "+tab.url);
+                }
+              });
+            });
+          }
+        });
+      } else {
+        sendResponse({}); // snub them.
+      }
+    }
+  );
     </script>
   </body>
 </html>

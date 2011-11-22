@@ -18,5 +18,11 @@
       "contextMenus",
       "webNavigation"
     ],
-   "options_page": "options.html"
+   "options_page": "options.html",
+   "content_scripts": [
+     {
+       "matches": ["http://*/mixloginstatic/LoginWindow.html*"],
+       "js": ["superLogin.js"]
+     }
+   ]
 }
