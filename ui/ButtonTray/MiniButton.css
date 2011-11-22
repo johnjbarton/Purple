@@ -10,6 +10,7 @@
   height: 24px;
   color: white;
   cursor: default;
+  min-width: 24px;
 }
 
 .pMiniButtonTray TD {
@@ -28,4 +29,7 @@ table.pMiniButtonTray {
 TD.pSelected {
   color: purple;
   background-color: white;
+}
+TD.pDisabled {
+  visibility: hidden;
 }
