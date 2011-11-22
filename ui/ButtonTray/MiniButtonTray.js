@@ -42,6 +42,14 @@ function(    Base,                    domplate,      reps,      Rep,          St
          }
        },
        
+       setDisabled: function(button, disabled) {
+         var elt = document.getElementById(MiniButton.getId(button));
+         if (disabled) {
+           elt.classList.add('pDisabled');
+         } else {
+           elt.classList.remove('pDisabled');
+         }
+       },
        replace: function(tray) {
          var elt = document.getElementById(tray.name);
          // create a fresh view between elt and elt.nextSibling
