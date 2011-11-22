@@ -14,7 +14,7 @@
   <body>
     <script>
       function reportOnCreate(win) {
-       console.log("reportOnCreate "+win.id);
+        console.log("reportOnCreate "+win.id);
       }
       function eatDogfood() {
         return localStorage.getItem('dogfood');
@@ -69,12 +69,18 @@
 
       var editParametersByURL = {};
       var tabIdByURL = {};
+      var editSubString = "/edit/edit.html#";
 
-// Show option to Click to open site in Orion editor
+      function openAsFilePageAction(url, tabId) {
+        var ndx = url.indexOf(editSubString);
+        if (ndx > 0) {
+          chrome.pageAction.show(tabId);
+          return true;
+        }
+      }
 
-      function checkForPageAction(url, tabId) {
+      function openInOrionEditor(url, tabId) {   
         tabIdByURL[url] = tabId;
-
         var editableURLs = Object.keys(editParametersByURL);
         editableURLs.forEach(function(url) {
            var tabId = tabIdByURL[url];
@@ -84,6 +90,11 @@
         });
       }
 
+      function checkForPageAction(url, tabId) {
+        return openAsFilePageAction(url, tabId) || 
+               openInOrionEditor(url, tabId);
+      }
+   
       function reportListeners(where, like) {
         console.log(where+" has:"+chrome.webNavigation.onBeforeNavigate.hasListener(like)+" total: "+
          chrome.webNavigation.onBeforeNavigate.listeners_.length);
@@ -104,7 +115,7 @@
           } else if (header.name === "X-Edit-Token") {
             editParams.token = header.value;
           }
-       });
+        });
         if (editParams.server) {
           editParametersByURL[details.url] = editParams;
         }
@@ -126,14 +137,23 @@
 //-----------------------------------------------------------------------------
 // Open editor on page action click
 
-      function launchEditAction(tab) {
+      function pageAction(tab) {
         var editParameters = editParametersByURL[tab.url];
         if (editParameters) {
           var url = editParameters.server + editParameters.token;
           chrome.tabs.create({url: url});
+        } else {
+          var ndx = tab.url.indexOf(editSubString);
+          if (ndx > 0) {
+            var fileURL = tab.url.substr(0, ndx);
+            fileURL += tab.url.substr(ndx + editSubString.length);
+            chrome.tabs.create({url: fileURL}, function(tab) {
+              console.log("opened "+fileURL+" in ", tab);
+            });
+          }
         }
       }
-      chrome.pageAction.onClicked.addListener(launchEditAction);
+      chrome.pageAction.onClicked.addListener(pageAction);
 
 //------------------------------------------------------------------------------
 // SuperLogin: reload all Orion pages after logging in.
@@ -157,7 +177,7 @@
               }
             });
           });
-          msg = "Reload "+tabs.length+" Orion pages?";
+          var msg = "Reload "+tabs.length+" Orion pages?";
           if (window.confirm(msg)) {
             if (debugSuperLogin) console.log("need to reload ", tabs);
             tabs.forEach(function(tab) {
