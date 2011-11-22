@@ -121,7 +121,6 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
         MiniButtonTray.addButton(anyThingBar.logFilterButtonTray, logFilterButton);
         var partEnableButton = this.enableMiniButton(symbol, part, logFilterButton);
         MiniButtonTray.addButton(anyThingBar.logEnableButtonTray, partEnableButton);
-        MiniButtonTray.setDisabled(logFilterButton, true);
       }
     };
     

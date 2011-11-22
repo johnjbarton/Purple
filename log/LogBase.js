@@ -16,6 +16,7 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
   LogBase.connect = function(hasEnableDisable, hasShowHide) {
     this.hasEnableDisable = hasEnableDisable;
     this.hasShowHide = hasShowHide;
+    return this.toggleEnable();
   };
   
   LogBase.disconnect = function() {
@@ -34,6 +35,10 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
     return this.hasEnableDisable;
   };
   
+  LogBase.broadcastEnabled = function() {
+    this.toEachListener({type: 'logEnable', enabled: this.enabled});
+  }
+  
   LogBase.toggleEnable = function() {
     var abler = this.getHasEnableDisable().enable;
     if (this.enabled) {
@@ -46,7 +51,7 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
     Q.end(
       Q.when(promiseAbled, function(promiseAbled) {
         log.enabled = !log.enabled;
-        log.toEachListener({type: 'logEnable', enabled: log.enabled});
+        log.broadcastEnabled();
         return this.enabled;
       }, function(err) {
         console.error("Enable FAILED: "+err, {stack: err.stack});
