@@ -84,22 +84,9 @@
         });
       }
 
-
       function reportListeners(where, like) {
         console.log(where+" has:"+chrome.webNavigation.onBeforeNavigate.hasListener(like)+" total: "+
          chrome.webNavigation.onBeforeNavigate.listeners_.length);
-      }
-// reload Orion pages on login
-      
-
-
-      function checkForLogin(url, tabId) {
-        var ndxLoginPath = url.indexOf('/mixloginstatic/LoginWindow.html');
-        if (ndxLoginPath !== -1) {
-          hookLoginCompleted(url, ndxLoginPath, tabId);
-          return true;
-        }
-        return false;
       }
 
       function checkForEditHeader(details) {
@@ -149,7 +136,8 @@
       chrome.pageAction.onClicked.addListener(launchEditAction);
 
 //------------------------------------------------------------------------------
-//
+// SuperLogin: reload all Orion pages after logging in.
+
   var debugSuperLogin = false;
 
   chrome.extension.onRequest.addListener(
