@@ -20,7 +20,7 @@ function(Base, domplate, reps, Rep, Str){
       tag: TD({'class':'pMiniButton', 'id':'$object|getId', 'onclick':'$object.toggleState', 'title':'$object.toolTip'}, '$object|getSymbol'),
      
       getId: function(object) {
-        return object.partName+"_MiniButton";
+        return object.name+"_MiniButton";
       }, 
       
       getSymbol: function(object) {
