@@ -45,10 +45,20 @@
   border-style: none;
   padding 2px;
 }
+
+.traySpacer {
+  width: 72px;
+  display: inline-block;
+}
+#logEnableButtonTray {
+  float: right;
+}
+
 #findAnything {
    position: relative; /* establish a container for positioning */
    display: inline-block; /* share line with pre/post buttons */
-   margin-left: 4px; /* space after the pre buttons */
+   margin-left: 4px; /* space after the pre buttons, and */
+   margin-right: 4px; /* space before the post buttons, */
 }
 
 .findAnythingIcon {
@@ -70,6 +80,7 @@
 
 #findAnythingBackground input {
   position: absolute;
+  width: 100%;
 }
 #findAnythingCompletion {
   z-index: 1;

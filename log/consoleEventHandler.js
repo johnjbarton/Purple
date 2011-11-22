@@ -29,13 +29,13 @@ define(['log/LogBase', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/C
   // Implement PurplePart
   
   // Return a promise that the Console is enabled
-  consoleEventHandler.connect = function(channel, filter) {
+  consoleEventHandler.connect = function(channel, viewport) {
       this.store = SparseArray.new('ConsoleEvents');
       this.remote = RemoteByWebInspector.new('consoleRemote');
       
-      filter.registerPart(this.store);  // this causes the event store to be pulled into the viewport
+      viewport.registerPart(this.store);  // this causes the event store to be pulled into the viewport
       this.remote.connect(channel, this);
-      LogBase.connect.apply(this, [this.remote.Console]);      
+      LogBase.connect.apply(this, [this.remote.Console, viewport]);      
 
       return this.toggleEnable();
   };

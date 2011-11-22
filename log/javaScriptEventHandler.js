@@ -64,17 +64,17 @@ function (    LogBase,       remoteByWebInspector,             Resources,       
       }
   };
   
-   //---------------------------------------------------------------------------------------------
+  //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  jsEventHandler.connect = function(channel, filter) {
-      this.store = SparseArray.new('JavaScriptEvents');
+  jsEventHandler.connect = function(channel, viewport) {
+      this.store = SparseArray.new(this.name);
       this.remote = remoteByWebInspector.new('resourceCreationRemote');
       this.remote.connect(channel, this);
-      filter.registerPart(this.store);
+      viewport.registerPart(this.store);
       
       // This allows the UI to enable/disable the inputs, without consulting this object....
-      LogBase.connect.apply(this,[this.remote.Debugger]);  
+      LogBase.connect.apply(this,[this.remote.Debugger, viewport]);  
       // Timeline ?
 	  return this.promiseStartDebugger();
   };

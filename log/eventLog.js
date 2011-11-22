@@ -4,7 +4,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/LogBase', 'log/SparseArray', 'lib/Assembly'], function(LogBase, SparseArray, Assembly) {
+define(['log/LogBase', 'lib/Assembly'], function(LogBase, Assembly) {
   
   'use strict';
   
@@ -25,21 +25,37 @@ define(['log/LogBase', 'log/SparseArray', 'lib/Assembly'], function(LogBase, Spa
     }
   };
   
+  eventLog.shower = {
+    show: function(){
+      if (!eventLog.viewport.getPartByName(eventLog.getStore().name)) {
+        eventLog.viewport.registerPart(eventLog.getStore());
+        eventLog.viewport.rebuild();
+      }
+      return true;
+    },
+    hide: function(){
+      if (eventLog.viewport.getPartByName(eventLog.getStore().name)) {
+        eventLog.viewport.unregisterPart(eventLog.getStore());
+        eventLog.viewport.rebuild();
+      };
+      return false;
+    }
+  };
+  
   eventLog.initialize = function() {
-      this.messages = SparseArray.new('BrowserEvents');
       this.recv = this.recv.bind(this);
       Assembly.addPartContainer(this);
   };
   
-  eventLog.connect = function(channel, filter) {
+  eventLog.connect = function(channel, viewport) {
     this.channel = channel;
-    LogBase.connect.apply(this, [eventLog.enabler]);
-    filter.registerPart(this.messages);
+    this.viewport = viewport;
+    LogBase.connect.apply(this, [eventLog.enabler, viewport]);
     return this;
   };
 
   eventLog.disconnect = function(eventSource) {
-      // TODO
+    LogBase.disconnect.apply(this, [eventLog.enabler, eventLog.shower]);
   };
   
   // -----------------------------------------------------------------------------------
@@ -48,12 +64,12 @@ define(['log/LogBase', 'log/SparseArray', 'lib/Assembly'], function(LogBase, Spa
     if(!data) {
       throw new Error("Log.recv no data");
     }
-    this.messages.set(p_id, data);  
+    this.getStore().set(p_id, data);  
     this.toEachPart('appendData', [data, p_id]); // TODO swap args
   }.bind(eventLog);
   
   eventLog.forEachEvent = function(fncOfData) {
-    return this.messages.forEach(fncOfData);
+    return this.getStore().forEach(fncOfData);
   };
   
   return eventLog;
