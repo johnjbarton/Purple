@@ -142,11 +142,16 @@
 }
 
 .p_id {
+  display: none; // no log serial number unless the browserLog is showing
+}
+
+.browserLog .p_id {
+ display: inline;
  min-width: 3ex;
  float: left; /* "you can't assign a width to an inline element, only padding/margin so you'll need to make it float" */
 }
 
-.p_id + * {
+.browserLog .p_id + * {
   display: inline;
   margin-left: 3px;
 }

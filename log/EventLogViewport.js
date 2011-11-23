@@ -38,6 +38,29 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
       this.endPolling();
   };
   
+  // Extend Assembly methods
+  
+  var superRegisterPart = EventLogViewport.registerPart;
+  EventLogViewport.registerPart = function(part) {
+    superRegisterPart.apply(this, [part]);
+    this.toggleClass(part.name, true);
+  };
+  
+  var superUnregisterPart = EventLogViewport.unregisterPart;
+  EventLogViewport.unregisterPart = function(part) {
+    superUnregisterPart.apply(this, [part]);
+    this.toggleClass(part.name, false);
+  };
+  
+  EventLogViewport.toggleClass = function(name, on) {
+    var logElt = document.getElementById('log');
+    if (on) {
+      logElt.classList.add(name);
+    } else {
+      logElt.classList.remove(name);
+    }
+  };
+  
   // -----------------------------------------------------------------------------------
   EventLogViewport.computeLineHeight = function() {
     return 14;
