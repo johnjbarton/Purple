@@ -90,9 +90,11 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
         if (event.type === 'logEnable') {
           MiniButtonTray.setSelected(button, event.enabled);
           if (event.enabled) {
-            MiniButtonTray.setDisabled(filterButton, false);
+            MiniButtonTray.setDisabled(filterButton, false); // allow clicks on filterButton
+            MiniButtonTray.setSelected(filterButton, true);  // default to show
           } else {
-            MiniButtonTray.setDisabled(filterButton, true);
+            MiniButtonTray.setDisabled(filterButton, true);   // no UI since no events
+            MiniButtonTray.setSelected(filterButton, false);  // remove existing entries?
           }
         }
       };
@@ -119,6 +121,7 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
         var symbol = part.name[0].toUpperCase(); // a little hacky...
         var logFilterButton = anyThingBar.filterMiniButton(symbol, part);
         MiniButtonTray.addButton(anyThingBar.logFilterButtonTray, logFilterButton);
+        MiniButtonTray.setSelected(logFilterButton, true);  // select all by default for now
         var partEnableButton = this.enableMiniButton(symbol, part, logFilterButton);
         MiniButtonTray.addButton(anyThingBar.logEnableButtonTray, partEnableButton);
       }

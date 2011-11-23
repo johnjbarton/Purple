@@ -1,5 +1,4 @@
 // PurplePart recv message and create log
-// connect(source), registerPart(sink)
 // Copyright 2011 Google Inc. 
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
