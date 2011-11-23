@@ -3,7 +3,7 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/LogBase', 'lib/Assembly'], function(LogBase, Assembly) {
+define(['log/LogBase', 'lib/Assembly', 'lib/q/q'], function(LogBase, Assembly, Q) {
   
   'use strict';
   
@@ -15,12 +15,14 @@ define(['log/LogBase', 'lib/Assembly'], function(LogBase, Assembly) {
   eventLog.enabler = {
     enable: function() {
       eventLog.channel.addListener(eventLog.recv);
+      return Q.ref('enabled');
     },
     disable: function() {
       // currently Debugger.onEvent is wired into MonitorChrome, 
       // need an new path back to implement enable/disable.
       // For now just disconnect from the channel.
       eventLog.channel.removeListener(eventLog.recv);
+      return Q.ref('disabled');
     }
   };
   
@@ -49,7 +51,7 @@ define(['log/LogBase', 'lib/Assembly'], function(LogBase, Assembly) {
   eventLog.connect = function(channel, viewport) {
     this.channel = channel;
     this.viewport = viewport;
-    LogBase.connect.apply(this, [eventLog.enabler, viewport]);
+    LogBase.connect.apply(this, [eventLog.enabler, eventLog.shower]);
     return this;
   };
 
