@@ -1,10 +1,10 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray', 'lib/q/q', 'lib/part'], 
-function (       remoteByWebInspector,             Resources,             JavaScriptResource,   SparseArray,         Q,       PurplePart) {
+define(['log/LogBase', 'browser/remoteByWebInspector', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray',  'lib/part'], 
+function (    LogBase,       remoteByWebInspector,             Resources,             JavaScriptResource,   SparseArray,         PurplePart) {
   
-  var jsEventHandler = new PurplePart('jsEventHandler');
+  var jsEventHandler = LogBase.new('javascriptLog');
   
   //---------------------------------------------------------------------------------------------
   //
@@ -60,18 +60,22 @@ function (       remoteByWebInspector,             Resources,             JavaSc
         },
         stopped: function() {
           console.log("JavaScriptEventHandler", arguments);
-        },
-      },
+        }
+      }
   };
   
-   //---------------------------------------------------------------------------------------------
+  //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  jsEventHandler.connect = function(channel, filter) {
+  jsEventHandler.connect = function(channel, viewport) {
+      this.store = SparseArray.new(this.name);
       this.remote = remoteByWebInspector.new('resourceCreationRemote');
       this.remote.connect(channel, this);
-      this.store = SparseArray.new('JavaScriptEvents');
-      filter.registerPart(this.store);
+      viewport.registerPart(this.store);
+      
+      // This allows the UI to enable/disable the inputs, without consulting this object....
+      LogBase.connect.apply(this,[this.remote.Debugger, viewport]);  
+      // Timeline ?
 	  return this.promiseStartDebugger();
   };
   

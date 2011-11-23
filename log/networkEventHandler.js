@@ -1,10 +1,10 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['browser/remoteByWebInspector', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q', 'lib/part'], 
-function (        remoteByWebInspector,            Resources,             Resource,      SparseArray,         Q, PurplePart) {
+define(['log/LogBase', 'browser/remoteByWebInspector', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q', 'lib/part'], 
+function (   LogBase,           remoteByWebInspector,            Resources,             Resource,      SparseArray,         Q, PurplePart) {
   
-  var networkEventHandler = new PurplePart('networkEventHandler');
+  var networkEventHandler = LogBase.new('networkLog');
   
   networkEventHandler.getOrCreateResource = function(url) {
     var resource = Resources.get(url);
@@ -129,10 +129,11 @@ function (        remoteByWebInspector,            Resources,             Resour
   // Implement PurplePart
   
   networkEventHandler.connect = function(channel, filter) {
-      this.remote = remoteByWebInspector.new('networkRemote');
       this.store = SparseArray.new('NetworkEvents');
+      this.remote = remoteByWebInspector.new('networkRemote');
       filter.registerPart(this.store);
       this.remote.connect(channel, this);
+      LogBase.connect.apply(this, [this.remote.Network]);
 	  this.remote.Network.enable();
   };
   

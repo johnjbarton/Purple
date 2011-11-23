@@ -8,25 +8,26 @@ function(Base, domplate, reps, Rep, Str){
 
   with(domplate.tags) {
   
-    // {object: {toggleState: function returns boolean, getSymbol: function returns character, tooltip: string}
+    // {object: {
+    //    partName: string
+    //    toggleState: function returns boolean, 
+    //    getSymbol: function returns character, 
+    //    tooltip: string
+    //    addListener:function takes function of event
+    // }
   
     var MiniButton = domplate.domplate({
-      tag: TD({'class':'pMiniButton', 'onclick': '$object|setOnClick', 'title':'$object.toolTip'}, '$object.symbol'),
-      // called with the domplate is expanded
-      setOnClick:function(object) {
-      console.log("setOnClick called with object ", object);
-        return function toggleState(event) {
-          var elt = event.currentTarget;
-          var selected = object.toggleState();
-          if (selected) {
-            elt.classList.add('pSelected');
-          } else {
-            elt.classlist.remove('pSelected');
-          }
-        }
+      tag: TD({'class':'pMiniButton', 'id':'$object|getId', 'onclick':'$object.toggleState', 'title':'$object.toolTip'}, '$object|getSymbol'),
+     
+      getId: function(object) {
+        return object.name+"_MiniButton";
+      }, 
+      
+      getSymbol: function(object) {
+        return object.symbol;
       },
     });
-    
+     
     return MiniButton;
   };
   

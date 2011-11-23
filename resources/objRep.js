@@ -27,7 +27,8 @@ function (                   domplate,                Resources,       Element, 
         SPAN({"class": "objectRightBrace"}, "}")   
       ),
       toggleMore: function(event) {
-        console.log("FoldedRep click "+(event.timeStamp - this.mouseOverEvent.timeStamp), {clickEvent: event, overEvent: this.mouseOverEvent}); 
+        // TODO put up [x] and lock open
+        console.log("FoldedRep click ", event); 
       },
       over: function(event) {
         var objectMoreElt = event.currentTarget; /* objectMore has the onclick and the repObject */
@@ -68,6 +69,8 @@ function (                   domplate,                Resources,       Element, 
           popOverEnlarger.classList.add('popOverEnlarger');
           popOverEnlarger.appendChild(elt.popOver);
           elt.appendChild(popOverEnlarger);
+          // TODO position so the data remains on the screen if at bottom
+          // TODO limit max height to viewport 
         }
         return elt.popOver;
       },

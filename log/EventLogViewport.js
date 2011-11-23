@@ -19,28 +19,19 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
     this.onPoll = this.poll.bind(this);
     this.pollInterval = 100;
     
-    this.viewport = {
-      rendered: { // these values are controlled by RenderedLines
-        first: 0,
-        last: 0
-      },
-      visible: {  // these values are controled by VisibleLines
-        first: 0,
-        last: 0
-      }
-    };
     reps.rehash();
   };
     
   EventLogViewport.connect = function(log) {
     log.registerPart(this); // for appendData notification that drive input to output (for now)
-      this.initializeUI();
-      if (this.optionPolling) {
-        this.beginPolling();
-      } else {
-        this.endPolling();
-      }
-      this.update();
+    
+    this.initializeUI();
+    if (this.optionPolling) {
+      this.beginPolling();
+    } else {
+      this.endPolling();
+    }
+    this.update();
   };
 
   EventLogViewport.disconnect = function() {
@@ -53,13 +44,8 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
   };
   
   var renderedLines = {
-    first: 0,
-    total: 0,
     connect: function(elt) {
       this.container = elt;
-    },
-    isRendered: function(p_id) {
-      return (p_id >= this.first && p_id < this.first + this.total); 
     },
     append: function(data, p_id) {
       var dataView = this.renderToHTML(p_id, data);
@@ -71,6 +57,9 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
         dataView.insertBefore(p_id_div, dataView.firstChild);
         this.container.appendChild(dataView);
       } 
+    },
+    clear: function() {
+      this.container.innerHTML = "";  // do we need to worry about event listeners leaking?
     },
     renderToHTML: function(p_id, object) {
       var div = this.container.ownerDocument.createElement('div');
@@ -155,15 +144,24 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
   EventLogViewport.update = function() {
     if (!this.scrollLock) {
       var max = window.purple.p_id; // TODO via initialize
-      var last = this.viewport.visible.last; 
+      var last = renderedLines.lastPID; 
       // work bottom up and stop once we fill the viewport
       for (var ndx = last; ndx <= max; ndx++) {
         this.pullEntry(ndx);
       }
-      this.viewport.visible.last = max;
+      renderedLines.lastPID = max;
     }
     delete this.queueUpdate;
   };
+  
+  EventLogViewport.clear = function() {
+    
+  }
+  
+  EventLogViewport.rebuild = function() {
+    renderedLines.clear();
+    this.update();
+  }
   
   EventLogViewport.boundUpdate = EventLogViewport.update.bind(EventLogViewport);
   

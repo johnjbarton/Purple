@@ -22,6 +22,7 @@ window.purple = window.parent.purple;
 
 require(['findAnything/findAnything'], function init(findAnything) {
     var thePurple = window.purple;
+    findAnything.initialize(thePurple);
     thePurple.registerPart(findAnything);
     console.log("findAnything compiled");
 });

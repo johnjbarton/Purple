@@ -1,0 +1,46 @@
+<html>
+<head>
+<script src="../../lib/q/q.js"></script>
+<script>
+
+// Accept a promise for load, and report the success or failure of the load
+function foo(loaded) {
+ return Q.when(
+   loaded, 
+   function glory(loaded){
+     // Ooops the processing of success path fails!
+     throw new Error("You lose");
+     console.log("We have ", loaded);
+   }, 
+   function fail(err) {
+     console.error("We have "+err);
+   }
+ );
+};
+
+// Create a promise for a load
+function promiseLoaded() {
+  var defer = Q.defer();
+  window.addEventListener(
+    'load', 
+    function(event) {
+      defer.resolve("success");
+    }, 
+    false
+  );
+  return defer.promise;
+}
+
+function main() {
+  // foo returns a promise, but we don't look at the return so we lose.
+  foo(promiseLoaded());
+}
+
+main();
+</script>
+</head>
+<body>
+<h1>Bad developer ergonomics: throw in promise fulfillment swallows exception</h1>
+<p>May be related to <a href="https://github.com/kriskowal/q/issues/23">Issue 23 on github q</a>
+</body>
+</html>
