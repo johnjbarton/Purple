@@ -60,6 +60,7 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
     },
     clear: function() {
       this.container.innerHTML = "";  // do we need to worry about event listeners leaking?
+      this.lastPID = 0;
     },
     renderToHTML: function(p_id, object) {
       var div = this.container.ownerDocument.createElement('div');
@@ -153,10 +154,6 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
     }
     delete this.queueUpdate;
   };
-  
-  EventLogViewport.clear = function() {
-    
-  }
   
   EventLogViewport.rebuild = function() {
     renderedLines.clear();
