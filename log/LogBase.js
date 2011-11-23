@@ -59,9 +59,9 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
     );
   };
   
-  LogBase.toggleShow = function() {
+  LogBase.toggleShow = function(targetState) {
     var shower = this.hasShowHide.show;
-    if (this.showing) {
+    if ( ((typeof targetState === 'boolean') && !targetState) || this.showing) {
       shower = this.hasShowHide.hide;
     }
     
