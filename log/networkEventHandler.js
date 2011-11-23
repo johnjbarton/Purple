@@ -131,7 +131,6 @@ function (   LogBase,           remoteByWebInspector,            Resources,     
   networkEventHandler.connect = function(channel, viewport) {
       this.store = SparseArray.new('NetworkEvents');
       this.remote = remoteByWebInspector.new('networkRemote');
-      viewport.registerPart(this.store);
       this.remote.connect(channel, this);
       LogBase.connect.apply(this, [this.remote.Network, viewport]);
 	  this.remote.Network.enable();

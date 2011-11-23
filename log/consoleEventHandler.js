@@ -33,9 +33,8 @@ define(['log/LogBase', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/C
       this.store = SparseArray.new('ConsoleEvents');
       this.remote = RemoteByWebInspector.new('consoleRemote');
       
-      viewport.registerPart(this.store);  // this causes the event store to be pulled into the viewport
       this.remote.connect(channel, this);
-      LogBase.connect.apply(this, [this.remote.Console, viewport]);      
+      LogBase.connect.apply(this, [this.remote.Console, viewport]);   // this causes the event store to be pulled into the viewport   
   };
   
   consoleEventHandler.disconnect = function(channel) {

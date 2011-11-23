@@ -26,23 +26,6 @@ define(['log/LogBase', 'lib/Assembly', 'lib/q/q'], function(LogBase, Assembly, Q
     }
   };
   
-  eventLog.shower = {
-    show: function(){
-      if (!eventLog.viewport.getPartByName(eventLog.getStore().name)) {
-        eventLog.viewport.registerPart(eventLog.getStore());
-        eventLog.viewport.rebuild();
-      }
-      return true;
-    },
-    hide: function(){
-      if (eventLog.viewport.getPartByName(eventLog.getStore().name)) {
-        eventLog.viewport.unregisterPart(eventLog.getStore());
-        eventLog.viewport.rebuild();
-      };
-      return false;
-    }
-  };
-  
   eventLog.initialize = function() {
       this.recv = this.recv.bind(this);
       Assembly.addPartContainer(this);
@@ -51,7 +34,7 @@ define(['log/LogBase', 'lib/Assembly', 'lib/q/q'], function(LogBase, Assembly, Q
   eventLog.connect = function(channel, viewport) {
     this.channel = channel;
     this.viewport = viewport;
-    LogBase.connect.apply(this, [eventLog.enabler, eventLog.shower]);
+    LogBase.connect.apply(this, [eventLog.enabler, viewport]);
     return this;
   };
 

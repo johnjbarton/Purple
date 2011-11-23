@@ -13,9 +13,9 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
     this.implementsFeature('Log'); // proxy for enable
   };
   
-  LogBase.connect = function(hasEnableDisable, hasShowHide) {
+  LogBase.connect = function(hasEnableDisable, outputAssembly) {
     this.hasEnableDisable = hasEnableDisable;
-    this.hasShowHide = hasShowHide;
+    this.outputAssembly = outputAssembly;
     return this.toggleEnable();
   };
   
@@ -27,6 +27,8 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
   LogBase.getStore = function() {
     return this.store;
   };
+ 
+  // Input Management
 
   LogBase.getHasEnableDisable = function() {
     if (!this.hasEnableDisable) {
@@ -59,13 +61,31 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
     );
   };
   
-  LogBase.toggleShow = function(targetState) {
-    var shower = this.hasShowHide.show;
-    if ( ((typeof targetState === 'boolean') && !targetState) || this.showing) {
-      shower = this.hasShowHide.hide;
+  // Output Management
+  
+  LogBase.show = function() {
+    if (!this.outputAssembly.getPartByName(this.getStore().name)) {
+      this.outputAssembly.registerPart(this.getStore());
+      this.outputAssembly.rebuild();
     }
+    return true;
+  };
     
-    this.showing = shower.apply(this.hasShowHide, []);
+  LogBase.hide = function() {
+    if (this.outputAssembly.getPartByName(this.getStore().name)) {
+      this.outputAssembly.unregisterPart(this.getStore());
+      this.outputAssembly.rebuild();
+    };
+    return false;
+  };
+  
+  LogBase.toggleShow = function(targetState) {
+    // TODO get the current state from the UI state
+    if ( ((typeof targetState === 'boolean') && !targetState) || this.showing) {
+      this.showing = this.hide();
+    } else {
+      this.showing = this.show();
+    }
     this.toEachListener({type:'logShow', show: this.showing});
   };
     

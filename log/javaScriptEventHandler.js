@@ -71,7 +71,6 @@ function (    LogBase,       remoteByWebInspector,             Resources,       
       this.store = SparseArray.new(this.name);
       this.remote = remoteByWebInspector.new('resourceCreationRemote');
       this.remote.connect(channel, this);
-      viewport.registerPart(this.store);
       
       // This allows the UI to enable/disable the inputs, without consulting this object....
       LogBase.connect.apply(this,[this.remote.Debugger, viewport]);  
