@@ -49,7 +49,7 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
     };
     
     // returns true if we are showing, else false
-    anyThingBar.toggleShow = function(partName, fnOfSelected) {
+    anyThingBar.toggleShow = function(partName) {
       var part = this.thePurple.getPartByName(partName);
       return part.toggleShow();
     };
@@ -91,10 +91,10 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
           MiniButtonTray.setSelected(button, event.enabled);
           if (event.enabled) {
             MiniButtonTray.setDisabled(filterButton, false); // allow clicks on filterButton
-            MiniButtonTray.setSelected(filterButton, true);  // default to show
+            part.toggleShow(true);  // default to show
           } else {
             MiniButtonTray.setDisabled(filterButton, true);   // no UI since no events
-            MiniButtonTray.setSelected(filterButton, false);  // remove existing entries?
+            part.toggleShow(false);  // remove existing entries, is that what we want?
           }
         }
       };
