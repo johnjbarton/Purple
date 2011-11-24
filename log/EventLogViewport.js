@@ -38,7 +38,7 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
       this.endPolling();
   };
   
-  // Extend Assembly methods
+  // Extend Assembly methods to sync part names and #log class names
   
   var superRegisterPart = EventLogViewport.registerPart;
   EventLogViewport.registerPart = function(part) {
@@ -70,15 +70,25 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
     connect: function(elt) {
       this.container = elt;
     },
+    isOnBottom: function(elt) {
+      return (elt.clientHeight + elt.scrollTop) === elt.scrollHeight;
+    },
+    bottomOut: function(elt) {
+      elt.scrollTop = elt.scrollHeight - elt.clientHeight;  // negative will become zero
+    },
     append: function(data, p_id) {
       var dataView = this.renderToHTML(p_id, data);
       if (dataView) {
-        // debug
+        // for debug
         var p_id_div = this.container.ownerDocument.createElement('span');
         p_id_div.classList.add('p_id');
         p_id_div.innerHTML = p_id;
         dataView.insertBefore(p_id_div, dataView.firstChild);
+        var keepOnBottom = this.isOnBottom(this.container.parentElement);
         this.container.appendChild(dataView);
+        if (keepOnBottom) {
+          this.bottomOut(this.container.parentElement);
+        }
       } 
     },
     clear: function() {
@@ -209,6 +219,9 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
   
   // ---------------------------------------------------------------------------------
   
+  
+  
+  //----------------------------------------------------------------------------------
   
   return EventLogViewport;
   
