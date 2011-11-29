@@ -107,7 +107,7 @@
 
         var url = details.url;
         var tabId = details.tabId;
-
+        console.log("checkForEditHeader "+url+" in "+tabId);
         delete editParametersByURL[details.url];
 
         var editParams = {};
@@ -127,7 +127,7 @@
   
 
       chrome.experimental.webRequest.onCompleted.addListener(checkForEditHeader, {types:['main_frame']}, ['responseHeaders']);
-
+      console.log("added webReqest.onCompleted");
 //--------------------------------------------------------------------------
 // Add Page Action onUpdated tab
 
@@ -199,6 +199,8 @@
       }
     }
   );
+  
+
     </script>
   </body>
 </html>

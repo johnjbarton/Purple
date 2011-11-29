@@ -11,9 +11,12 @@
     "default_icon": "orion16.png",
     "default_title": "Edit in Orion"
    },
+   "devtools_page": "devtools.html",
   "permissions" :
     [
       "experimental",
+      "http*://localhost",
+      "http*://orionhub.com",
       "tabs",
       "contextMenus",
       "webNavigation"

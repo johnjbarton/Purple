@@ -1,0 +1,21 @@
+<html>
+<head>
+<script>
+//------------------------------------------------------------------------------
+// Save-to-Orion
+
+  chrome.experimental.devtools.inspectedWindow.onResourceContentCommitted.addListener(function saveToOrion(resource) {
+    console.log("saveToOrion "+resource.url);  
+  });
+  
+//----------------------------------------------------------------------------
+
+  chrome.experimental.devtools.panels.setOpenResourceHandler(function openInOrion(resource) {
+    console.log("openInOrion"+resource.url);
+  });
+  
+  console.log("devtools.html loaded");
+</script>
+</head>
+<body><!-- just make-work I guess --></body>
+</html>
