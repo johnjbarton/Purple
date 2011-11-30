@@ -15,8 +15,7 @@
   "permissions" :
     [
       "experimental",
-      "http*://localhost",
-      "http*://orionhub.com",
+      "*://*/*",
       "tabs",
       "contextMenus",
       "webNavigation"

@@ -124,10 +124,11 @@
         }
         checkForPageAction(url, tabId);
       }
-  
+      
+      var onCompleted = chrome.experimental.webRequest.onCompleted;
 
-      chrome.experimental.webRequest.onCompleted.addListener(checkForEditHeader, {types:['main_frame']}, ['responseHeaders']);
-      console.log("added webReqest.onCompleted");
+      onCompleted.addListener(checkForEditHeader, {}, ['responseHeaders']);
+
 //--------------------------------------------------------------------------
 // Add Page Action onUpdated tab
 
@@ -161,39 +162,56 @@
 //------------------------------------------------------------------------------
 // SuperLogin: reload all Orion pages after logging in.
 
-  var debugSuperLogin = false;
+  var debugRequests = true;
 
-  chrome.extension.onRequest.addListener(
-    function superLogin(request, sender, sendResponse) {
-      if (debugSuperLogin) console.log(sender.tab ?
-                  "from a content script:" + sender.tab.url :
-                  "from the extension");
-      if (request.orion == "loginUnloading") {
+  function superLogin(request, sender, sendResponse) {
         sendResponse({farewell: "goodbye"});
         var host = sender.tab.url.split('/').slice(0,3).join('/');
         var tabs = [];
         chrome.windows.getAll({populate: true}, function(wins) {
           wins.forEach(function(win) {
             win.tabs.forEach(function(tab) {
-              if (tab.url.indexOf(host) === 0 && tab.id !== sender.tab.id) {
+              if (tab.url.indexOf(host) === 0 && tab.url !== sender.tab.url) {
                 tabs.push(tab);
               }
             });
           });
           var msg = "Reload "+tabs.length+" Orion pages?";
           if (window.confirm(msg)) {
-            if (debugSuperLogin) console.log("need to reload ", tabs);
+            if (debugRequests) console.log("need to reload ", tabs);
             tabs.forEach(function(tab) {
               chrome.tabs.reload(tab.id, {}, function() {
                 if (chrome.extension.lastError) {
                   console.error("Reload failed for "+tab.url+" "+chrome.extension.lastError);
                 } else {
-                  if (debugSuperLogin) console.log("Reloaded "+tab.url);
+                  if (debugRequests) console.log("Reloaded "+tab.url);
                 }
               });
             });
           }
         });
+  }
+
+  function saveResource(request, sender, sendResponse) {
+    console.log("background.saveResource", request);
+    var editParameters = editParametersByURL[request.url];
+    if (editParameters) {
+      var editURL = editParameters.server + editParameters.token;
+      console.log("background.saveResource ready to PUT to "+editURL);
+    } else {
+      sendResponse({error: "No edit URL in http headers for "+request.url});
+    }
+  }
+
+  chrome.extension.onRequest.addListener(
+    function dispatch(request, sender, sendResponse) {
+      if (debugRequests) console.log(sender.tab ?
+                  "from a content script:" + sender.tab.url :
+                  "from the extension");
+      if (request.orion == "loginUnloading") {
+        // built into Orion now superLogin(request, sender, sendResponse);
+      } else if (request.message === "saveResource") {
+        saveResource(request, sender, sendResponse);
       } else {
         sendResponse({}); // snub them.
       }
