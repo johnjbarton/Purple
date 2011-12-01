@@ -5,6 +5,12 @@ body {
   font-family:Verdana,Geneva,sans-serif;
 }
 
+.youShouldSave {
+  color: red;
+  font-weight: bold;
+  padding: 10px;
+}
+
 </style>
 
 <script type="text/javascript">
@@ -38,9 +44,9 @@ function save_options() {
   // Update status to let user know options were saved.
   var status = document.getElementById("status");
   status.innerHTML = "Options Saved.";
-  setTimeout(function() {
-    status.innerHTML = "";
-  }, 750);
+  
+  var save = document.getElementById('save');
+  save.classList.remove('youShouldSave');
 }
 
 // Restores messageClientURL box state to saved value from localStorage.
@@ -60,13 +66,31 @@ function restore_options() {
   syncOptions(checkit);
 }
 
-function onLoad() {
-  restore_options();
+function highlightSave(event) {
+  var save = document.getElementById("save");
+  save.classList.add('youShouldSave');
+  status.innerHTML = "";
+}
+
+
+function addListeners() {
   var dogFoodItems = document.getElementById('dogfoodItems');
   dogFoodItems.addEventListener('click', function(event) {
     var target = event.target;
     syncOptions(target.hasAttribute('checked'));
   }, false);
+  
+  var inputs = document.getElementsByTagName('input');
+  for(var i = 0; i < inputs.length; i++) {
+    var input = inputs[i];
+    input.onkeydown = highlightSave;
+    input.onchange = highlightSave;
+  }
+}
+
+function onLoad() {
+  restore_options();
+  addListeners();
 }
 
 </script>
@@ -91,7 +115,7 @@ Dogfood URL (blank to use the same URL in dogfood mode)<br>
 <input id='dogfoodURL' type='url' size='80' disabled />
 </div>
 <br>
-<button onclick="save_options()">Save</button>
+<button id="save" onclick="save_options()">Save</button>
 <div id="status"></div>
 </body>
 </html>
