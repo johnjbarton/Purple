@@ -34,6 +34,8 @@ Then when the intended effect has been observed, the changes can be pushed back 
   
 Dev Install (sry this is a bit painful now)
 
+1. Use Chrome dev channel version, and start with command line option 
+   [--enable-experimental-extension-apis ](http://code.google.com/chrome/extensions/experimental.html#using)
 1. Get an account on http://orionhub.org (or install Orion)
 2. clone this reprository 
 3. Apply these instructions: 
