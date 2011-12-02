@@ -1,4 +1,5 @@
 /*******************************************************************************
+ * @license
  * Copyright (c) 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials are made 
  * available under the terms of the Eclipse Public License v1.0 
@@ -8,27 +9,17 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-/*global orion:true*/
+/*global define */
 
-/** @namespace */
-var orion = orion || {};
-orion.editor = orion.editor || {};
+define([], function() {
 
-/**
- * @class orion.contentAssist.CssContentAssistProvider
- */
-orion.editor.CssContentAssistProvider = (function() {
-	/** @private */
+	/**
+	 * @name orion.contentAssist.CssContentAssistProvider
+	 * @class Provides content assist for CSS keywords.
+	 */
 	function CssContentAssistProvider() {
 	}
-	CssContentAssistProvider.prototype = /** @lends orion.contentAssist.CssContentAssistProvider.prototype */ {
-		/**
-		 * @param {String} The string buffer.substring(w+1, c) where c is the caret offset and w is the index of the 
-		 * rightmost whitespace character preceding c.
-		 * @param {String} buffer The entire buffer being edited
-		 * @param {orion.editor.Selection} selection The current textView selection.
-		 * @returns {dojo.Deferred} A future that will provide the keywords.
-		 */
+	CssContentAssistProvider.prototype = /** @lends orion.editor.CssContentAssistProvider.prototype */ {
 		getKeywords: function(prefix, buffer, selection) {
 			return [ "background", "background-attachment", "background-color", "background-image",
 					"background-position", "background-repeat", "border", "border-bottom",
@@ -47,36 +38,23 @@ orion.editor.CssContentAssistProvider = (function() {
 					"top", "vertical-align", "visibility", "width", "z-index" ];
 		}
 	};
-	return CssContentAssistProvider;
-}());
 
-/**
- * @class orion.contentAssist.JavaScriptContentAssistProvider
- */
-orion.editor.JavaScriptContentAssistProvider = (function() {
-	/** @private */
+	/**
+	 * @name orion.editor.JavaScriptContentAssistProvider
+	 * @class Provides content assist for JavaScript keywords.
+	 */
 	function JavaScriptContentAssistProvider() {
 	}
-	JavaScriptContentAssistProvider.prototype = /** @lends orion.contentAssist.JavaScriptContentAssistProvider.prototype */ {
-		/**
-		 * @param {String} The string buffer.substring(w+1, c) where c is the caret offset and w is the index of the 
-		 * rightmost whitespace character preceding c.
-		 * @param {String} buffer The entire buffer being edited
-		 * @param {orion.editor.Selection} selection The current textView selection.
-		 * @returns {dojo.Deferred} A future that will provide the keywords.
-		 */
+	JavaScriptContentAssistProvider.prototype = /** @lends orion.editor.JavaScriptContentAssistProvider.prototype */ {
 		getKeywords: function(prefix, buffer, selection) {
 			return [ "break", "case", "catch", "continue", "debugger", "default", "delete", "do", "else",
 					"finally", "for", "function", "if", "in", "instanceof", "new", "return", "switch",
 					"this", "throw", "try", "typeof", "var", "void", "while", "with" ];
 		}
 	};
-	return JavaScriptContentAssistProvider;
-}());
-
-if (typeof window !== "undefined" && typeof window.define !== "undefined") {
-	define([], function() {
-		return orion.editor;
-	});
-}
-
+	
+	return {
+		CssContentAssistProvider: CssContentAssistProvider,
+		JavaScriptContentAssistProvider: JavaScriptContentAssistProvider
+	};
+}, "orion/editor");

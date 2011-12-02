@@ -1,4 +1,5 @@
 /*******************************************************************************
+ * @license
  * Copyright (c) 2010, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials are made 
  * available under the terms of the Eclipse Public License v1.0 
@@ -8,23 +9,25 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-/*global eclipse:true orion:true dojo window*/
-/*jslint devel:true*/
+/*global orion:true window*/
+/*jslint browser:true devel:true*/
 
-dojo.addOnLoad(function(){
+window.onload = function(){
 	
-	var editorDomNode = dojo.byId("editor");
+	var editorDomNode = document.getElementById("editor");
 	
 	var textViewFactory = function() {
 		return new orion.textview.TextView({
 			parent: editorDomNode,
-			stylesheet: ["/orion/textview/textview.css", "/orion/textview/rulers.css", "/examples/textview/textstyler.css"],
+			stylesheet: [ "../../orion/textview/textview.css",
+							"../../orion/textview/rulers.css",
+							"../../orion/textview/annotations.css",
+							"../textview/textstyler.css"],
 			tabSize: 4
 		});
 	};
 	
 	var annotationFactory = new orion.editor.AnnotationFactory();
-
 	
 	var keyBindingFactory = function(editor, keyModeStack, undoStack, contentAssist) {
 		
@@ -39,17 +42,21 @@ dojo.addOnLoad(function(){
 		// save binding
 		editor.getTextView().setKeyBinding(new orion.textview.KeyBinding("s", true), "save");
 		editor.getTextView().setAction("save", function(){
-				editor.onInputChange(null, null, null, true);
+				editor.setInput(null, null, null, true);
 				var text = editor.getTextView().getText();
 				var problems = [];
 				for (var i=0; i<text.length; i++) {
 					if (text.charAt(i) === 'z') {
 						var line = editor.getTextView().getModel().getLineAtOffset(i) + 1;
 						var character = i - editor.getTextView().getModel().getLineStart(line);
-						problems.push({character: character, line: line, reason: "I don't like the letter 'z'"});
+						problems.push({
+							start: character,
+							end: character + 1,
+							severity: "error",
+							description: "I don't like the letter 'z'"});
 					}
 				}
-				annotationFactory.showProblems(problems);
+				editor.showProblems(problems);
 				return true;
 		});
 	};
@@ -63,7 +70,7 @@ dojo.addOnLoad(function(){
 		} else {
 			status = message;
 		}
-		dojo.byId("status").innerHTML = dirtyIndicator + status;
+		document.getElementById("status").innerHTML = dirtyIndicator + status;
 	};
 		
 	var editor = new orion.editor.Editor({
@@ -77,21 +84,21 @@ dojo.addOnLoad(function(){
 		domNode: editorDomNode
 	});
 		
-	dojo.connect(editor, "onDirtyChange", this, function(dirty) {
-		if (dirty) {
+	editor.addEventListener("DirtyChanged", function(evt) {
+		if (editor.isDirty()) {
 			dirtyIndicator = "You have unsaved changes.  ";
 		} else {
 			dirtyIndicator = "";
 		}
-		dojo.byId("status").innerHTML = dirtyIndicator + status;
+		document.getElementById("status").innerHTML = dirtyIndicator + status;
 	});
 	
 	editor.installTextView();
-	editor.onInputChange("Content", null, "This is the initial editor contentz.  Type some text and press Ctrl-S to save.");
+	editor.setInput("Content", null, "This is the initial editor contentz.  Type some text and press Ctrl-S to save.");
 	
 	window.onbeforeunload = function() {
 		if (editor.isDirty()) {
 			 return "There are unsaved changes.";
 		}
 	};
-});
+};
