@@ -15,39 +15,29 @@ window.onload = function() {
     	<title>Embedded Orion Editor</title>
     	<link rel="stylesheet" type="text/css" href="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/embeddededitor.css" />
 		
-		<script type="text/javascript">
-			var djConfig = {
-				isDebug:false,
-				parseOnLoad:true
-			};
-		</script>
-		<script>
-			// temporary
-	    	var __originalDefine = window.define;
-	    </script>
-	    <script type="text/javascript" src="/org.dojotoolkit/dojo/dojo.js.uncompressed.js"></script>
-		<script>
-			// temporary
-	    	window.define = __originalDefine;
-	    </script>
-
-		<!-- Web Editor -->
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/keyBinding.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textModel.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textView.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/undoStack.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textStyler.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/contentAssist.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/htmlGrammar.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/textMateStyler.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
-	 	<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
-<!-- End from Orion embeddededitor -->
 
         <script type="text/javascript" src="../lib/requirejs/require.js"></script>
         <script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
+		<!-- Web Editor -->
+
+<!--		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/keyBinding.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/annotations.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textModel.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/projectionTextModel.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textView.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/tooltip.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/undoStack.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textStyler.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/contentAssist.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/htmlGrammar.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/textMateStyler.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
+		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
+	-->
+<!-- End from Orion embeddededitor -->
+
         <script>
         require({
           baseUrl: "..",

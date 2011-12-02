@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-/*global eclipse:true orion:true dojo window*/
+/*global eclipse:true orion:true define document window*/
 /*jslint devel:true*/
 
 define(['editor/annotationFactory', 'editor/revisionByOrion', '../lib/q/q', 'lib/part', 'lib/Assembly'], 
@@ -35,14 +35,14 @@ var ErrorStyler = (function () {
 
 var editor = (function(){
   
-  var editorDomNode = dojo.byId("editor");
+  var editorDomNode = document.getElementById("editor");
   
   // These stylesheets will be inserted into the iframe containing the editor.
   var stylesheets = [
-    "/orion/textview/textview.css", 
-    "/orion/textview/rulers.css", 
-    "/examples/textview/textstyler.css", 
-    "/examples/editor/htmlStyles.css",
+    "orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textview.css", 
+    "orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.css", 
+    "orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textstyler.css", 
+    "orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/htmlStyles.css",
     "../ui/purple.css"];
     
   var textViewFactory = function() {
@@ -74,10 +74,10 @@ var editor = (function(){
               this.stylers[extension] = new ErrorStyler(textView);
               break;
             case "java":
-              this.stylers[extension] = new examples.textview.TextStyler(textView, "java");
+              //this.stylers[extension] = new examples.textview.TextStyler(textView, "java");
               break;
             case "css":
-              this.stylers[extension] = new examples.textview.TextStyler(textView, "css");
+              //this.stylers[extension] = new examples.textview.TextStyler(textView, "css");
               break;
             case "html":
               this.stylers[extension] = new orion.editor.TextMateStyler(textView, orion.editor.HtmlGrammar.grammar);
@@ -118,22 +118,14 @@ var editor = (function(){
         return true;
     });
     
-    // speaking of save...
-    //dojo.byId("save").onclick = function() {save(editor);};
-
   };
     
-  var dirtyIndicator = "";
-  var status = "";
-  
   var statusReporter = function(message, isError) {
     if (isError) {
-      status =  "ERROR: " + message;
       console.error("Orion editor ERROR:"+message);
     } else {
-      status = message;
+      console.log("Orion editor: "+message);
     }
-//    dojo.byId("status").innerHTML = dirtyIndicator + status;
   };
   
   var editor = new orion.editor.Editor({
@@ -147,15 +139,6 @@ var editor = (function(){
     domNode: editorDomNode
   });
     
-  dojo.connect(editor, "onDirtyChange", this, function(dirty) {
-    if (dirty) {
-      dirtyIndicator = "*";
-    } else {
-      dirtyIndicator = "";
-    }
-    //dojo.byId("status").innerHTML = dirtyIndicator + status;
-  });
-  
   editor.installTextView();
   return editor;
 }());
