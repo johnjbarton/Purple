@@ -1,4 +1,5 @@
 /*******************************************************************************
+ * @license
  * Copyright (c) 2010, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials are made 
  * available under the terms of the Eclipse Public License v1.0 
@@ -8,17 +9,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-/*global eclipse:true orion:true dojo window*/
-/*jslint devel:true*/
+/*global examples orion:true window*/
+/*jslint browser:true devel:true*/
 
-dojo.addOnLoad(function(){
+window.onload = function(){
 	
-	var editorDomNode = dojo.byId("editor");
+	var editorDomNode = document.getElementById("editor");
 	
 	var textViewFactory = function() {
 		return new orion.textview.TextView({
 			parent: editorDomNode,
-			stylesheet: ["/orion/textview/textview.css", "/orion/textview/rulers.css", "/examples/textview/textstyler.css", "/examples/editor/htmlStyles.css"],
+			stylesheet: [ "../../orion/textview/textview.css",
+							"../../orion/textview/rulers.css", 
+							"../../orion/textview/annotations.css",
+							"../textview/textstyler.css",
+							"htmlStyles.css"],
 			tabSize: 4
 		});
 	};
@@ -34,7 +39,7 @@ dojo.addOnLoad(function(){
 	var syntaxHighlighter = {
 		styler: null, 
 		
-		highlight: function(fileName, textView) {
+		highlight: function(fileName, editor) {
 			if (this.styler) {
 				this.styler.destroy();
 				this.styler = null;
@@ -42,16 +47,14 @@ dojo.addOnLoad(function(){
 			if (fileName) {
 				var splits = fileName.split(".");
 				var extension = splits.pop().toLowerCase();
+				var textView = editor.getTextView();
+				var annotationModel = editor.getAnnotationModel();
 				if (splits.length > 0) {
 					switch(extension) {
 						case "js":
-							this.styler = new examples.textview.TextStyler(textView, "js");
-							break;
 						case "java":
-							this.styler = new examples.textview.TextStyler(textView, "java");
-							break;
 						case "css":
-							this.styler = new examples.textview.TextStyler(textView, "css");
+							this.styler = new examples.textview.TextStyler(textView, extension, annotationModel);
 							break;
 						case "html":
 							this.styler = new orion.editor.TextMateStyler(textView, orion.editor.HtmlGrammar.grammar);
@@ -65,7 +68,7 @@ dojo.addOnLoad(function(){
 	var annotationFactory = new orion.editor.AnnotationFactory();
 
 	function save(editor) {
-		editor.onInputChange(null, null, null, true);
+		editor.setInput(null, null, null, true);
 		window.alert("Save hook.");
 	}
 	
@@ -87,7 +90,7 @@ dojo.addOnLoad(function(){
 		});
 		
 		// speaking of save...
-		dojo.byId("save").onclick = function() {save(editor);};
+		document.getElementById("save").onclick = function() {save(editor);};
 
 	};
 		
@@ -100,7 +103,7 @@ dojo.addOnLoad(function(){
 		} else {
 			status = message;
 		}
-		dojo.byId("status").innerHTML = dirtyIndicator + status;
+		document.getElementById("status").innerHTML = dirtyIndicator + status;
 	};
 	
 	var editor = new orion.editor.Editor({
@@ -114,21 +117,22 @@ dojo.addOnLoad(function(){
 		domNode: editorDomNode
 	});
 		
-	dojo.connect(editor, "onDirtyChange", this, function(dirty) {
-		if (dirty) {
+	editor.addEventListener("DirtyChanged", function(evt) {
+		if (editor.isDirty()) {
 			dirtyIndicator = "*";
 		} else {
 			dirtyIndicator = "";
 		}
-		dojo.byId("status").innerHTML = dirtyIndicator + status;
+		document.getElementById("status").innerHTML = dirtyIndicator + status;
 	});
 	
 	editor.installTextView();
 	// if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
 	var contentName = "sample.js";  // for example, a file name, something the user recognizes as the content.
 	var initialContent = "window.alert('this is some javascript code');  // try pasting in some real code";
-	editor.onInputChange(contentName, null, initialContent);
-	syntaxHighlighter.highlight(contentName, editor.getTextView());
+	editor.setInput(contentName, null, initialContent);
+	syntaxHighlighter.highlight(contentName, editor);
+	editor.highlightAnnotations();
 	// end of code to run when content changes.
 	
 	window.onbeforeunload = function() {
@@ -136,4 +140,4 @@ dojo.addOnLoad(function(){
 			 return "There are unsaved changes.";
 		}
 	};
-});
+};

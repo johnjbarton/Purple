@@ -1,4 +1,5 @@
 /*******************************************************************************
+ * @license
  * Copyright (c) 2010, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials are made 
  * available under the terms of the Eclipse Public License v1.0 
@@ -8,13 +9,18 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-/*global assertEquals orion */
+/*global define defineGlobal */
 
-TextModelTestCase = TestCase("TextModelTestCase"); 
+define(["orion/assert", 'orion/textview/textModel', 'orion/textview/annotations'], function(assert, mTextModel) {
 
-TextModelTestCase.prototype = {
-	test_Empty: function () {
-		var content = new orion.textview.TextModel();
+	var tests = {};
+	
+	function assertEquals(msg, expected, actual) {
+		assert.equal(actual, expected, msg);
+	}
+	
+	tests.testEmptyTextModel = function() {
+		var content = new mTextModel.TextModel();
 		assertEquals(":1a:", content.getLineCount(), 1);
 		assertEquals(":1b:", content.getLine(0), "");
 
@@ -22,9 +28,10 @@ TextModelTestCase.prototype = {
 		content.setText("", 0, 4);
 		assertEquals(":2a:", content.getLineCount(), 1);
 		assertEquals(":2b:", content.getLine(0), "");
-	},
-	test_Insert: function () {
-		var content = new orion.textview.TextModel();
+	};
+	
+	tests.testInsertTextModel = function() {
+		var content = new mTextModel.TextModel();
 		var newText;
 		
 		content.setText("This\nis a test\r");
@@ -195,7 +202,8 @@ TextModelTestCase.prototype = {
 		assertEquals(":15c:", ("Line 1"), content.getLine(0));
 		assertEquals(":15d:", ("Line 2 is a very, very, very long line that spans many words"), content.getLine(1));
 		assertEquals(":15e:", ("Line 3"), content.getLine(2));
-	}
-		
-};
+	};
+
+	return tests;		
+});
 
