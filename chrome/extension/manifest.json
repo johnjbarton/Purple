@@ -1,6 +1,7 @@
 {
   "name": "Purple: A Web Page, QueryPoint Debugger",
   "version": "0.1",
+  "minimum_chrome_version": "17",
   "description": "A Web Page Debugger Using QueryPoints in a Parse-Rerun-Break Loop; Powered By Traceur and Orion",
   "background_page" : "background.html",
   "icons": {
