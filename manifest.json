@@ -3,16 +3,16 @@
   "version": "0.1",
   "minimum_chrome_version": "17",
   "description": "A Web Page Debugger Using QueryPoints in a Parse-Rerun-Break Loop; Powered By Traceur and Orion",
-  "background_page" : "background.html",
+  "background_page" : "chrome/extension/background.html",
   "icons": {
-     "16": "Purple16x16.png", 
-     "128": "Purple128x128.png" 
+     "16": "chrome/extension/Purple16x16.png", 
+     "128": "chrome/extension/Purple128x128.png" 
   },
   "page_action": {
-    "default_icon": "orion16.png",
+    "default_icon": "chrome/extension/orion16.png",
     "default_title": "Edit in Orion"
    },
-   "devtools_page": "devtools.html",
+   "devtools_page": "chrome/extension/devtools.html",
   "permissions" :
     [
       "experimental",
@@ -21,11 +21,11 @@
       "contextMenus",
       "webNavigation"
     ],
-   "options_page": "options.html",
+   "options_page": "chrome/extension/options.html",
    "content_scripts": [
      {
        "matches": ["http://*/mixloginstatic/LoginWindow.html*"],
-       "js": ["superLogin.js"]
+       "js": ["chrome/extension/superLogin.js"]
      }
    ]
 }
