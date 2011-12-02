@@ -112,7 +112,8 @@ function getPurpleURL () {
 
   var purpleURL = window.localStorage.getItem('messageClientURL');
   if(!purpleURL) {
-    purpleURL = "http://localhost:8080/file/f/purple.html";
+    // Use the one in the extn
+    purpleURL = "../../purple.html";
   }
   return purpleURL;
 }
