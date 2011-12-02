@@ -40,10 +40,10 @@ Dev Install (sry this is a bit painful now)
 2. clone this reprository 
 3. Apply these instructions: 
   http://wiki.eclipse.org/Orion/How_Tos/Developing_Chrome_extensions_in_Orion
-to purple/chrome/extension directory, but after step 2, unzip the files.
-4. On the chrome://extensions page, under the Purple extension, select 'options'.
-5. Input the URL to Purple/purple.html in your clone. On orionhub this will be something like http://orionhub.org/file/XX/purple.html, where XX is a code for your clone.
-6. Save the URL. 
+to purple directory, but after step 2, unzip the files.
+4. (optional) On the chrome://extensions page, under the Purple extension, select 'options'.
+5. (optional) Input the URL to Purple/purple.html in your clone. On orionhub this will be something like http://orionhub.org/file/XX/purple.html, where XX is a code for your clone.
+6. (optional) Save the URL. 
 7. Right click on a page to see purple in the context menu. 
 
 More details on the architecture and roadmap available on the [Wiki pages](https://github.com/johnjbarton/Purple/wiki).
