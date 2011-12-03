@@ -18,29 +18,13 @@ window.onload = function() {
 
         <script type="text/javascript" src="../lib/requirejs/require.js"></script>
         <script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
-		<!-- Web Editor -->
-
-<!--		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/keyBinding.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/annotations.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textModel.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/projectionTextModel.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textView.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/tooltip.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/undoStack.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textStyler.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editorFeatures.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/contentAssist.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/htmlGrammar.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/textMateStyler.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/webContentAssist.js"></script>
-		<script src="orion.client/bundles/org.eclipse.orion.client.editor/web/orion/editor/editor.js"></script>
-	-->
-<!-- End from Orion embeddededitor -->
 
         <script>
         require({
           baseUrl: "..",
+          paths : {
+            orion: 'editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion',
+          }
         }); 
         </script>
         <script type="text/javascript" src="../compiler/traceur/trunk/src/traceur.js"></script>

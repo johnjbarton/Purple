@@ -11,8 +11,8 @@
 /*global eclipse:true orion:true define document window*/
 /*jslint devel:true*/
 
-define(['editor/annotationFactory', 'editor/revisionByOrion', '../lib/q/q', 'lib/part', 'lib/Assembly'], 
-function(       annotationFactory,          RevisionControl,            Q, PurplePart,       Assembly){
+define(['editor/orionAssembly', 'editor/annotationFactory', 'editor/revisionByOrion', '../lib/q/q', 'lib/part', 'lib/Assembly'], 
+function(                orion,         annotationFactory,          RevisionControl,            Q, PurplePart,       Assembly){
 
 // Syntax highlighting is triggered by an editor callback 'lineStyle' event
 var ErrorStyler = (function () {
