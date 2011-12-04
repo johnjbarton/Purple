@@ -3,9 +3,9 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define([], function() {
+define(['../lib/Base', 'editor/orionAssembly'], function(Base, orion) {
 
-  var AnnotationFactory = {
+  var AnnotationFactory = Base.merge({
     createAnnotationRulers: function() {
       var rulerStyle = {'class': 'purple_annotation', style: { backgroundColor: "#ffffff", width: '240px', lineHeight: '17px' }};
       // "Every ruler div has one extra div at the top (firstChild before any lines). 
@@ -64,6 +64,8 @@ define([], function() {
     showValue: function(evaluation) {
 	  this._showAnnotation(evaluation, this.createValueAnnotation);
     }
-  };
+  },
+  orion.editor.AnnotationFactory.prototype);
+  
   return AnnotationFactory;
 });

@@ -93,7 +93,7 @@ var editor = (function(){
     var url = editor.sourceName;
     var src = editor.getContents();
     var saveFinished = RevisionControl.save(url, src);
-    editor.onInputChange(null, null, null, true);
+    editor.setInput(null, null, null, true);
     Q.when(saveFinished, function(saveFinished) {
       console.log(url + ' save results ', saveFinished);
     }, function(error) {
@@ -182,14 +182,12 @@ var editor = (function(){
     if (typeof src !== 'string') {
       src = src.body; // TODO deal with base64
     }
-    // if there is a mechanism to change which file is being viewed, this code would be run each time it changed.
-    editor.onInputChange(name, null, src);
+    editor.setInput(name, null, src);
     if (line) {
       col = col || 1;
       editor.onGotoLine(line, col, end);
     }
 //    syntaxHighlighter.highlight(name, editor.getTextView());
-    // end of code to run when content changes.
   };
     
   // name: a key given to setContent,
