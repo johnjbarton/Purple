@@ -16,7 +16,8 @@ function(                orion,         annotationFactory,          RevisionCont
 
   // Syntax highlighting is triggered by an editor callback 'lineStyle' event
   function ErrorStyler(view) {
-	view.addEventListener("LineStyle", this, this._onLineStyle);
+    this._onLineStyle = this._onLineStyle.bind(this);
+	view.addEventListener("LineStyle", this._onLineStyle);
   }
   ErrorStyler.prototype = {
     _onLineStyle: function(e) {
@@ -221,8 +222,10 @@ function(                orion,         annotationFactory,          RevisionCont
   // Implement PurplePart
   editorFeatureByOrion.initialize = function() {
     var view = editor.getTextView();
-    view.addEventListener("ModelChanged", this, this._onModelChanged, "no data");
-    view.addEventListener("LineStyle", this, this._onLineStyle);
+    this._onModelChanged = this._onModelChanged.bind(this);
+    view.addEventListener("ModelChanged", this._onModelChanged, "no data");
+    this._onLineStyle = this._onLineStyle.bind(this);
+    view.addEventListener("LineStyle", this._onLineStyle);
   };
     
   editorFeatureByOrion.destroy = function() {
