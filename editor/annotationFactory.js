@@ -5,15 +5,17 @@
 
 define(['../lib/Base', 'editor/orionAssembly'], function(Base, orion) {
 
-  var AnnotationFactory = Base.merge({
-    createAnnotationRulers: function() {
+var AnnotationFactory = Base.merge(
+  orion.editor.AnnotationFactory.prototype,
+  {
+    createAnnotationRulers: function(annotationModel) {
       var rulerStyle = {'class': 'purple_annotation', style: { backgroundColor: "#ffffff", width: '240px', lineHeight: '17px' }};
       // "Every ruler div has one extra div at the top (firstChild before any lines). 
       // This div is used to determine the width of the ruler.' Silenio Quarti on orion-dev
       var minusOneAnnotation = {html: "<a>undefined <img> src='/images/problem.gif'></img></a>", style: rulerStyle};
-      this.annotationRuler = new orion.textview.AnnotationRuler("left", rulerStyle, minusOneAnnotation);
+      this.annotationRuler = new orion.textview.AnnotationRuler(annotationModel, "left", rulerStyle);
       var overviewStyle = {style: {backgroundColor: '#FFFFFF'}};
-      this.overviewRuler = new orion.textview.OverviewRuler("right", overviewStyle, this.annotationRuler);
+      this.overviewRuler = new orion.textview.OverviewRuler(annotationModel, "right", overviewStyle);
       return {annotationRuler: this.annotationRuler, overviewRuler: this.overviewRuler};
     },
 
@@ -63,9 +65,14 @@ define(['../lib/Base', 'editor/orionAssembly'], function(Base, orion) {
     
     showValue: function(evaluation) {
 	  this._showAnnotation(evaluation, this.createValueAnnotation);
+    },
+    
+    initialize: function() {
+      // no-op
     }
-  },
-  orion.editor.AnnotationFactory.prototype);
+  }
+);
   
-  return AnnotationFactory;
+  // return an instance which creates Annotations
+  return AnnotationFactory.new();
 });

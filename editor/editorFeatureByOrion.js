@@ -14,8 +14,7 @@
 define(['editor/orionAssembly', 'editor/annotationFactory', 'editor/revisionByOrion', '../lib/q/q', 'lib/part', 'lib/Assembly'], 
 function(                orion,         annotationFactory,          RevisionControl,            Q, PurplePart,       Assembly){
 
-// Syntax highlighting is triggered by an editor callback 'lineStyle' event
-var ErrorStyler = (function () {
+  // Syntax highlighting is triggered by an editor callback 'lineStyle' event
   function ErrorStyler(view) {
 	view.addEventListener("LineStyle", this, this._onLineStyle);
   }
@@ -30,11 +29,7 @@ var ErrorStyler = (function () {
       //styles.push({start: tokenStart, end: scanner.getOffset() + offset, style: style});
     }
   };
-  return ErrorStyler;
-}());
 
-var editor = (function(){
-  
   var editorDomNode = document.getElementById("editor");
   
   // These stylesheets will be inserted into the iframe containing the editor.
@@ -140,8 +135,6 @@ var editor = (function(){
   });
     
   editor.installTextView();
-  return editor;
-}());
 
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
@@ -223,7 +216,6 @@ var editor = (function(){
       }
     });
   };
-
 
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
