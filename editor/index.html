@@ -34,6 +34,8 @@ window.onload = function() {
               console.log("editorCompilerAssembly loaded");
               var thePurple = window.purple;
               editorCompilerAssembly.initialize(thePurple);
+              // see EntryEditor, seems kludgy
+              window.purpleFramePart = editorCompilerAssembly.editor;
             });
         }, false);
 

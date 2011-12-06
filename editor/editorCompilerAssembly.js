@@ -1,7 +1,7 @@
 // Copyright 2011 Google Inc. 
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
-
+/*global define */
 
 define(['lib/part', 'editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur'], 
 function(PurplePart,                      editor,                               compilerByTraceur) {
@@ -11,9 +11,10 @@ function(PurplePart,                      editor,                               
   var editorCompilerAssembly = new PurplePart('editorCompilerAssembly'); 
   
   editorCompilerAssembly.initialize = function (thePurple) {
-      editor.initialize();
-      thePurple.registerPart(compilerByTraceur);
+      this.editor = editor;
+      this.editor.initialize();
 
+      thePurple.registerPart(compilerByTraceur);
       this.compiler = compilerByTraceur;
       this.compiler.initialize();
       this.compiler.connect(editor);
