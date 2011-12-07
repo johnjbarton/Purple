@@ -3,12 +3,12 @@
 // johnjbarton@google.com
 /*global define */
 
-define(['lib/part', 'editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur'], 
-function(PurplePart,                      editor,                               compilerByTraceur) {
+define(['lib/SelfishPart', 'editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur'], 
+function(SelfishPart,                      editor,                               compilerByTraceur) {
 
   'use strict';
   
-  var editorCompilerAssembly = new PurplePart('editorCompilerAssembly'); 
+  var editorCompilerAssembly = SelfishPart.new('editorCompilerAssembly'); 
   
   editorCompilerAssembly.initialize = function (thePurple) {
       this.editor = editor;
