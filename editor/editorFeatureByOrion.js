@@ -161,7 +161,7 @@ function(                orion,         annotationFactory,          RevisionCont
   // Errors reported but not used by the highlighter yet.
   editorFeatureByOrion._unclaimedIndicators = []; 
   
-  editorFeatureByOrion.open = function(source, lineNumber, columnNumber, endNumber) {
+  editorFeatureByOrion.open = function(elt, source, lineNumber, columnNumber, endNumber) {
     editor.sourceName = source.url;
     source.fetchContent(
       this.setContent.bind(this, editor.sourceName, lineNumber, columnNumber, endNumber), 

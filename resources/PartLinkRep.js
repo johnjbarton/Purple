@@ -85,7 +85,7 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
     var lineNumber = rep.getLineNumber(repObject); // the line comes from eg the error message
     var columnNumber = rep.getColumnNumber(repObject); // the line comes from eg the error message
     try {
-      rep.openPartWith(destinationFeature, resource, lineNumber, columnNumber);
+      rep.openPartWith(target, destinationFeature, resource, lineNumber, columnNumber);
     } catch(exc) {
       PartLinkRep.onError(exc);
     }
@@ -93,10 +93,10 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
     event.preventDefault();
   };
     
-  PartLinkRep.openPartWith = function(feature, resource, lineNumber, columnNumber) {
+  PartLinkRep.openPartWith = function(elt, feature, resource, lineNumber, columnNumber) {
     var destinationPart = thePurple.getPartByFeature(feature);      
     if (destinationPart) {    
-      destinationPart.open(resource, lineNumber, columnNumber);
+      destinationPart.open(elt, resource, lineNumber, columnNumber);
     } else {
       PartLinkRep.onError("No part with feature "+feature+" found");
     }
