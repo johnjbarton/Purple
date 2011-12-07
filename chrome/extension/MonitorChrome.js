@@ -4,6 +4,8 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
+/*global console chrome window*/
+
 (function () {
 
 //-----------------------------------------------------------------------------------
@@ -14,7 +16,7 @@ var MonitorChrome = window.MonitorChrome;
 
 MonitorChrome.setPageAPI = function(api) {
     this.pageCommands = api;
-}
+};
 
 MonitorChrome.connect = function(iframeURLOrigin, tabId) {
   function heardProxyClientHello(event) {
@@ -32,7 +34,7 @@ MonitorChrome.connect = function(iframeURLOrigin, tabId) {
       MonitorChrome.Debugger.initialize(MonitorChrome.proxy, tabId);
 
       // We cannot connect to the iframe web app until after Debugger.attach()
-      MonitorChrome.Debugger.promiseAttached(
+      MonitorChrome.Debugger.attachThenCallback(
         function completeConnection(debuggerAttached) {
           console.log("completeConnection");
           // eventually the iframe web app will call for the page load
@@ -85,7 +87,6 @@ ProxyPoster.prototype = {
     try {
       this.onmessage = this.recv.bind(this);
       window.addEventListener('message', this.onmessage, false);
-      // this send will cause purple to enable debugging
       this.send(messageFromClient);
     } catch(exc) {
       console.error(exc);
@@ -155,12 +156,12 @@ Debugger.initialize = function(proxy, tabId){
   this.tabId = tabId; // eg from chrome.windows.create() callback
   this.reportError = function () {
     if(chrome.extension.lastError) {
-    console.error("MonitorChrome.Debugger ERROR", chrome.extension.lastError);
+      console.error("MonitorChrome.Debugger ERROR", chrome.extension.lastError);
     } // else not an error
   };
 };
 
-Debugger.promiseAttached = function(callback) {
+Debugger.attachThenCallback = function(callback) {
   var onEvent = Debugger.onEvent.bind(Debugger);
   chrome.experimental.debugger.onEvent.addListener(onEvent);
 
@@ -174,23 +175,26 @@ Debugger.promiseAttached = function(callback) {
   });
 };
 
+// request detach
 Debugger.disconnect = function() {
-    chrome.experimental.debugger.detach({tabId: this.tabId}, this.reportError);
+  chrome.experimental.debugger.detach({tabId: this.tabId}, this.reportError);
   console.log("MonitorChrome: Debugger.disconnect from tab "+this.tabId);
 };
 
 Debugger.onEvent = function(debuggee, method, params) {
-    // too many events      console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+debuggee.tabId+" vs this.tabId:"+this.tabId, params);
+  // causes lots of logging      console.log("MonitorChrome: Debugger.onEvent "+method+" in tab "+debuggee.tabId+" vs this.tabId:"+this.tabId, params);
   if (debuggee.tabId === this.tabId) {
     this.proxy.send({source: "debugger", name: method, params: params}); 
   }
 };
 
+
+// The browser backend announced detach
 Debugger.onDetach = function(tabId) {
   this.proxy.send({source: "debugger", name: "detach"}); 
 };
 
-// callback for sendRequest, from Chrome to Monitor
+// callback for sendRequest, from Chrome devtools to Monitor
 Debugger.recv = function(request, result) {
   // Forward to iframe web app
   if (! chrome.extension.lastError) {
@@ -200,7 +204,7 @@ Debugger.recv = function(request, result) {
     console.log("Debugger.recv "+request.p_id+": "+ chrome.extension.lastError.message , {result: result, request: request});
     this.proxy.send({source: "debugger", name: "response", error: chrome.extension.lastError, request: request});
   }
-}
+};
 
 // From Monitor to Chrome
 Debugger.send = function(data) {
