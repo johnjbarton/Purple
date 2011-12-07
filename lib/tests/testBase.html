@@ -1,0 +1,66 @@
+<html>
+<head>
+<script src="../requirejs/require.js"></script>
+
+</head>
+<body>
+<h1>Base tests</h1>
+<dl>
+<dt>Instance from becomeSelfish(ctor)</dt>
+<dd>
+<pre id='becomeSelfishCtor'>
+</pre>
+</dd>
+<dt>Instance from becomeSelfish(obj)</dt>
+<dd>
+<pre id='becomeSelfishObj'>
+</pre>
+</dd>
+</dl>
+<body>
+<script>
+
+require(['../Base.js'], function(Base) {
+
+function ACtor(a, b) {
+  this.a = a;
+  this.b = a+b;
+}
+ACtor.prototype = {
+  aFunctionInACtor: function() {
+    return this.b;
+  }
+}
+
+var anObj = new ACtor(1,2);
+
+anObj.c = 3;
+
+anObj.aFunctionInAnObj = function behave() {
+  return this.c + this.b;
+}
+
+function report() {
+  var becomeSelfishCtor = document.getElementById('becomeSelfishCtor');
+  var ASelfishCtor = Base.becomeSelfish(ACtor);
+  var aInstanceFromASelfishCtor = ASelfishCtor.new(10,20);
+  
+  console.assert(aInstanceFromASelfishCtor.a === 10, "becomeSelfish from ctor fails");
+  console.assert(aInstanceFromASelfishCtor.b === 30, "becomeSelfish from ctor fails");
+  console.assert(aInstanceFromASelfishCtor.hasOwnProperty('a'), "becomeSelfish from ctor fails");
+
+
+  var becomeSelfishObj = document.getElementById('becomeSelfishObj');
+  var ASelfishObj = Base.becomeSelfish(anObj);
+  var anInstanceFromASelfishObj = ASelfishObj.new(11,21);
+
+  console.assert(anInstanceFromASelfishObj.a === 11, "becomeSelfish from obj fails");
+  console.assert(anInstanceFromASelfishObj.b === 32, "becomeSelfish from obj fails");
+  console.assert(anInstanceFromASelfishObj.hasOwnProperty('a'), "becomeSelfish from obj fails");
+}
+
+  report();
+
+});
+</script>
+</html>
