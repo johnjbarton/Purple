@@ -4,7 +4,17 @@
 /*global chrome document window console*/
 
 /*
-  Sends string messages from extension background process to application window
+  Sends string messages from extension background process to application window.
+  
+  Load this content script in the app window using
+  http://code.google.com/chrome/extensions/dev/content_scripts.html
+
+  In the matching iframe/window listen for EXTN_EVENT_NAME and then
+  grab the content of document.body['data-crx']. To call extension, set 
+  the attrbitute and raise event APP_EVENT_NAME.
+  
+  See appEnd.js for example code.
+  
   From extension to content-script
   http://code.google.com/chrome/extensions/messaging.html#connect
   Frome content-script to app
@@ -14,6 +24,7 @@
 var contentScriptProxy = {
     
   VERSION: '1',
+  PROXY_NAME: 'crx2AppProxy',
   EXTN_EVENT_NAME: 'crxDataReady',   // The App listens for this event type
   DATA_PREFIX: 'data-crx',           // The App gets/sets this attribute 
   APP_EVENT_NAME: 'crxAppDataReady', // The App raises this event type
@@ -27,7 +38,7 @@ var contentScriptProxy = {
   // Announce to the extn that we are running after we were injected,
   // ask the extn to give us a port name unique to this contentScript
   attach: function() {
-    var request = {name:"contentScriptProxy", version: this.VERSION};
+    var request = {name:this.PROXY_NAME, version: this.VERSION};
     chrome.extension.sendRequest(request, this.handleAttachResponse);
   },
   
@@ -51,7 +62,7 @@ var contentScriptProxy = {
   //
   handleAttachResponse: function(response) {
     if (!response.name) {
-      console.error("contentScriptProxy the extension must send .name in response", response);
+      console.error("crx2AppProxy the extension must send .name in response", response);
     }
     
     this._initialize(response.name);
