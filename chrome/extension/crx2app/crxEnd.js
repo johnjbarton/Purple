@@ -22,12 +22,13 @@ function makeCxrEnd(config, chrome) {
 var crxEnd = {
 
   // Entry point, sets up the communication with the content-script
-  // @param chromeAdapters dictionary of target-names to adapters
+  // @param ChromeAdapterFactories dictionary of target-names to adapters
   //         eg 'chrome.debugger': DebuggerAdapter
   // @param WindowsAdapter: ctor for windowsAdapter represention
   
-  attach: function(chromeAdapters) {
-    this.chromeAdapters = chromeAdapters;
+  attach: function(adapterFactory) {
+    this.adapterFactory = adapterFactory;
+    this.windowsAdaptersByName = {};
     // prepare for introduction call from content-script
     chrome.extension.onRequest.addListener(this.onRequest);
   },
@@ -38,7 +39,13 @@ var crxEnd = {
       if (this.windowsAdaptersByName[name].origin === origin) {
         windowsAdapter = this.windowsAdaptersByName[name];
       }
-    });
+    }, this);
+    
+    if (!windowsAdapter) {
+      this.chromeAdapters = this.adapterFactory(origin);
+      windowsAdapter = this.chromeAdapters['chrome.windows'];
+      this.windowsAdaptersByName[windowsAdapter.name] = windowsAdapter;
+    }
     return windowsAdapter;
   },
   
@@ -46,12 +53,9 @@ var crxEnd = {
   onRequest: function(request, sender, sendResponse) {
     // Do I know you?
     if (sender.tab && request.name === config.PROXY_NAME) {
-      this.windowsAdaptersByName = this.windowsAdaptersByName || {};
+      
       var origin = this.getOrigin(sender.tab.url);
       var windowsAdapter = this.getWindowsAdaptersByOrigin(origin);
-      if (!windowsAdapter) {
-        windowsAdapter = new config.WindowsAdapter(origin);
-      }
       
       // prepare for connection
       chrome.extension.onConnect.addListener(this.onConnect);
@@ -72,20 +76,30 @@ var crxEnd = {
       // prepare for message traffic
       port.onMessage.addListener(this.onMessage.bind(this, windowsAdapter));
     } else {
-      windowsAdapter.postError("crx2app/crxEnd: no windowsAdapter for port.name: "+port.name);
+      console.error("crx2app/crxEnd: no windowsAdapter for port.name: "+port.name);
     }
   },
   
   // From App via contentScriptProxy
   onMessage: function(windowsAdapter, msg) {
     console.log("crx2app/crxEnd: onMessage ", msg);
-    var target = this.chromeAdapters[msg.target];
+    var jsonObj = JSON.parse(msg);
+    var target = this.chromeAdapters[jsonObj.target];
     if (target) {
-      // send on to chrome
-      target.onRequest(windowsAdapter, msg.request);
+      if ( target.api.indexOf(jsonObj.method) > -1 ) {
+        var method = target[jsonObj.method];
+        if (jsonObj.params instanceof Array) {
+          // send on to chrome
+          method.apply(target, jsonObj.params);
+        } else {
+          windowsAdapter.postError("params \'"+jsonObj.params+"\' is not an array");
+        }
+      } else {
+        windowsAdapter.postError("method \'"+jsonObj.method+"\' is not one of "+target.api.join(',') );
+      }
     } else {
       // reply with error
-      windowsAdapter.postError("target \'"+msg.target+"\' adapter has not been attached ");
+      windowsAdapter.postError("target \'"+jsonObj.target+"\' does not exist");
     }
   },
   
@@ -105,7 +119,7 @@ var crxEnd = {
   }
 };
 
-crxEnd._bindEventListeners();
+crxEnd._bindListeners();
 
 return crxEnd;
 }

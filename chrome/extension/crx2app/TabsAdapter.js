@@ -8,12 +8,14 @@ var makeTabsAdapter = function(chrome, PostSource) {
 function TabsAdapter(windowsAdapter) {
   this.windowsAdapter = windowsAdapter; // the adapter for our chrome.window
   this.port = windowsAdapter.port;
-  this.bindListeners();
+  this._bindListeners();
   chrome.tabs.onRemoved.addListener(this.onRemoved);
+  // chrome.tabs functions available to client WebApps
+  this.api = ['create', 'update', 'remove'];
 }
 
-// chrome.tabs functions available to client WebApps
-TabsAdapter.api = ['create', 'update', 'remove'];
+TabsAdapter.path = 'chrome.tabs';
+
 
 TabsAdapter.prototype = {
 
@@ -76,13 +78,12 @@ TabsAdapter.prototype = {
   },
   
   _bindListeners: function() {
-    this.onDebuggeeWindow.bind(this);
-    this.onDebuggeeTab.bind(this);
-    this.onDebuggerAttach.bind(this);
+    this.onCreated.bind(this);
+    this.onRemoved.bind(this);
   }
 };
 
-  var postSource = new PostSource('chrome.tabs');
+  var postSource = new PostSource(TabsAdapter.path);
   Object.keys(postSource).forEach(function(key) {
     TabsAdapter.prototype[key] = postSource[key];   
   });

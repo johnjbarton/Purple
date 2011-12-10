@@ -12,19 +12,21 @@
 
 function makeDebuggerAdapter(chrome, PostSource) {
 
-function DebuggerAdapter(windowsAdapter, connector) {
+function DebuggerAdapter(windowsAdapter) {
   this.windowsAdapter = windowsAdapter;
   this.port = windowsAdapter.port;
-  this.connector = connector;
-  this._bindEventListeners();
+  this._bindListeners();
+  this.api = ['attach', 'sendCommand', 'detach'];
 }
 
-var dTemp = chrome.experiment.debugger;
+var dTemp = chrome.experimental.debugger;
 var chrome = {experimental: {'debugger':dTemp}}; 
+
+DebuggerAdapter.path = 'chrome.debugger';
+
 
 DebuggerAdapter.prototype = {
 
-  api: ['attach', 'sendCommand', 'detach'],
   //-------------------------------------------------------------------------
   
   attach: function(debuggee, version, callback) {
@@ -96,12 +98,12 @@ DebuggerAdapter.prototype = {
   // Call exactly once
   _bindListeners: function() {
     this.onEvent = this.onEvent.bind(this);
-    this.onAttach = this.onAttach.bind(this);
-    this.onRequest = this.onRequest.bind(this);
+    // onResponse bound for each call
+    this.onDetach = this.onDetach.bind(this);
   }
 };
 
-  var postSource = new PostSource('chrome.debugger');
+  var postSource = new PostSource(DebuggerAdapter.path);
   Object.keys(postSource).forEach(function(key) {
     DebuggerAdapter.prototype[key] = postSource[key];   
   });

@@ -31,17 +31,26 @@ function getChromeExtensionPipe(onMessage){
       this.event.initEvent(this.APP_EVENT_NAME, true, true);
     
       // close over the object
-      return function(msg) {
-        appEnd.setAttribute(appEnd.DATA_PREFIX, msg);
-        appEnd.dispatchEvent(appEnd.event);
+      return function(jsonObj) {
+        var msg = JSON.stringify(jsonObj);
+        // The element and event are constant, only the msg changes
+        appEnd.elt.setAttribute(appEnd.DATA_PREFIX, msg);
+        appEnd.elt.dispatchEvent(appEnd.event);
+        console.log("appEnd dispatch ", appEnd.event);
       };
     },
     
     fromChromeExtension: function(event) {
       var data = this.elt.getAttribute(this.DATA_PREFIX);
       onMessage(data);
+    },
+    
+    _bindListeners: function() {
+      this.fromChromeExtension = this.fromChromeExtension.bind(this);
     }
   };
   
-  return attach();
+  appEnd._bindListeners();
+  
+  return appEnd;
 }

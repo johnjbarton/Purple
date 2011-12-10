@@ -31,6 +31,7 @@ var contentScriptProxy = {
   
   // Once the App page has loaded we can attach
   onLoad: function() {
+    console.log("contentScriptProxy.js onload");
     window.removeEventListener('load', this.onLoad, false);
     this.attach();
   },
@@ -67,14 +68,14 @@ var contentScriptProxy = {
     
     this._initialize(response.name);
     
-    // prepare for app messages to extn
-    this.elt.addEventListener(this.APP_EVENT_NAME, this.fromDOMToExtn); 
+    // prepare for app messages to content-script for extn
+    this.elt.addEventListener(this.APP_EVENT_NAME, this.fromDOMToExtn, false); 
     
-    // prepare for extension messages to app
-    chrome.extension.onMessage.addListener(this.fromExtnToDOM);
-      
     // open a long-lived connection using the assigned name
     this.port = chrome.extension.connect({name: this.name});
+    
+    // prepare for extension messages to content-script for app
+    this.port.onMessage.addListener(this.fromExtnToDOM);
   },
   
   // Forward the Extn message to the App over the DOM
@@ -85,11 +86,14 @@ var contentScriptProxy = {
   
   // Forward the App message to Extn from the DOM
   fromDOMToExtn: function(event) {
+          console.log("contentScriptProxy event recv ", event);
     var data = this.elt.getAttribute(this.dataName);
+    // data is a JSON string 
     this.port.postMessage(data);
   }
 };
 
 contentScriptProxy._bindHandlers();
 window.addEventListener('load', contentScriptProxy.onLoad, false);
-
+contentScriptProxy.onLoad();
+console.log("contentScriptProxy.js ends");

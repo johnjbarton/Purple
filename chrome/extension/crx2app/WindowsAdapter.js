@@ -23,12 +23,14 @@ function WindowsAdapter(origin) {
   this.name = WindowsAdapter.path + '.' + WindowsAdapter.instanceCounter;
   this.chromeWindowIds = [];  // only these ids can be used by client
   this.chromeTabIds = [];
-  this.bindListeners();
+  this._bindListeners();
+  // chrome.window functions available to client WebApps
+  this.api = ['create', 'getAll'];
 }
 
+WindowsAdapter.path = 'chrome.windows';
+;
 WindowsAdapter.instanceCounter = 0;
-// chrome.window functions available to client WebApps
-WindowsAdapter.api = ['create', 'getAll'];
 
 WindowsAdapter.prototype = {
   
@@ -52,6 +54,9 @@ WindowsAdapter.prototype = {
   // callback from chrome.windows.create
   // @param http://code.google.com/chrome/extensions/dev/windows.html#type-Window
   onCreated: function(win) {
+    if (!win) {
+      return; // incognito!
+    }
     console.assert( !win.tabs || (win.tabs.length === 1), "A newly created chrome.Window should have at most one tab");
     this.chromeWindowIds.push(win.id); // index in this array is our new id
     if (!this.listening) {
@@ -94,18 +99,18 @@ WindowsAdapter.prototype = {
       height: createData.height,
       focused: createData.focused,
       type: createData.type,
-      incognito: true   // Forced 
+      incognito: false // true   // Forced 
     };
   },
 
   _bindListeners: function() {
     this.onCreated.bind(this);
-    this.onRemove.bind(this);
+    this.onRemoved.bind(this);
     this.onGetAll.bind(this);
   }
 };
 
-  var postSource = new PostSource('chrome.windows');
+  var postSource = new PostSource(WindowsAdapter.path);
   Object.keys(postSource).forEach(function(key) {
     WindowsAdapter.prototype[key] = postSource[key];   
   });
