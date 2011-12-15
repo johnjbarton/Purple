@@ -1,10 +1,12 @@
-// See Purple/licence.txt for Google BSD license
+// Google BSD license http://code.google.com/google_bsd_license.html
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/Feature', 'lib/features'], function (Feature, Features) {
+/*global define*/
+
+define([], function () {
 
   // These methods are defined ultimately in InspectorBackendStub.js on chrome source code
-  var remote = Feature.new({
+  var remote = {
     name: "remote",
     api: { // These will be mapped to functions returning promises
       Console: {
@@ -130,9 +132,7 @@ define(['lib/Feature', 'lib/features'], function (Feature, Features) {
         url: 'string'
       }
     }
-  });
-  
-  Features.registerPart(remote);
+  };
   
   return remote;
 });

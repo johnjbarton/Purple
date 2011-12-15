@@ -1,8 +1,10 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['log/LogBase', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/ConsoleEntry'], 
-  function   (LogBase,          RemoteByWebInspector,       SparseArray,       ConsoleEntry) {
+/*global define*/
+
+define(['log/LogBase', 'browser/remoteByWebInspectorPart', 'log/SparseArray', 'log/ConsoleEntry'], 
+  function   (LogBase,          RemoteByWebInspectorPart,       SparseArray,       ConsoleEntry) {
   
   var consoleEventHandler = LogBase.new('consoleLog');
 
@@ -31,7 +33,7 @@ define(['log/LogBase', 'browser/remoteByWebInspector', 'log/SparseArray', 'log/C
   // Return a promise that the Console is enabled
   consoleEventHandler.connect = function(channel, viewport) {
       this.store = SparseArray.new('ConsoleEvents');
-      this.remote = RemoteByWebInspector.new('consoleRemote');
+      this.remote = RemoteByWebInspectorPart.new('consoleRemote');
       
       this.remote.connect(channel, this);
       LogBase.connect.apply(this, [this.remote.Console, viewport]);   // this causes the event store to be pulled into the viewport   

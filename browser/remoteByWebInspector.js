@@ -1,10 +1,9 @@
-// Atop Web Inspector: API to Web Inspector back end functions
-//  part of the Purple project
-// Copyright 2011 Google Inc. 
-// see Purple/license.txt for BSD license
-// johnjbarton@google.com
+// Google BSD license http://code.google.com/google_bsd_license.html
+// Copyright 2011 Google Inc. johnjbarton@google.com
 
-define(['browser/remote', 'lib/Base', 'lib/q/q', 'lib/features', 'lib/part'], function (remote, Base, Q, Features, PurplePart) {
+/*globals define console*/
+
+define(['browser/remote', 'lib/q/q'], function (remote, Q) {
   
   // A left paren ( followed by any not-right paren ) followed by right paren
   var reParamList = /\(([^\)]*)\)/; 
@@ -55,21 +54,6 @@ define(['browser/remote', 'lib/Base', 'lib/q/q', 'lib/features', 'lib/part'], fu
     };
   }
   
-  // Walk the remote API and implement each function to send over channel.
-  function buildImplementation(remoteByWebInspector, channel) {
-    var api = remote.getAPI();
-    var domains = Object.keys(api);
-    domains.forEach(function buildSend(domain) {
-      remoteByWebInspector[domain] = {};
-      var methods = Object.keys(api[domain]);
-      methods.forEach(function buildMethod(method) {
-        var paramNames = getParamsFromAPI(api[domain][method]);
-        // each RHS is a function returning a promise
-        remoteByWebInspector[domain][method] = makeSendRemoteCommand(channel, domain, method, paramNames);
-      });
-    });
-  }
-
   function marshallForHandler(indexer, handler) {
     return function (objFromJSON, p_id) {
       var args = [];
@@ -82,34 +66,9 @@ define(['browser/remote', 'lib/Base', 'lib/q/q', 'lib/features', 'lib/part'], fu
   }
   
   //---------------------------------------------------------------------------------------------
-  // Implement PurplePart
-  var RemoteByWebInspector = Base.extend(PurplePart.prototype);
-  
-  RemoteByWebInspector.connect = function(channel, indexer) {
-      
-    this._addHandlers(indexer); 
-    buildImplementation(this, channel);  // route inputs to handlers
-    
-    this.onEvent = this.recvEvent.bind(this);
-    channel.addListener(this.onEvent);     // input for events
-    
-    
-    this.onResponse = this.recvResponse.bind(this);
-    channel.addListener(this.onResponse);  // input for sendCommand responses
-  };
-  
-  RemoteByWebInspector.disconnect = function(log, channel) {
-    if (this.onEvent) {
-      channel.removeListener(this.onEvent);
-      delete this.onEvent;
-      channel.removeListener(this.onReponse);
-      delete this.onResponse;
-    } // else not connected
-  };
-  
-  //---------------------------------------------------------------------------------------------
-  // As Channel Part
-  // 
+  var RemoteByWebInspector = {};
+
+
   RemoteByWebInspector.recvEvent = function(p_id, data) {
     // {source: "debugger", name: "response", result: result, request: request}
     if (data && data.source && data.name) {
@@ -213,7 +172,21 @@ define(['browser/remote', 'lib/Base', 'lib/q/q', 'lib/features', 'lib/part'], fu
     });
   };
   
-  
+    // Walk the remote API and implement each function to send over channel.
+  RemoteByWebInspector.buildImplementation = function(remoteByWebInspector, channel) {
+    var api = remote.getAPI();
+    var domains = Object.keys(api);
+    domains.forEach(function buildSend(domain) {
+      remoteByWebInspector[domain] = {};
+      var methods = Object.keys(api[domain]);
+      methods.forEach(function buildMethod(method) {
+        var paramNames = getParamsFromAPI(api[domain][method]);
+        // each RHS is a function returning a promise
+        remoteByWebInspector[domain][method] = makeSendRemoteCommand(channel, domain, method, paramNames);
+      });
+    });
+  };
+
   return RemoteByWebInspector;
 
 });
