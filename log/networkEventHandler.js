@@ -4,9 +4,9 @@
 define(['log/LogBase', 'browser/remoteByWebInspectorPart', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q', 'lib/part'], 
 function (   LogBase,           remoteByWebInspectorPart,            Resources,             Resource,      SparseArray,         Q, PurplePart) {
   
-  var networkEventHandler = LogBase.new('networkLog');
+  var LoggingNetworkEventHandler = LogBase.new('networkLog');
   
-  networkEventHandler.getOrCreateResource = function(url) {
+  LoggingNetworkEventHandler.getOrCreateResource = function(url) {
     var resource = Resources.get(url);
     if (!resource) {
       resource = Resource.new(url);
@@ -15,21 +15,21 @@ function (   LogBase,           remoteByWebInspectorPart,            Resources, 
     return resource;
   };
   
-  networkEventHandler.requests = {};
+  LoggingNetworkEventHandler.requests = {};
 
   // close over the handler here to narrow the interface to Resource
   // |this| will be bound to a Resource
   
   function fetchContent(fncOfContent, fncOfError) {
     if (this.requestId) {
-      var responseBody = networkEventHandler.remote.Network.getResponseBody(this.requestId);
+      var responseBody = LoggingNetworkEventHandler.remote.Network.getResponseBody(this.requestId);
       Q.when(responseBody, fncOfContent, fncOfError);
     } else {
       fncOfError("Resource not loaded: "+this.url);
     }
   }
 
-  networkEventHandler.setRequestById = function(requestId, resource) {
+  LoggingNetworkEventHandler.setRequestById = function(requestId, resource) {
     if (this.requests.hasOwnProperty(requestId)) {
       throw new Error("duplicate requestId, "+requestId+" something is wrong ");
     }
@@ -38,7 +38,7 @@ function (   LogBase,           remoteByWebInspectorPart,            Resources, 
     resource.hasSource = true;
   };
   
-  networkEventHandler.getRequestById = function(requestId) {
+  LoggingNetworkEventHandler.getRequestById = function(requestId) {
     if (this.requests.hasOwnProperty(requestId)) {
       return this.requests[requestId];
     } else {
@@ -49,42 +49,42 @@ function (   LogBase,           remoteByWebInspectorPart,            Resources, 
 
   //---------------------------------------------------------------------------------------------
   // Implement Remote.events
-  networkEventHandler.responseHandlers = {
+  LoggingNetworkEventHandler.responseHandlers = {
     Network: {
         dataReceived: function(requestId, timestamp, dataLength, encodedDataLength){
-          var resource = networkEventHandler.getRequestById(requestId);
+          var resource = LoggingNetworkEventHandler.getRequestById(requestId);
           resource.progress = resource.progress || [];
           resource.progress.push({timestamp: timestamp, dataLength: dataLength, encodedDataLength: encodedDataLength});
         },
         loadingFailed: function(requestId, timestamp, errorText, canceled){
-          var resource = networkEventHandler.getRequestById(requestId);
+          var resource = LoggingNetworkEventHandler.getRequestById(requestId);
           resource.timestamps.loadingFailed = timestamp;
           resource.errorText = errorText;
           resource.canceled = canceled;
         },
         loadingFinished: function(requestId, timestamp){
-          var resource = networkEventHandler.getRequestById(requestId);
+          var resource = LoggingNetworkEventHandler.getRequestById(requestId);
           resource.timestamps.loadingFailed = timestamp;
         },
         requestServedFromCache: function(requestId){
-          var resource = networkEventHandler.getRequestById(requestId);
+          var resource = LoggingNetworkEventHandler.getRequestById(requestId);
           resource.servedFromCache = true;
         },
         requestServedFromMemoryCache: function(requestId, loaderId, documentURL, timestamp, initiator, cachedResource, p_id){
           var url = cachedResource.url;
-          var resource = networkEventHandler.getOrCreateResource(url);
+          var resource = LoggingNetworkEventHandler.getOrCreateResource(url);
           resource.documentURL = documentURL;
           resource.requestId = requestId;
           resource.loaderId = loaderId;
           resource.timestamps = {"fromMemoryCache": timestamp};
           resource.initiator = initiator;
           resource.resource = cachedResource;
-          networkEventHandler.setRequestById(requestId, resource);
-          networkEventHandler.store.set(p_id, resource);
+          LoggingNetworkEventHandler.setRequestById(requestId, resource);
+          LoggingNetworkEventHandler.store.set(p_id, resource);
         },
         requestWillBeSent: function(requestId, loaderId, documentURL, request, timestamp, initiator, stackTrace, redirectResponse, p_id){
           var url = request.url;
-          var resource = networkEventHandler.getOrCreateResource(url);
+          var resource = LoggingNetworkEventHandler.getOrCreateResource(url);
           resource.documentURL = documentURL;
           resource.requestId = requestId;
           resource.loaderId = loaderId;
@@ -93,11 +93,11 @@ function (   LogBase,           remoteByWebInspectorPart,            Resources, 
           resource.initiator = initiator;
           resource.stackTrace = stackTrace;
           resource.redirectResponse = redirectResponse;
-          networkEventHandler.setRequestById(requestId, resource);
-          networkEventHandler.store.set(p_id, resource);
+          LoggingNetworkEventHandler.setRequestById(requestId, resource);
+          LoggingNetworkEventHandler.store.set(p_id, resource);
         },
         responseRecieved: function(requestId, timestamp, type, response){
-          var resource = networkEventHandler.getRequestById(requestId);
+          var resource = LoggingNetworkEventHandler.getRequestById(requestId);
           resource.timestamps.responseRecieved = timestamp;
           resource.type = type;
           resource.response = response;
@@ -105,22 +105,22 @@ function (   LogBase,           remoteByWebInspectorPart,            Resources, 
       },
       WebNavigation: {
         onBeforeNavigate: function(details, p_id){
-          networkEventHandler.store.set(p_id, details);
+          LoggingNetworkEventHandler.store.set(p_id, details);
         },
         onBeforeRetarget: function(details, p_id){
-          networkEventHandler.store.set(p_id, details);
+          LoggingNetworkEventHandler.store.set(p_id, details);
         },
         onCommitted: function(details, p_id){
-          networkEventHandler.store.set(p_id, details);
+          LoggingNetworkEventHandler.store.set(p_id, details);
         },
         onCompleted: function(details, p_id){
-          networkEventHandler.store.set(p_id, details);
+          LoggingNetworkEventHandler.store.set(p_id, details);
         },
         onDOMContentLoaded: function(details, p_id){
-          networkEventHandler.store.set(p_id, details);
+          LoggingNetworkEventHandler.store.set(p_id, details);
         },
         onErrorOccurred: function(details, p_id){
-          networkEventHandler.store.set(p_id, details);
+          LoggingNetworkEventHandler.store.set(p_id, details);
         }
       }
   };
@@ -128,7 +128,7 @@ function (   LogBase,           remoteByWebInspectorPart,            Resources, 
    //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  networkEventHandler.connect = function(channel, viewport) {
+  LoggingNetworkEventHandler.connect = function(channel, viewport) {
       this.store = SparseArray.new('NetworkEvents');
       this.remote = remoteByWebInspectorPart.new('networkRemote');
       this.remote.connect(channel, this);
@@ -136,11 +136,13 @@ function (   LogBase,           remoteByWebInspectorPart,            Resources, 
 	  this.remote.Network.enable();
   };
   
-  networkEventHandler.disconnect = function(channel) {
+  LoggingNetworkEventHandler.disconnect = function(channel) {
       this.remote.Network.disable();
       this.remote.disconnect(channel);
       delete this.store;
   };
+
+  var networkEventHandler = LoggingNetworkEventHandler.new('NetworkEvents');
 
   return networkEventHandler;
 });

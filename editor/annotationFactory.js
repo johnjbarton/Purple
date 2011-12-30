@@ -5,9 +5,9 @@
 
 /*global define */
 
-define(['../lib/Base', 'editor/orionAssembly'], function(Base, orion) {
+define(['../lib/MetaObject', 'editor/orionAssembly'], function(MetaObject, orion) {
 
-var AnnotationFactory = Base.merge(
+var AnnotationFactory = MetaObject.mergeMethods(
   orion.editor.AnnotationFactory.prototype,
   {
     createAnnotationRulers: function(annotationModel) {
@@ -54,10 +54,11 @@ var AnnotationFactory = Base.merge(
     
     createValueAnnotation: function(evaluation) {
       var value = evaluation.value;
+      var tooltip; 
       if (typeof value === 'object') {
-	      var tooltip = Object.keys(value).join(', ');
+	      tooltip = Object.keys(value).join(', ');
       } else {
-          var tooltip = typeof value;
+          tooltip = typeof value;
       }
 	      
       var annotation = {

@@ -3,6 +3,8 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
+/*globals window console document chrome Q*/
+
 (function() {
   "use strict;"
 
@@ -43,9 +45,8 @@ function appendPurple(url, onLoadCallBack) {
 
 function getDebuggeeInfo() {
   // Our location is set by background.html, it appends info about our debuggee
-  var myURL = window.location.toString();
   var debuggee = {
-    contextMenuTabId: parseInt(window.location.hash.substr(1)),
+    contextMenuTabId: parseInt(window.location.hash.substr(1), 10),
     dogfood: window.location.search
   };
   console.log(window.location.toString()+' gives debuggeeInfo: ', debuggee);
@@ -100,7 +101,7 @@ function promiseDebuggeeWindow(debuggeeInfo) {
     deferred.resolve(win);
   });
   return deferred.promise;
-};
+}
 
 function getPurpleURL () {
   var debuggeeInfo = getDebuggeeInfo();

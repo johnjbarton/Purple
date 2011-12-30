@@ -4,17 +4,25 @@
 <link rel="stylesheet" type="text/css" href="log.css" />
 <script>
 
+/*globals window console require*/
+
 window.purple = window.parent.purple;
 console.log("iframe start "+window.location.toString());
 window.onload = function() {
   console.log("iframe load "+window.location.toString());
-}
+};
 </script>
 <script type="text/javascript" src="../lib/requirejs/require.js"></script>
-
+<script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
 <script>
 require({
-  baseUrl: "..",
+  paths: {
+   'crx2app': '../lib/crx2app/extension', // baseUrl of .. does not work for some reason
+   'log': '../log',  
+   'lib': '../lib',
+   'resources': '../resources',
+   'browser': '../browser'
+  }
   }); 
 
 require.onError = function(err) {

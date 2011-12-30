@@ -3,11 +3,26 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
+/*globals define console window getChromeExtensionPipe */
 
-define(['../lib/q/q', 'lib/part', 'lib/Assembly'], function(Q, PurplePart, Assembly) {
+// This constant contains a digest of the public key for crx2app
+var iframeDomain ="chrome-extension://bbjpappmojnmallpnfgfkjmjnhhplgog";
+
+define(['../lib/q/q', 'lib/part', 'lib/Assembly', iframeDomain+"/appEnd/proxyChromePipe.js"], 
+function(         Q, PurplePart,       Assembly,                                chromePipe) {
 
   var channel = new PurplePart('channel');
 
+  // this function comes from the non-AMD file proxyChromePipe.js
+  var connection = getChromeExtensionPipe(iframeDomain);
+ 
+  function loadIframe(url, parentSelector) {
+    var iframe = window.document.createElement('iframe');
+    iframe.setAttribute('src', url);
+    var elt = window.document.querySelector(parentSelector);
+    elt.appendChild(iframe);
+    return iframe;
+  }
   /*
    * In:
    * channel.protocolName: string recognized by browser proxy
@@ -19,50 +34,30 @@ define(['../lib/q/q', 'lib/part', 'lib/Assembly'], function(Q, PurplePart, Assem
   function promiseChannel(channel) {
     var deferred = Q.defer();
     
-    function recvPort(event) {
-      console.log("channelByPostMessage.recvPort "+event.origin, event);
-      if (!event.data.indexOf || event.data.indexOf(channel.protocolName) !== 0) {
-        return; // not for us
-      }
-      window.removeEventListener('message', recvPort, false);
+    connection.attach(function onConnectedToChrome() {
+      console.log("channelByPostMessage.attach");
       
       channel.onmessage = channel.recv.bind(channel);
-      channel.source = event.source;
-      channel.origin = event.origin; 
-      window.addEventListener('message', channel.onmessage, false);
-      channel.send = function(message) { 
-        channel.source.postMessage(message, channel.origin); 
-      };
+      connection.addListener(channel.onmessage);
+      channel.send = connection.postMessage; 
+
       channel.features.push('channel');
       // ok we are ready to connect the dependents and let them talk
       deferred.resolve(channel);
-    }  
+    });  
+    // dynamically load the chromeIframe, it will connect and fire the callback
+    // (if we load the iframe statically, the iframe load event will have fired
+    loadIframe(iframeDomain + "/appEnd/chromeIframe.html", "body");
     
-    function requestPort() {
-      if (window.parent !== window) { // we are an iframe
-        // listen for parent window messages
-        window.addEventListener('message', recvPort, false);
-        // tell our parent we are loaded
-        var proxyClientHello = channel.protocolName+' '+channel.version;
-        console.log("send proxyClientHello "+proxyClientHello +" to parent of "+window.location);
-        window.parent.postMessage(proxyClientHello, "*"); 
-        return deferred.promise;
-      } else {
-        console.error("connectToBrowser must be included in an iframe");
-        return deferred.reject("must be a child window");
-      }
-    }
-    
-    return requestPort();
-  };
+    return deferred.promise;
+  }
   
   Assembly.addListenerContainer(channel);
   
-  channel.recv = function(event) {
-    var data = event.data; // MessageEvent comes from postMessage
+  channel.recv = function(data) {
     var p_id = channel.thePurple.p_id++;
     channel.toEachListener([p_id, data]);
-  }
+  };
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   channel.initialize = function(thePurple) {

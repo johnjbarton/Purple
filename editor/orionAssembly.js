@@ -4,7 +4,7 @@
 /*globals define*/
 
 define([
-  "../../lib/Base.js",
+  "../../lib/MetaObject.js",
   "orion/textview/eventTarget",
   "orion/textview/keyBinding",
   "orion/textview/annotations", 
@@ -20,7 +20,7 @@ define([
   "orion/editor/editor",
   "orion/editor/editorFeatures"
 ], function(
-  Base,
+  MetaObject,
   orion_textview_eventTarget,
   orion_textview_keyBinding,
   orion_textview_annotations, 
@@ -37,10 +37,10 @@ define([
   orion_editor_editorFeatures
 ) {
 
-  var orion = Base.extend({
+  var orion = MetaObject.extend({
   });
    
-  orion.textview = orion.merge(
+  orion.textview = orion.mergeMethods(
     orion_textview_eventTarget,
     orion_textview_keyBinding,
     orion_textview_annotations,
@@ -52,7 +52,7 @@ define([
     orion_textview_undoStack
   );
   
-  orion.editor = orion.merge(
+  orion.editor = orion.mergeMethods(
     orion_editor_editorFeatures,
     orion_editor_htmlGrammar,
     orion_editor_contentAssist,

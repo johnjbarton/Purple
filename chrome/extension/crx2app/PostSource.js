@@ -14,7 +14,11 @@ function PostSource(path) {
     },
 
     postMessage: function(msgObj) {
+      try {
         this.port.postMessage(msgObj);
+      } catch (exc) {
+        console.log("crx2app postMessage fail", this.port, msgObj);
+      }
     },  
   
     postError: function(msg) {

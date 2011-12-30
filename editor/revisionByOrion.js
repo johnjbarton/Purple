@@ -1,10 +1,12 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/Base','../lib/q/q'], function(Base, Q) {
+/*global define XMLHttpRequest */
 
-  var XHR = {
-    'new': function(method, url, async) {
+define(['../lib/MetaObject','../lib/q/q'], function(MetaObject, Q) {
+
+  var XHR = MetaObject.extend({
+    initialize: function(method, url, async) {
       var xhr = new XMLHttpRequest();  //[[ProtoLink]]: XMLHttpRequest.prototype
       xhr.promise = XHR.setPromise(xhr);
       xhr.open(method, url, async);
@@ -13,12 +15,13 @@ define(['../lib/Base','../lib/q/q'], function(Base, Q) {
     setPromise: function(xhr) {
       var deferred = Q.defer();
       function resolve(event) {deferred.resolve(event);}
+      function reject(event) {deferred.resolve(event);}
       xhr.addEventListener('error', resolve, false);
-      xhr.addEventListener('abort', resolve, false);
-      xhr.addEventListener('load', resolve, false);
+      xhr.addEventListener('abort', reject, false);
+      xhr.addEventListener('load', reject, false);
       return deferred.promise;
     }
-  };
+  });
 
   var RevisionControl = {
     save: function(url, src) {

@@ -1,7 +1,7 @@
-// Copyright 2011 Google Inc. 
-// see Purple/license.txt for BSD license
-// johnjbarton@google.com
+// Google BSD license http://code.google.com/google_bsd_license.html
+// Copyright 2011 Google Inc. johnjbarton@google.com
 
+/*globals define console */
 
 define(['log/eventLog', 'log/EventLogViewport', 'resources/Resources', 'lib/q/q', 'lib/part', 'log/javaScriptEventHandler', 'log/consoleEventHandler', 'log/networkEventHandler'], 
 function(         log,               viewport,             resources,         Q,  PurplePart,              jsEventHandler,       consoleEventHandler,       networkEventHandler) {
@@ -23,12 +23,12 @@ function(         log,               viewport,             resources,         Q,
   };
   
   eventLogViewAssembly.connect = function(channel) {
-    
     // Attach the output of the JSON pipe from the browser to the input of the message buffer
     log.connect(channel, viewport);
     
     resources.connect(log.recv);
-      // connect the output of the log to the input of the viewport
+    
+    // connect the output of the log to the input of the viewport
     viewport.connect(log);
     var channelPromise = channel.connect();
     var connected = Q.when(channelPromise, function(channel) {

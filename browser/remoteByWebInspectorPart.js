@@ -3,11 +3,11 @@
 
 /*globals define console*/
 
-define(['browser/remoteByWebInspector', 'lib/Base', 'lib/part'], function (remoteByWebInspector, Base, PurplePart) {
+define(['browser/remoteByWebInspector', 'lib/MetaObject', 'lib/part'], function (remoteByWebInspector, MetaObject, PurplePart) {
   
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
-  var remoteByWebInspectorPart = Base.extend(PurplePart.prototype, remoteByWebInspector);
+  var remoteByWebInspectorPart = MetaObject.extend(PurplePart.prototype, remoteByWebInspector);
   
   // JSON object messages from channel are passed to the indexer handlers
   remoteByWebInspectorPart.connect = function(channel, indexer) {

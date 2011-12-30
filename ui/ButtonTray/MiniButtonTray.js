@@ -3,8 +3,8 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['lib/Base', 'lib/domplate/lib/domplate','lib/reps','lib/Rep', 'lib/string', 'ui/ButtonTray/MiniButton'], 
-function(    Base,                    domplate,      reps,      Rep,          Str,                 MiniButton){
+define(['lib/domplate/lib/domplate','lib/reps','lib/Rep', 'lib/string', 'ui/ButtonTray/MiniButton'], 
+function(                 domplate,      reps,      Rep,          Str,                 MiniButton){
 
   with(domplate.tags) {
   

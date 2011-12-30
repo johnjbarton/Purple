@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/Base'], 
-  function (Base) {
+define(['lib/MetaObject'], 
+  function (MetaObject) {
   
   var SparseArray = {};
   
@@ -16,7 +16,7 @@ define(['lib/Base'],
     return this.objectsByP_ID[p_id];
   };
   
-  SparseArray.Iterator = Base.extend({
+  SparseArray.Iterator = MetaObject.extend({
     initialize: function(sparseArray) {
       this.sparseArray = sparseArray;
     },
@@ -40,5 +40,5 @@ define(['lib/Base'],
     this.p_ids = [];
   };
   
-  return Base.extend(SparseArray);
+  return MetaObject.extend(SparseArray);
 });

@@ -3,8 +3,8 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['lib/Base', 'lib/domplate/lib/domplate','lib/reps','lib/Rep', 'lib/string'], 
-function(Base, domplate, reps, Rep, Str){
+define(['lib/MetaObject', 'lib/domplate/lib/domplate','lib/reps','lib/Rep', 'lib/string'], 
+function(MetaObject, domplate, reps, Rep, Str){
 
   with(domplate.tags) {
   

@@ -1,10 +1,12 @@
-// See Purple/license.txt for Google BSD license
-// Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
+// Google BSD license http://code.google.com/google_bsd_license.html
+// Copyright 2011 Google Inc. johnjbarton@google.com
 
-define(['lib/Base', 'lib/part', 'log/SparseArray', 'lib/q/q', 'lib/Assembly'], 
-function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
+/*globals define console */
+
+define(['lib/MetaObject', 'lib/part', 'log/SparseArray', 'lib/q/q', 'lib/Assembly'], 
+function (   MetaObject, PurplePart,       SparseArray,         Q,       Assembly) {
   
-  var LogBase = Base.extend(PurplePart.prototype);
+  var LogBase = MetaObject.extend(PurplePart.prototype);
     
   LogBase.initialize = function(name) {
     PurplePart.apply(this, [name]);
@@ -16,7 +18,6 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
   LogBase.connect = function(hasEnableDisable, outputAssembly) {
     this.hasEnableDisable = hasEnableDisable;
     this.outputAssembly = outputAssembly;
-    return this.toggleEnable();
   };
   
   LogBase.disconnect = function() {
@@ -39,7 +40,7 @@ function (   Base, PurplePart,       SparseArray,         Q,       Assembly) {
   
   LogBase.broadcastEnabled = function() {
     this.toEachListener({type: 'logEnable', enabled: this.enabled});
-  }
+  };
   
   LogBase.toggleEnable = function() {
     var abler = this.getHasEnableDisable().enable;

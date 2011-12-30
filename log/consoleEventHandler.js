@@ -6,46 +6,45 @@
 define(['log/LogBase', 'browser/remoteByWebInspectorPart', 'log/SparseArray', 'log/ConsoleEntry'], 
   function   (LogBase,          RemoteByWebInspectorPart,       SparseArray,       ConsoleEntry) {
   
-  var consoleEventHandler = LogBase.new('consoleLog');
-
-  //---------------------------------------------------------------------------------------------
-  // Implement Remote.events
-  
-  consoleEventHandler.responseHandlers = {
-    Console: {
+  var LoggingConsole = LogBase.extend({
+    eventHandlers: {
+      Console: {
         messageAdded: function(message, p_id) {
-          consoleEventHandler.latestEntry = new ConsoleEntry(message);
-          this.store.set(p_id, consoleEventHandler.latestEntry);
+          LoggingConsole.latestEntry = new ConsoleEntry(message);
+          this.store.set(p_id, LoggingConsole.latestEntry);
         },
         messageRepeatCountUpdated: function(count) {
           // ignore this for now
         },
         messagesCleared: function(p_id) {
-          consoleEventHandler.latestEntry = ConsoleEntry.messagesClearedEntry;
-          this.store.set(p_id, consoleEventHandler.latestEntry);
+          LoggingConsole.latestEntry = ConsoleEntry.messagesClearedEntry;
+          this.store.set(p_id, LoggingConsole.latestEntry);
         }
       }
-  };
+    },
+    initialize: function(name) {
+      LogBase.initialize.apply(this, [name]);
+      this.store = SparseArray.new(this.name);
+    },
+    //---------------------------------------------------------------------------------------------
+    // Implement PurplePart
   
-   //---------------------------------------------------------------------------------------------
-  // Implement PurplePart
+    // Return a promise that the Console is enabled
+    connect: function(channel, viewport) {
+      LogBase.connect.apply(this, [this, viewport]);   // this causes the event store to be pulled into the viewport   
+    },
   
-  // Return a promise that the Console is enabled
-  consoleEventHandler.connect = function(channel, viewport) {
-      this.store = SparseArray.new('ConsoleEvents');
-      this.remote = RemoteByWebInspectorPart.new('consoleRemote');
-      
-      this.remote.connect(channel, this);
-      LogBase.connect.apply(this, [this.remote.Console, viewport]);   // this causes the event store to be pulled into the viewport   
-  };
-  
-  consoleEventHandler.disconnect = function(channel) {
-      if (consoleEventHandler.enabled) {
+    disconnect: function(channel) {
+      if (this.enabled) {
         throw new Error("Disable before disconnecting");
       }
       this.remote.disconnect(channel);
-  };
-  
+    }
+
+  });
+
+
+  var consoleEventHandler = LoggingConsole.new('consoleLog');
 
   return consoleEventHandler;
 });

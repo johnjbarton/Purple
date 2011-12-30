@@ -141,7 +141,7 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
     this.jsonHandlers = {}; // by domain and function name
     var responseHandlerObject = indexer.responseHandlers;  // {Debugger:{functions}, Console:{functions}}
     var remoteImpl = this;
-    var events = remote.getEvents();
+    var events = remote.events;
     var domainNames = Object.keys(events);
     domainNames.forEach(function buildDomainResponse(domainName) {
       remoteImpl.jsonHandlers[domainName] = {};
@@ -174,7 +174,7 @@ define(['browser/remote', 'lib/q/q'], function (remote, Q) {
   
     // Walk the remote API and implement each function to send over channel.
   RemoteByWebInspector.buildImplementation = function(remoteByWebInspector, channel) {
-    var api = remote.getAPI();
+    var api = remote.api;
     var domains = Object.keys(api);
     domains.forEach(function buildSend(domain) {
       remoteByWebInspector[domain] = {};
