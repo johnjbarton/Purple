@@ -39,7 +39,7 @@ function(         Q, PurplePart,       Assembly,                                
       
       channel.onmessage = channel.recv.bind(channel);
       connection.addListener(channel.onmessage);
-      channel.send = connection.postMessage; 
+      channel.postMessage = connection.postMessage; 
 
       channel.features.push('channel');
       // ok we are ready to connect the dependents and let them talk
@@ -55,8 +55,8 @@ function(         Q, PurplePart,       Assembly,                                
   Assembly.addListenerContainer(channel);
   
   channel.recv = function(data) {
-    var p_id = channel.thePurple.p_id++;
-    channel.toEachListener([p_id, data]);
+    data.p_id = channel.thePurple.p_id++;
+    channel.toEachListener(data);
   };
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart

@@ -1,55 +1,52 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['log/LogBase', 'browser/remoteByWebInspectorPart', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q', 'lib/part'], 
-function (   LogBase,           remoteByWebInspectorPart,            Resources,             Resource,      SparseArray,         Q, PurplePart) {
-  
-  var LoggingNetworkEventHandler = LogBase.new('networkLog');
-  
-  LoggingNetworkEventHandler.getOrCreateResource = function(url) {
-    var resource = Resources.get(url);
-    if (!resource) {
-      resource = Resource.new(url);
-      Resources.append(url, resource);
-    }
-    return resource;
-  };
-  
-  LoggingNetworkEventHandler.requests = {};
+define(['log/LogBase', 'lib/crx2app/test/ChromeDebuggerProxy', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q', 'lib/part'], 
+function (   LogBase,                    ChromeDebuggerProxy,            Resources,             Resource,      SparseArray,         Q, PurplePart) {
 
-  // close over the handler here to narrow the interface to Resource
-  // |this| will be bound to a Resource
-  
-  function fetchContent(fncOfContent, fncOfError) {
-    if (this.requestId) {
-      var responseBody = LoggingNetworkEventHandler.remote.Network.getResponseBody(this.requestId);
-      Q.when(responseBody, fncOfContent, fncOfError);
-    } else {
-      fncOfError("Resource not loaded: "+this.url);
-    }
-  }
-
-  LoggingNetworkEventHandler.setRequestById = function(requestId, resource) {
+  var LoggingNetworkEventHandler = LogBase.extend(ChromeDebuggerProxy,{
+    initialize: function(name) {
+      this.requests = {};
+      LogBase.initialize.apply(this, [name]);
+    },
+    getOrCreateResource: function(url) {
+      var resource = Resources.get(url);
+      if (!resource) {
+        resource = Resource.new(url);
+        Resources.append(url, resource);
+      }
+      return resource;
+    },
+    
+  setRequestById: function(requestId, resource) {
     if (this.requests.hasOwnProperty(requestId)) {
       throw new Error("duplicate requestId, "+requestId+" something is wrong ");
     }
     this.requests[requestId] = resource;
-    resource.fetchContent = fetchContent;
+    // close over the handler here to narrow the interface to Resource
+    // |this| will be bound to a Resource
+    var remote = this;
+    resource.fetchContent = function (fncOfContent, fncOfError) {
+      if (this.requestId) {
+        var responseBody = remote.Network.getResponseBody(this.requestId);
+        Q.when(responseBody, fncOfContent, fncOfError);
+      } else {
+        fncOfError("Resource not loaded: "+this.url);
+      }
+    };
+ 
     resource.hasSource = true;
-  };
+  },
   
-  LoggingNetworkEventHandler.getRequestById = function(requestId) {
+  getRequestById: function(requestId) {
     if (this.requests.hasOwnProperty(requestId)) {
       return this.requests[requestId];
     } else {
       throw new Error("Expected resource at "+requestId+"but none was found");
     }
-  };
-  
+  },
 
-  //---------------------------------------------------------------------------------------------
-  // Implement Remote.events
-  LoggingNetworkEventHandler.responseHandlers = {
+  eventHandlers: {
     Network: {
         dataReceived: function(requestId, timestamp, dataLength, encodedDataLength){
           var resource = LoggingNetworkEventHandler.getRequestById(requestId);
@@ -123,26 +120,25 @@ function (   LogBase,           remoteByWebInspectorPart,            Resources, 
           LoggingNetworkEventHandler.store.set(p_id, details);
         }
       }
-  };
+    },
   
-   //---------------------------------------------------------------------------------------------
-  // Implement PurplePart
+    //---------------------------------------------------------------------------------------------
+    // Implement PurplePart
   
-  LoggingNetworkEventHandler.connect = function(channel, viewport) {
+    connect: function(channel, viewport) {
       this.store = SparseArray.new('NetworkEvents');
-      this.remote = remoteByWebInspectorPart.new('networkRemote');
-      this.remote.connect(channel, this);
-      LogBase.connect.apply(this, [this.remote.Network, viewport]);
-	  this.remote.Network.enable();
-  };
+      ChromeDebuggerProxy.initialize.apply(this, [channel, this.eventHandlers]);
+      LogBase.connect.apply(this, [this, viewport]);
+    },
   
-  LoggingNetworkEventHandler.disconnect = function(channel) {
-      this.remote.Network.disable();
+    disconnect: function(channel) {
       this.remote.disconnect(channel);
       delete this.store;
-  };
-
-  var networkEventHandler = LoggingNetworkEventHandler.new('NetworkEvents');
+    }
+    
+  });
+  
+  var networkEventHandler = LoggingNetworkEventHandler.new('networkLog');
 
   return networkEventHandler;
 });

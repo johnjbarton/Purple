@@ -3,10 +3,10 @@
 
 /*globals define console alert*/
 
-define(['log/LogBase', 'lib/crx2app/test/ScriptDebuggerProxy', 'browser/remoteByWebInspectorPart', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray',  'lib/part'], 
-function (   LogBase,                    ScriptDebuggerProxy,           remoteByWebInspectorPart,             Resources,             JavaScriptResource,   SparseArray,         PurplePart) {
+define(['log/LogBase', 'lib/crx2app/test/ChromeDebuggerProxy', 'browser/remoteByWebInspectorPart', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray',  'lib/part'], 
+function (   LogBase,                    ChromeDebuggerProxy,           remoteByWebInspectorPart,             Resources,             JavaScriptResource,   SparseArray,         PurplePart) {
   
-  var LoggingScriptDebugger = LogBase.extend(ScriptDebuggerProxy, {
+  var LoggingChromeDebugger = LogBase.extend(ChromeDebuggerProxy, {
     eventHandlers: {
       Debugger: {
         breakpointResolved: function(breakpointId, location) {
@@ -43,7 +43,6 @@ function (   LogBase,                    ScriptDebuggerProxy,           remoteBy
     initialize: function(name) {
       LogBase.initialize.apply(this, [name]);
       this.store = SparseArray.new(this.name);
-      ScriptDebuggerProxy.initialize.apply(this, [this.eventHandlers]);
     },
     
     getOrCreateJavaScriptResource: function(url, isContentScript, p_id) {
@@ -69,7 +68,7 @@ function (   LogBase,                    ScriptDebuggerProxy,           remoteBy
     }
   });
   
-  var jsEventHandler = LoggingScriptDebugger.new('javascriptLog');
+  var jsEventHandler = LoggingChromeDebugger.new('javascriptLog');
   
   //---------------------------------------------------------------------------------------------
   //
@@ -78,6 +77,8 @@ function (   LogBase,                    ScriptDebuggerProxy,           remoteBy
   // Implement PurplePart
   
   jsEventHandler.connect = function(channel, viewport) {
+      ChromeDebuggerProxy.initialize.apply(this, [channel, this.eventHandlers]);
+    
       // This allows the UI to enable/disable the inputs, without consulting this object....
       LogBase.connect.apply(this,[this, viewport]);  
   };
