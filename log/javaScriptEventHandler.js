@@ -3,8 +3,8 @@
 
 /*globals define console alert*/
 
-define(['log/LogBase', 'lib/crx2app/test/ChromeDebuggerProxy', 'browser/remoteByWebInspectorPart', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray',  'lib/part'], 
-function (   LogBase,                    ChromeDebuggerProxy,           remoteByWebInspectorPart,             Resources,             JavaScriptResource,   SparseArray,         PurplePart) {
+define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'browser/remoteByWebInspectorPart', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray',  'lib/part'], 
+function (   LogBase,               ChromeDebuggerProxy,           remoteByWebInspectorPart,             Resources,             JavaScriptResource,   SparseArray,         PurplePart) {
   
   var LoggingChromeDebugger = LogBase.extend(ChromeDebuggerProxy, {
     eventHandlers: {

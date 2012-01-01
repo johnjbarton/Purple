@@ -117,6 +117,7 @@ function findAnythingFactory(DOMPLATE,    PurplePart,                 MiniButton
     };
     
     anyThingBar.partAdded = function(part) {
+      // TODO do this work on the log side. Offer the ability to add a button, like an extension point
       if (part.hasFeature('Log')) {
         var symbol = part.name[0].toUpperCase(); // a little hacky...
         var logFilterButton = anyThingBar.filterMiniButton(symbol, part);

@@ -9,7 +9,7 @@
 var iframeDomain ="chrome-extension://bbjpappmojnmallpnfgfkjmjnhhplgog";
 
 define(['../lib/q/q', 'lib/part', 'lib/Assembly', iframeDomain+"/appEnd/proxyChromePipe.js"], 
-function(         Q, PurplePart,       Assembly,                                chromePipe) {
+function(         Q, PurplePart,       Assembly,                             chromePipe) {
 
   var channel = new PurplePart('channel');
 
