@@ -40,6 +40,9 @@ function(         log,               viewport,             resources,         Q,
       var networkPromise = networkEventHandler.connect(channel, viewport);
       var released = Q.join(jsPromise, consolePromise, networkPromise, function (jsPromise, consolePromise, networkPromise) {
         console.log("js, console, net enabled");
+        
+        // TODO we need a signal to a coherent object that our log belongs to. thePurple is that object, but it now has too many parts.
+        
         // release the page
         eventLogViewAssembly.channel.send({command: 'releasePage'});
         return "released page";
