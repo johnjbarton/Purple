@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="copyright" content="Copyright (c) Google 2011. Google BSD License" >
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <script src="orion/plugin.js"></script>
+  <script>
+    /*globals window eclipse console*/
+    var serviceImpl = {
+      run: function(text) {}
+    };
+    window.onload = function() {
+      var provider = new eclipse.PluginProvider();
+      provider.registerServiceProvider(
+        "orion.pluginPlayer.media",
+        serviceImpl,
+        {
+          name: "Purple",
+          id: "Purple",
+          href: "http://localhost:8080/file/C/purple.html",
+          title: "Parse, Re-run break loop"
+        }
+      );
+      provider.connect(
+        function() {
+          console.log("Purple Orion Plugin connected");
+        },
+        function() {
+          console.log("Purple Orion Plugin ERROR", arguments);
+        }
+      );
+    };
+  </script>
+</head>
+<body>
+Install this plugin in Orion
+</body>
+</html>
