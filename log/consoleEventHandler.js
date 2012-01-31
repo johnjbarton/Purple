@@ -7,8 +7,8 @@ define(['log/LogBase', 'browser/remoteByWebInspectorPart', 'log/SparseArray', 'l
   function   (LogBase,          RemoteByWebInspectorPart,       SparseArray,       ConsoleEntry) {
   
   var LoggingConsole = LogBase.extend({
-    eventHandlers: {
-      Console: {
+    Console: {
+      events: {
         messageAdded: function(message, p_id) {
           LoggingConsole.latestEntry = new ConsoleEntry(message);
           this.store.set(p_id, LoggingConsole.latestEntry);
@@ -22,6 +22,7 @@ define(['log/LogBase', 'browser/remoteByWebInspectorPart', 'log/SparseArray', 'l
         }
       }
     },
+    
     initialize: function(name) {
       LogBase.initialize.apply(this, [name]);
       this.store = SparseArray.new(this.name);
@@ -30,15 +31,15 @@ define(['log/LogBase', 'browser/remoteByWebInspectorPart', 'log/SparseArray', 'l
     // Implement PurplePart
   
     // Return a promise that the Console is enabled
-    connect: function(channel, viewport) {
+    connect: function(chromeDebuggerProxy, viewport) {
+      chromeDebuggerProxy.registerHandlers(this);
       LogBase.connect.apply(this, [this, viewport]);   // this causes the event store to be pulled into the viewport   
     },
   
-    disconnect: function(channel) {
+    disconnect: function() {
       if (this.enabled) {
         throw new Error("Disable before disconnecting");
       }
-      this.remote.disconnect(channel);
     }
 
   });

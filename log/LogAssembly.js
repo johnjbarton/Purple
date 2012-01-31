@@ -3,9 +3,17 @@
 
 /*globals define */
 
-define([], function() {
+define(['log/javaScriptEventHandler', 'log/consoleEventHandler', 'log/networkEventHandler'], 
+function(            jsEventHandler,       consoleEventHandler,       networkEventHandler) {
   var LogAssembly = {
     eventHandlers: {
+      windows: {},
+      tabs: {},
+      'debugger': {}
+    },
+    
+    initialize: function() {
+        
     }
   };
   return LogAssembly;

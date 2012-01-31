@@ -6,9 +6,9 @@
 define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'browser/remoteByWebInspectorPart', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray',  'lib/part'], 
 function (   LogBase,               ChromeDebuggerProxy,           remoteByWebInspectorPart,             Resources,             JavaScriptResource,   SparseArray,         PurplePart) {
   
-  var LoggingChromeDebugger = LogBase.extend(ChromeDebuggerProxy, {
-    eventHandlers: {
-      Debugger: {
+  var LoggingChromeDebugger = LogBase.extend({
+    Debugger: {
+      events: {
         breakpointResolved: function(breakpointId, location) {
           console.log("JavaScriptEventHandler", arguments);
         },
@@ -26,21 +26,23 @@ function (   LogBase,               ChromeDebuggerProxy,           remoteByWebIn
            var res = this.getOrCreateJavaScriptResource(url, isContentScript, p_id);
            res.appendScript(scriptId, startLine, startColumn, endLine, endColumn);
         }
-      },
-      Timeline: {
-        eventRecorded: function(record) {
-          console.log("JavaScriptEventHandler", arguments);
-        },
-        started: function() {
-          console.log("JavaScriptEventHandler", arguments);
-        },
-        stopped: function() {
-          console.log("JavaScriptEventHandler", arguments);
-        }
       }
     },
+      Timeline: {
+        events : {
+          eventRecorded: function(record) {
+            console.log("JavaScriptEventHandler", arguments);
+          },
+          started: function() {
+            console.log("JavaScriptEventHandler", arguments);
+          },
+          stopped: function() {
+            console.log("JavaScriptEventHandler", arguments);
+          }
+        }
+    },
     
-    initialize: function(name) {
+    initialize: function(name, chromeDebuggerProxy) {
       LogBase.initialize.apply(this, [name]);
       this.store = SparseArray.new(this.name);
     },
@@ -76,15 +78,13 @@ function (   LogBase,               ChromeDebuggerProxy,           remoteByWebIn
   //---------------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  jsEventHandler.connect = function(channel, viewport) {
-      ChromeDebuggerProxy.initialize.apply(this, [channel, this.eventHandlers]);
-    
+  jsEventHandler.connect = function(chromeDebuggerProxy, viewport) {
+      chromeDebuggerProxy.registerHandlers(this);
       // This allows the UI to enable/disable the inputs, without consulting this object....
       LogBase.connect.apply(this,[this, viewport]);  
   };
   
   jsEventHandler.disconnect = function(channel) {
-      this.remote.disconnect(channel);
       delete this.store;
   };
 

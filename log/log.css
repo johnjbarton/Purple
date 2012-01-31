@@ -2,6 +2,24 @@
  * see Purple/license.txt for BSD license
  * johnjbarton@google.com
  */
+html, body, iframe {
+  height: 100%;
+  width: 100%;
+  margin: 0;  /* kill off any margin so we control */
+  border: none;
+}
+body {
+  font-family:Verdana,Geneva,sans-serif;
+}
+.hide {
+  display: none;
+}
+#debuggee {
+  margin: 20px;
+}
+.crx2appConnection {
+  display: none;
+}
 
 #log > DIV { /* a bit of space on each end of the log rows */
   padding-left: 1ex; 
@@ -57,7 +75,7 @@
   padding: 2ex;
   z-index: 1;
   display: none; /* show while poppedOver */
-  left: 0px; /* XXXjjb I don't understand why this makes the position correct */
+  left: 0; /* XXXjjb I don't understand why this makes the position correct */
 }
 
 .popOver {
@@ -142,7 +160,7 @@
 }
 
 .p_id {
-  display: none; // no log serial number unless the browserLog is showing
+  display: none; /* no log serial number unless the browserLog is showing */
 }
 
 .browserLog .p_id {

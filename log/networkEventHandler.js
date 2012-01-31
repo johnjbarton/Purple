@@ -4,12 +4,9 @@
 define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q', 'lib/part'], 
 function (   LogBase,               ChromeDebuggerProxy,            Resources,             Resource,      SparseArray,         Q, PurplePart) {
 
-  var LoggingNetworkEventHandler = LogBase.extend(ChromeDebuggerProxy,{
-    initialize: function(name) {
-      this.requests = {};
-      LogBase.initialize.apply(this, [name]);
-    },
-    getOrCreateResource: function(url) {
+  var LoggingNetworkEventHandler = LogBase.extend({
+  
+   getOrCreateResource: function(url) {
       var resource = Resources.get(url);
       if (!resource) {
         resource = Resource.new(url);
@@ -46,8 +43,8 @@ function (   LogBase,               ChromeDebuggerProxy,            Resources,  
     }
   },
 
-  eventHandlers: {
     Network: {
+      events: {
         dataReceived: function(requestId, timestamp, dataLength, encodedDataLength){
           var resource = LoggingNetworkEventHandler.getRequestById(requestId);
           resource.progress = resource.progress || [];
@@ -99,8 +96,10 @@ function (   LogBase,               ChromeDebuggerProxy,            Resources,  
           resource.type = type;
           resource.response = response;
         }
-      },
-      WebNavigation: {
+      }
+    },
+    WebNavigation: {
+      events: {
         onBeforeNavigate: function(details, p_id){
           LoggingNetworkEventHandler.store.set(p_id, details);
         },
@@ -121,18 +120,23 @@ function (   LogBase,               ChromeDebuggerProxy,            Resources,  
         }
       }
     },
+    
+    initialize: function(name) {
+      this.requests = {};
+      LogBase.initialize.apply(this, [name]);
+      this.store = SparseArray.new('NetworkEvents');
+    },
+  
   
     //---------------------------------------------------------------------------------------------
     // Implement PurplePart
   
-    connect: function(channel, viewport) {
-      this.store = SparseArray.new('NetworkEvents');
-      ChromeDebuggerProxy.initialize.apply(this, [channel, this.eventHandlers]);
+    connect: function(chromeDebuggerProxy, viewport) {
+      chromeDebuggerProxy.registerHandlers(this);
       LogBase.connect.apply(this, [this, viewport]);
     },
   
-    disconnect: function(channel) {
-      this.remote.disconnect(channel);
+    disconnect: function() {
       delete this.store;
     }
     

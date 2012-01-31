@@ -30,8 +30,8 @@ function initialize() {
      
        // wrap the connection in more rpc stuff for remote debug protocol through chrome.debugger,
        // and attach to a new tab, enable debugging and update the page to the given URL.
-       var testURL = window.location.toString();
-       var debuggerProxy = chromeProxy.openDebuggerProxy(testURL, LogAssembly.eventHandlers);
+       var defaultDebuggeeURL = "http://johnjbarton.github.com/webdev-examples/simple/scriptTagJSProject/index.html";
+       var debuggerProxy = chromeProxy.openDebuggerProxy(defaultDebuggeeURL, LogAssembly.eventHandlers);
      
        // when we are attached to the given page, test it.
        Q.when(debuggerProxy, function(debuggerProxy) {
