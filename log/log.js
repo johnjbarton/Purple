@@ -39,7 +39,12 @@ function initialize() {
        var debuggerProxy;
      
        if (urlParams.tabId) {
-         debuggerProxy = chromeProxy.openDebuggerProxy(defaultDebuggeeURL, LogAssembly.eventHandlers);
+         var tabId = parseInt(urlParams.tabId, 10);
+         if (tabId && !isNaN(tabId)) {
+           debuggerProxy = chromeProxy.openDebuggerProxyOnTab(tabId, LogAssembly.eventHandlers);
+         } else {
+           window.alert("Not a valid tabId: "+urlParams.tabId);
+         }
        } else if (urlParams.url) {
          debuggerProxy = chromeProxy.openDebuggerProxy(urlParams.url, LogAssembly.eventHandlers);
        } else {
