@@ -1,8 +1,8 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q', 'lib/part'], 
-function (   LogBase,               ChromeDebuggerProxy,            Resources,             Resource,      SparseArray,         Q, PurplePart) {
+define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'resources/Resources', 'resources/Resource','log/SparseArray','lib/q/q'], 
+function (   LogBase,               ChromeDebuggerProxy,            Resources,             Resource,      SparseArray,         Q) {
 
   var LoggingNetworkEventHandler = LogBase.extend({
   

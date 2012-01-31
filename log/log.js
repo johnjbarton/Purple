@@ -13,7 +13,11 @@ function initialize() {
    require({
       paths: {
         "crx2app": "../lib/crx2app/extension",
-        "browser/remote": "../lib/crx2app/extension/rpc"
+        "browser/remote": "../lib/crx2app/extension/rpc",
+        'log': "../log",
+        'resources': "../resources",
+        'lib': "../lib",
+        'MetaObject': "../lib/MetaObject"
       }
     }); 
 
@@ -21,8 +25,8 @@ function initialize() {
      console.error(err+"", {stack: err.stack.split('\n')});
    };
 
-   require(['crx2app/appEnd/connection', 'LogAssembly', 'crx2app/rpc/ChromeProxy', '../lib/q/q'], 
-   function (               connection,   LogAssembly,               ChromeProxy,            Q) {
+   require(['crx2app/appEnd/connection', 'LogAssembly', 'crx2app/rpc/ChromeProxy', 'MetaObject/q/q', 'MetaObject/urlUtils'], 
+   function (               connection,   LogAssembly,               ChromeProxy,                Q,              urlUtils) {
    
      connection.attach(function onConnectedToChrome() {
        // wrap the connection in rpc stuff for chrome.* api
@@ -30,9 +34,17 @@ function initialize() {
      
        // wrap the connection in more rpc stuff for remote debug protocol through chrome.debugger,
        // and attach to a new tab, enable debugging and update the page to the given URL.
-       var defaultDebuggeeURL = "http://johnjbarton.github.com/webdev-examples/simple/scriptTagJSProject/index.html";
-       var debuggerProxy = chromeProxy.openDebuggerProxy(defaultDebuggeeURL, LogAssembly.eventHandlers);
+       var urlParams = urlUtils.extractParametersFromWindow();
+
+       var debuggerProxy;
      
+       if (urlParams.tabId) {
+         debuggerProxy = chromeProxy.openDebuggerProxy(defaultDebuggeeURL, LogAssembly.eventHandlers);
+       } else if (urlParams.url) {
+         debuggerProxy = chromeProxy.openDebuggerProxy(urlParams.url, LogAssembly.eventHandlers);
+       } else {
+         window.alert("This application requires ?tabId=<number> or ?url=<string> in the url");
+       }
        // when we are attached to the given page, test it.
        Q.when(debuggerProxy, function(debuggerProxy) {
          console.log("debuggerProxy ready");

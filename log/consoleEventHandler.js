@@ -3,8 +3,8 @@
 
 /*global define*/
 
-define(['log/LogBase', 'browser/remoteByWebInspectorPart', 'log/SparseArray', 'log/ConsoleEntry'], 
-  function   (LogBase,          RemoteByWebInspectorPart,       SparseArray,       ConsoleEntry) {
+define(['log/LogBase', 'log/SparseArray', 'log/ConsoleEntry'], 
+  function   (LogBase,      SparseArray,       ConsoleEntry) {
   
   var LoggingConsole = LogBase.extend({
     Console: {

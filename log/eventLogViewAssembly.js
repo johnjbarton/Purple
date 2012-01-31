@@ -15,13 +15,7 @@ function(         log,               viewport,             resources,         Q,
     viewport.initialize();
     
     // TODO wait for the findAnything bar, then connect to it for enable/disable UI
-    //  
-    // register the log indexes as global parts for enable/disable
     thePurple.registerPart(log);
-    thePurple.registerPart(resources);
-    thePurple.registerPart(consoleEventHandler);
-    thePurple.registerPart(jsEventHandler);
-    thePurple.registerPart(networkEventHandler);
   };
   
   eventLogViewAssembly.connect = function(channel) {
