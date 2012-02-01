@@ -3,18 +3,20 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-define(['log/consoleEntryRep','../resources/objRep','lib/reps', 'lib/Assembly', 'lib/part' ], 
-function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
+/*globals define window console document */
+
+define(['log/consoleEntryRep','../resources/objRep','lib/reps' ], 
+function(    consoleEntryRep,               ObjRep,      reps) {
   
   'use strict';
   //------------------------------------------------------------------------------------
   // Implement PurplePart
   
-  var EventLogViewport =  new PurplePart('EventLogViewport');  // 
+  var EventLogViewport =  {}; 
   
-  Assembly.addPartContainer(EventLogViewport);
   
-  EventLogViewport.initialize = function() {
+  EventLogViewport.initialize = function(globalClock) {
+    this.globalClock = globalClock;
     this.scrollLock = false; // false means the viewport tracks the bottom of the log
     this.onPoll = this.poll.bind(this);
     this.pollInterval = 100;
@@ -23,7 +25,6 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
   };
     
   EventLogViewport.connect = function(log) {
-    log.registerPart(this); // for appendData notification that drive input to output (for now)
     
     this.initializeUI();
     if (this.optionPolling) {
@@ -36,20 +37,6 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
 
   EventLogViewport.disconnect = function() {
       this.endPolling();
-  };
-  
-  // Extend Assembly methods to sync part names and #log class names
-  
-  var superRegisterPart = EventLogViewport.registerPart;
-  EventLogViewport.registerPart = function(part) {
-    superRegisterPart.apply(this, [part]);
-    this.toggleClass(part.name, true);
-  };
-  
-  var superUnregisterPart = EventLogViewport.unregisterPart;
-  EventLogViewport.unregisterPart = function(part) {
-    superUnregisterPart.apply(this, [part]);
-    this.toggleClass(part.name, false);
   };
   
   EventLogViewport.toggleClass = function(name, on) {
@@ -177,7 +164,7 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
 
   EventLogViewport.update = function() {
     if (!this.scrollLock) {
-      var max = window.purple.p_id; // TODO via initialize
+      var max = this.globalClock.p_id;
       var last = renderedLines.lastPID; 
       // work bottom up and stop once we fill the viewport
       for (var ndx = last; ndx <= max; ndx++) {
@@ -191,7 +178,7 @@ function(ConsoleEntryRep, ObjRep, reps, Assembly, PurplePart) {
   EventLogViewport.rebuild = function() {
     renderedLines.clear();
     this.update();
-  }
+  };
   
   EventLogViewport.boundUpdate = EventLogViewport.update.bind(EventLogViewport);
   

@@ -129,10 +129,10 @@ function (   LogBase,               ChromeDebuggerProxy,            Resources,  
   
   
     //---------------------------------------------------------------------------------------------
-    // Implement PurplePart
   
     connect: function(chromeDebuggerProxy, viewport) {
-      chromeDebuggerProxy.registerHandlers(this);
+      // TODO |this| does not work because flatten in jsonMarshal
+      chromeDebuggerProxy.registerHandlers(LoggingNetworkEventHandler);  
       LogBase.connect.apply(this, [this, viewport]);
     },
   

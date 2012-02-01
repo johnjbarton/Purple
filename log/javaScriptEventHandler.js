@@ -6,6 +6,23 @@
 define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray'], 
 function (   LogBase,               ChromeDebuggerProxy,             Resources,             JavaScriptResource,         SparseArray) {
   
+  var JavaScriptResources = {
+    getOrCreateJavaScriptResource: function(url, isContentScript, p_id) {
+      var resource = Resources.get(url);
+      if (!resource) {
+        resource = JavaScriptResource.new(url, isContentScript, p_id);
+        Resources.append(url, resource);
+      } else if ( ! JavaScriptResource.isPrototypeOf(resource) ) {
+        // we have a network resource which we just discovered is a JavaScriptResource
+        var tmp = JavaScriptResource.new(url, isContentScript);
+        resource = tmp.mergeMethods(resource);
+        Resources.replace(url, resource, p_id);
+      }
+      return resource;
+    },
+
+  };
+  
   var LoggingChromeDebugger = LogBase.extend({
     Debugger: {
       events: {
@@ -23,7 +40,7 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
           console.log("JavaScriptEventHandler", arguments);
         },
         scriptParsed: function(endColumn, endLine, isContentScript, scriptId, startColumn, startLine, url, p_id) {
-           var res = this.getOrCreateJavaScriptResource(url, isContentScript, p_id);
+           var res = JavaScriptResources.getOrCreateJavaScriptResource(url, isContentScript, p_id);
            res.appendScript(scriptId, startLine, startColumn, endLine, endColumn);
         }
       }
@@ -42,24 +59,11 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
         }
     },
     
-    initialize: function(name, chromeDebuggerProxy) {
+    initialize: function(name) {
       LogBase.initialize.apply(this, [name]);
       this.store = SparseArray.new(this.name);
     },
     
-    getOrCreateJavaScriptResource: function(url, isContentScript, p_id) {
-      var resource = Resources.get(url);
-      if (!resource) {
-        resource = JavaScriptResource.new(url, isContentScript, p_id);
-        Resources.append(url, resource);
-      } else if ( ! JavaScriptResource.isPrototypeOf(resource) ) {
-        // we have a network resource which we just discovered is a JavaScriptResource
-        var tmp = JavaScriptResource.new(url, isContentScript);
-        resource = tmp.mergeMethods(resource);
-        Resources.replace(url, resource, p_id);
-      }
-      return resource;
-    },
     
     //-----------------------------------------------------------------------------
     enable: function() {
@@ -74,12 +78,9 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
   
   //---------------------------------------------------------------------------------------------
   //
-
-  //---------------------------------------------------------------------------------------------
-  // Implement PurplePart
   
   jsEventHandler.connect = function(chromeDebuggerProxy, viewport) {
-      chromeDebuggerProxy.registerHandlers(this);
+      chromeDebuggerProxy.registerHandlers(LoggingChromeDebugger);
       // This allows the UI to enable/disable the inputs, without consulting this object....
       LogBase.connect.apply(this,[this, viewport]);  
   };

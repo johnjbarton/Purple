@@ -32,7 +32,8 @@ define(['log/LogBase', 'log/SparseArray', 'log/ConsoleEntry'],
   
     // Return a promise that the Console is enabled
     connect: function(chromeDebuggerProxy, viewport) {
-      chromeDebuggerProxy.registerHandlers(this);
+      // TODO |this| does not work because flatten in jsonMarshal
+      chromeDebuggerProxy.registerHandlers(LoggingConsole);
       LogBase.connect.apply(this, [this, viewport]);   // this causes the event store to be pulled into the viewport   
     },
   

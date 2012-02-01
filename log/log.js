@@ -25,15 +25,19 @@ function initialize() {
      console.error(err+"", {stack: err.stack.split('\n')});
    };
 
-   require(['crx2app/appEnd/connection', 'LogAssembly', 'crx2app/rpc/ChromeProxy', 'MetaObject/q/q', 'MetaObject/urlUtils'], 
-   function (               connection,   LogAssembly,               ChromeProxy,                Q,              urlUtils) {
+   require(['crx2app/appEnd/connection', 'ChromeLogAssembly', 'DebuggerLogAssembly', 'crx2app/rpc/ChromeProxy', 'MetaObject/q/q', 'MetaObject/urlUtils'], 
+   function (               connection,   ChromeLogAssembly,   DebuggerLogAssembly,               ChromeProxy,                Q,              urlUtils) {
    
      connection.attach(function onConnectedToChrome() {
-       // wrap the connection in rpc stuff for chrome.* api
-       var chromeProxy = ChromeProxy.new(connection, LogAssembly.eventHandlers);
+
+       var globalClock = {p_id: 0};
+       
+       ChromeLogAssembly.initialize(globalClock);
+       var viewport = ChromeLogAssembly.connect();
      
-       // wrap the connection in more rpc stuff for remote debug protocol through chrome.debugger,
-       // and attach to a new tab, enable debugging and update the page to the given URL.
+       // wrap the connection in rpc stuff for chrome.* api
+       var chromeProxy = ChromeProxy.new(connection, ChromeLogAssembly.eventHandlers);
+     
        var urlParams = urlUtils.extractParametersFromWindow();
 
        var debuggerProxy;
@@ -41,12 +45,17 @@ function initialize() {
        if (urlParams.tabId) {
          var tabId = parseInt(urlParams.tabId, 10);
          if (tabId && !isNaN(tabId)) {
-           debuggerProxy = chromeProxy.openDebuggerProxyOnTab(tabId, LogAssembly.eventHandlers);
+           DebuggerLogAssembly.initialize();
+           DebuggerLogAssembly.connect(viewport);
+          
+           // wrap the connection in more rpc stuff for remote debug protocol through chrome.debugger,
+           // and attach to a new tab, enable debugging and update the page to the given URL.
+           debuggerProxy = chromeProxy.openDebuggerProxyOnTab(tabId, DebuggerLogAssembly.onPreAttach, DebuggerLogAssembly.onPostAttach);
          } else {
            window.alert("Not a valid tabId: "+urlParams.tabId);
          }
        } else if (urlParams.url) {
-         debuggerProxy = chromeProxy.openDebuggerProxy(urlParams.url, LogAssembly.eventHandlers);
+         debuggerProxy = chromeProxy.openDebuggerProxy(urlParams.url, DebuggerLogAssembly.eventHandlers);
        } else {
          window.alert("This application requires ?tabId=<number> or ?url=<string> in the url");
        }
