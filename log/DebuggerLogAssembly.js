@@ -3,19 +3,21 @@
 
 /*globals define */
 
-define(['log/javaScriptEventHandler', 'log/consoleEventHandler', 'log/networkEventHandler', 'lib/q/q'], 
-function(            jsEventHandler,       consoleEventHandler,       networkEventHandler,         Q) {
+define(['log/javaScriptEventHandler', 'log/consoleEventHandler', 'log/networkEventHandler', 'resources/Resources', 'lib/q/q'], 
+function(            jsEventHandler,       consoleEventHandler,       networkEventHandler,             resources,         Q) {
 
   var DebuggerLogAssembly = {
      
-    initialize: function() {
-      jsEventHandler.initialize();
-      networkEventHandler.initialize();
-      consoleEventHandler.initialize();
+    initialize: function(clock) {
+      jsEventHandler.initialize(clock);
+      networkEventHandler.initialize(clock);
+      consoleEventHandler.initialize(clock);
+      resources.initialize(clock);
     },
      
     connect: function(viewport) {
       this.viewport = viewport;
+      resources.connect(this.viewport);
       // we have to wait for onPreAttach to complete the connection
     },
  
@@ -32,9 +34,19 @@ function(            jsEventHandler,       consoleEventHandler,       networkEve
         debuggerProxy.Network.enable(),
         debuggerProxy.Console.enable()
         ]);
+    },
+    
+    showAll: function() {
+      jsEventHandler.show();
+      networkEventHandler.show();
+      consoleEventHandler.show();
     }
     
   };
+  
+  // Are we having fun yet?
+  DebuggerLogAssembly.onPreAttach = DebuggerLogAssembly.onPreAttach.bind(DebuggerLogAssembly);
+  DebuggerLogAssembly.onPostAttach = DebuggerLogAssembly.onPostAttach.bind(DebuggerLogAssembly);
   
   return DebuggerLogAssembly;
 });

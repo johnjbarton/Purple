@@ -7,6 +7,8 @@ function failConnection(err) {
     console.err("Error "+err, err);
 }
 
+window.debugChromeDebuggerRemote = true;
+
 function initialize() {
 
 // dynamically load the debugger code
@@ -45,12 +47,14 @@ function initialize() {
        if (urlParams.tabId) {
          var tabId = parseInt(urlParams.tabId, 10);
          if (tabId && !isNaN(tabId)) {
-           DebuggerLogAssembly.initialize();
+           DebuggerLogAssembly.initialize(globalClock);
            DebuggerLogAssembly.connect(viewport);
           
            // wrap the connection in more rpc stuff for remote debug protocol through chrome.debugger,
            // and attach to a new tab, enable debugging and update the page to the given URL.
-           debuggerProxy = chromeProxy.openDebuggerProxyOnTab(tabId, DebuggerLogAssembly.onPreAttach, DebuggerLogAssembly.onPostAttach);
+           var pre = DebuggerLogAssembly.onPreAttach.bind(DebuggerLogAssembly);
+           var post = DebuggerLogAssembly.onPostAttach.bind(DebuggerLogAssembly);
+           debuggerProxy = chromeProxy.openDebuggerProxyOnTab(tabId, pre, post);
          } else {
            window.alert("Not a valid tabId: "+urlParams.tabId);
          }
@@ -59,9 +63,10 @@ function initialize() {
        } else {
          window.alert("This application requires ?tabId=<number> or ?url=<string> in the url");
        }
-       // when we are attached to the given page, test it.
+       // when we are attached to the given page, show the log
        Q.when(debuggerProxy, function(debuggerProxy) {
          console.log("debuggerProxy ready");
+         DebuggerLogAssembly.showAll();
        }, failConnection).end();
      
        function detach() {

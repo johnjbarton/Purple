@@ -3,37 +3,36 @@
 
 /*global define*/
 
-define(['log/LogBase', 'log/SparseArray', 'log/ConsoleEntry'], 
-  function   (LogBase,      SparseArray,       ConsoleEntry) {
+define(['log/LogBase', 'log/ConsoleEntry'], 
+  function   (LogBase,      ConsoleEntry) {
   
-  var LoggingConsole = LogBase.extend({
+  var consoleEventHandler = LogBase.extend({
     Console: {
       events: {
-        messageAdded: function(message, p_id) {
-          LoggingConsole.latestEntry = new ConsoleEntry(message);
-          this.store.set(p_id, LoggingConsole.latestEntry);
+        messageAdded: function(message) {
+          consoleEventHandler.latestEntry = new ConsoleEntry(message);
+          this.post(consoleEventHandler.latestEntry);
         },
         messageRepeatCountUpdated: function(count) {
           // ignore this for now
         },
-        messagesCleared: function(p_id) {
-          LoggingConsole.latestEntry = ConsoleEntry.messagesClearedEntry;
-          this.store.set(p_id, LoggingConsole.latestEntry);
+        messagesCleared: function() {
+          consoleEventHandler.latestEntry = ConsoleEntry.messagesClearedEntry;
+          this.post(consoleEventHandler.latestEntry);
         }
       }
     },
     
-    initialize: function(name) {
-      LogBase.initialize.apply(this, [name]);
-      this.store = SparseArray.new(this.name);
+    initialize: function(clock) {
+      var name = 'consoleLog';
+      LogBase.initialize.apply(this, [clock, name]);
     },
     //---------------------------------------------------------------------------------------------
     // Implement PurplePart
   
     // Return a promise that the Console is enabled
     connect: function(chromeDebuggerProxy, viewport) {
-      // TODO |this| does not work because flatten in jsonMarshal
-      chromeDebuggerProxy.registerHandlers(LoggingConsole);
+      chromeDebuggerProxy.registerHandlers(this);
       LogBase.connect.apply(this, [this, viewport]);   // this causes the event store to be pulled into the viewport   
     },
   
@@ -45,8 +44,6 @@ define(['log/LogBase', 'log/SparseArray', 'log/ConsoleEntry'],
 
   });
 
-
-  var consoleEventHandler = LoggingConsole.new('consoleLog');
 
   return consoleEventHandler;
 });

@@ -5,8 +5,8 @@
 
 /*globals define window console document */
 
-define(['log/consoleEntryRep','../resources/objRep','lib/reps' ], 
-function(    consoleEntryRep,               ObjRep,      reps) {
+define(['lib/Assembly', 'log/consoleEntryRep','../resources/objRep','lib/reps' ], 
+function(    Assembly,       consoleEntryRep,               ObjRep,      reps) {
   
   'use strict';
   //------------------------------------------------------------------------------------
@@ -14,13 +14,16 @@ function(    consoleEntryRep,               ObjRep,      reps) {
   
   var EventLogViewport =  {}; 
   
+  // The parts are 'reverse listeners': each part is polled for 
+  // new log entries, the entries are filtered, then displayed.
+  Assembly.addPartContainer(EventLogViewport);
   
   EventLogViewport.initialize = function(globalClock) {
     this.globalClock = globalClock;
     this.scrollLock = false; // false means the viewport tracks the bottom of the log
     this.onPoll = this.poll.bind(this);
     this.pollInterval = 100;
-    
+    this.optionPolling = true;
     reps.rehash();
   };
     
@@ -135,7 +138,9 @@ function(    consoleEntryRep,               ObjRep,      reps) {
   };
   
   EventLogViewport.initializeUI = function () {
-    var logElement = document.getElementById('log');
+    var logElement = document.createElement('div');
+    logElement.setAttribute('id', 'log');
+    document.body.appendChild(logElement);
     renderedLines.connect(logElement);
   };
 

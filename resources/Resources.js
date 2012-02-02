@@ -1,43 +1,50 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/part'], function (PurplePart) {
+/*globals define*/
 
-  var Resources = new PurplePart('resources');
-  
-  Resources.resources = [];
-  Resources.resourcesByURL = {}; // a Resource or an array of
-  
-  Resources.connect = function(eventSink) {
-    this.eventSink = eventSink;
-  };
+define(['log/LogBase'], function (LogBase) {
 
-  Resources.disconnect = function(eventSink) {
+  var Resources = LogBase.extend({
+  
+  initialize: function(clock) {
+    this.resources = [];
+    this.resourcesByURL = {}; // a Resource or an array of
+    var name = "resources";
+    LogBase.initialize.apply(this, [clock, name]);
+  },
+  
+  connect: function(viewport) {
+    LogBase.connect.apply(this,[this, viewport]);  
+  },
+
+  disconnect: function(eventSink) {
     if (this.eventSink === eventSink) {
       delete this.eventSink;
     }
-  };
+  },
 
-  Resources.append = function(url, resource, p_id) {
+  append: function(url, resource) {
     this.resourcesByURL[url] = resource;
     this.resources.push(resource);
-    this.eventSink.apply(null, [p_id, {name: 'created', url: url, resource: resource}]);
+    this.post({name: 'created', url: url, resource: resource});
     return resource;
-  };
+  },
 
-  Resources.replace = function(url, resource, p_id) {
+  replace: function(url, resource) {
     var index = this.resources.indexOf(resource);
     this.resources[index] = resource;
     this.resourcesByURL[url] = resource;
-    this.eventSink.apply(null, [p_id, {name: 'updated', url: url, resource: resource}]);
+    this.post({name: 'updated', url: url, resource: resource});
     return resource;
-  };
+  },
 
-  Resources.get = function(url) {
+  get: function(url) {
     if ( this.resourcesByURL.hasOwnProperty(url) ) {
       return this.resourcesByURL[url];
     }
-  };
+  }
+});
   
   return Resources;
 });

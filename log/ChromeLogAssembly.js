@@ -17,15 +17,13 @@ function(    chromeLog,               viewport,             resources,         Q
   };
   
   ChromeLogAssembly.initialize = function (clock){
-    chromeLog.initialize();
+    chromeLog.initialize(clock);
     viewport.initialize(clock);
   };
   
   ChromeLogAssembly.connect = function() {
     // Attach the output of the JSON pipe from the browser to the input of the message buffer
     chromeLog.connect(viewport);
-    
-    resources.connect(chromeLog.recv);
     
     // connect the output of the chromeLog to the input of the viewport
     viewport.connect(chromeLog);

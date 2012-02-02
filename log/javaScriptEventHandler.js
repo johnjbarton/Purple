@@ -3,8 +3,8 @@
 
 /*globals define console alert*/
 
-define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'resources/Resources', 'resources/JavaScriptResource', 'log/SparseArray'], 
-function (   LogBase,               ChromeDebuggerProxy,             Resources,             JavaScriptResource,         SparseArray) {
+define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'resources/Resources', 'resources/JavaScriptResource'], 
+function (   LogBase,               ChromeDebuggerProxy,             Resources,             JavaScriptResource) {
   
   var JavaScriptResources = {
     getOrCreateJavaScriptResource: function(url, isContentScript, p_id) {
@@ -19,11 +19,11 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
         Resources.replace(url, resource, p_id);
       }
       return resource;
-    },
+    }
 
   };
   
-  var LoggingChromeDebugger = LogBase.extend({
+  var jsEventHandler = LogBase.extend({
     Debugger: {
       events: {
         breakpointResolved: function(breakpointId, location) {
@@ -39,7 +39,7 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
         scriptFailedToParse: function(data, errorLine, errorMessage, firstLine, url) {
           console.log("JavaScriptEventHandler", arguments);
         },
-        scriptParsed: function(endColumn, endLine, isContentScript, scriptId, startColumn, startLine, url, p_id) {
+        scriptParsed: function(scriptId, url, startLine, startColumn, endLine, endColumn, isContentScript, sourceMapURL, p_id) {
            var res = JavaScriptResources.getOrCreateJavaScriptResource(url, isContentScript, p_id);
            res.appendScript(scriptId, startLine, startColumn, endLine, endColumn);
         }
@@ -59,11 +59,20 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
         }
     },
     
-    initialize: function(name) {
-      LogBase.initialize.apply(this, [name]);
-      this.store = SparseArray.new(this.name);
+    initialize: function(clock) {
+      var name = 'javascriptLog';
+      LogBase.initialize.apply(this, [clock, name]);
     },
     
+    connect: function(chromeDebuggerProxy, viewport) {
+      chromeDebuggerProxy.registerHandlers(this);
+      // This allows the UI to enable/disable the inputs, without consulting this object....
+      LogBase.connect.apply(this,[this, viewport]);  
+    },
+    
+    disconnect: function(channel) {
+      delete this.store;
+    },
     
     //-----------------------------------------------------------------------------
     enable: function() {
@@ -74,20 +83,9 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
     }
   });
   
-  var jsEventHandler = LoggingChromeDebugger.new('javascriptLog');
   
   //---------------------------------------------------------------------------------------------
   //
   
-  jsEventHandler.connect = function(chromeDebuggerProxy, viewport) {
-      chromeDebuggerProxy.registerHandlers(LoggingChromeDebugger);
-      // This allows the UI to enable/disable the inputs, without consulting this object....
-      LogBase.connect.apply(this,[this, viewport]);  
-  };
-  
-  jsEventHandler.disconnect = function(channel) {
-      delete this.store;
-  };
-
   return jsEventHandler;
 });

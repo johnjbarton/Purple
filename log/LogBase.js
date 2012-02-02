@@ -8,22 +8,22 @@ function (   MetaObject,       SparseArray,         Q) {
   
 var LogBase = MetaObject.extend({
     
-  initialize: function(name) {
+  initialize: function(clock, name) {
+    this.clock = clock;
     this.store = SparseArray.new(name);
   },
   
-  connect: function(hasEnableDisable, outputAssembly) {
+  connect: function(hasEnableDisable, viewport) {
     this.hasEnableDisable = hasEnableDisable;
-    this.outputAssembly = outputAssembly;
+    this.viewport = viewport;
   },
   
   disconnect: function() {
     delete this.hasEnableDisable;
   },
   
-  // TODO Base.delegate(['get', 'set'], this.store)
-  getStore: function() {
-    return this.store;
+  post: function(data) {
+    this.store.set(this.clock.p_id++, data);
   },
  
   // Input Management
@@ -62,17 +62,17 @@ var LogBase = MetaObject.extend({
   // Output Management
   
   show: function() {
-    if (!this.outputAssembly.getPartByName(this.getStore().name)) {
-      this.outputAssembly.registerPart(this.getStore());
-      this.outputAssembly.rebuild();
+    if (!this.viewport.getPartByName(this.store.name)) {
+      this.viewport.registerPart(this.store);
+      this.viewport.rebuild();
     }
     return true;
   },
     
   hide: function() {
-    if (this.outputAssembly.getPartByName(this.getStore().name)) {
-      this.outputAssembly.unregisterPart(this.getStore());
-      this.outputAssembly.rebuild();
+    if (this.viewport.getPartByName(this.store.name)) {
+      this.viewport.unregisterPart(this.store);
+      this.viewport.rebuild();
     }
     return false;
   },

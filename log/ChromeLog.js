@@ -23,8 +23,9 @@ define(['log/LogBase', 'lib/q/q'], function(LogBase, Q) {
     }
   };
   
-  ChromeLog.initialize = function() {
-      this.recv = this.recv.bind(this);
+  ChromeLog.initialize = function(clock) {
+    LogBase.initialize.apply(this, ['chrome', clock]);
+    this.recv = this.recv.bind(this);
   };
   
   ChromeLog.connect = function(viewport) {
@@ -39,11 +40,11 @@ define(['log/LogBase', 'lib/q/q'], function(LogBase, Q) {
   
   // -----------------------------------------------------------------------------------
   //
-  ChromeLog.recv = function(p_id, data) {
+  ChromeLog.recv = function(data) {
     if(!data) {
       throw new Error("Log.recv no data");
     }
-    this.getStore().set(p_id, data);  
+    this.post(data);  
   }.bind(ChromeLog);
   
   ChromeLog.forEachEvent = function(fncOfData) {
