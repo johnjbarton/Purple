@@ -88,7 +88,7 @@ function (                   domplate,                Resources,          Reps, 
     var lineNumber = rep.getLineNumber(repObject); // the line comes from eg the error message
     var columnNumber = rep.getColumnNumber(repObject); // the line comes from eg the error message
     try {
-      rep.openPartWith(destinationFeature, resource, lineNumber, columnNumber);
+      rep.openPartWith(destinationFeature, target, resource, lineNumber, columnNumber);
     } catch(exc) {
       PartLinkRep.onError(exc);
     }
@@ -96,10 +96,17 @@ function (                   domplate,                Resources,          Reps, 
     event.preventDefault();
   };
     
-  PartLinkRep.openPartWith = function(feature, resource, lineNumber, columnNumber) {
+  PartLinkRep.openPartWith = function(feature, elt,  resource, lineNumber, columnNumber) {
     var opener = Features[feature];      
-    if (opener) {    
-      opener.open(resource.url, lineNumber, columnNumber);
+    if (opener) {
+      var blockElt = elt;
+      var display;
+      while(blockElt && display !== 'block') {
+        var eltStyle = blockElt.currentStyle || window.getComputedStyle(blockElt, "");
+        display = eltStyle.display;
+        blockElt = blockElt.parentElement;
+      }
+      opener.open(blockElt, resource.url, lineNumber, columnNumber);
     } else {
       PartLinkRep.onError("No part with feature "+feature+" found");
     }
