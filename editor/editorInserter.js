@@ -23,17 +23,17 @@ var editorStubber =  function(iframe, editorEventHandler) {
   return stubber(iframe, editorInterface.commands, editorEventHandler);
 };
 
-var EditorInserter = {
+var editorInserter = {
 
   'interface' : {
     open: function(where, url, line, col) {
-        var editor = this.insertEditor(where);
+        var editor = editorInserter.insertEditor(where);
         editor.open(url, line, col);
     }
   },
   
   insertEditor: function (where) {
-      this.iframe = this.insertIframe(where, 'editor/index.html');
+      this.iframe = this.insertIframe(where, '../editor/index.html');
       return editorStubber(this.iframe, {});
   },
   
@@ -45,6 +45,6 @@ var EditorInserter = {
   }
 };
 
-return EditorInserter;
+return editorInserter;
 
 });
