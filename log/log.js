@@ -7,7 +7,7 @@ function failConnection(err) {
     console.err("Error "+err, err);
 }
 
-window.debugChromeDebuggerRemote = true;
+window.debugChromeDebuggerRemote = false;
 
 function initialize() {
 
@@ -19,7 +19,9 @@ function initialize() {
         'log': "../log",
         'resources': "../resources",
         'lib': "../lib",
-        'MetaObject': "../lib/MetaObject"
+        'MetaObject': "../lib/MetaObject",
+        'features': '../features',
+        'editor':'../editor'
       }
     }); 
 

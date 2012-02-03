@@ -1,7 +1,10 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps', '../lib/Rep'], function (domplate, Resources, Reps, Rep) {
+/*globals define window */
+
+define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps', '../lib/Rep', 'features/Features'], 
+function (                   domplate,                Resources,          Reps,          Rep,            Features) {
   
   var thePurple = window.purple;
   
@@ -94,9 +97,9 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
   };
     
   PartLinkRep.openPartWith = function(feature, resource, lineNumber, columnNumber) {
-    var destinationPart = thePurple.getPartByFeature(feature);      
-    if (destinationPart) {    
-      destinationPart.open(resource, lineNumber, columnNumber);
+    var opener = Features[feature];      
+    if (opener) {    
+      opener.open(resource.url, lineNumber, columnNumber);
     } else {
       PartLinkRep.onError("No part with feature "+feature+" found");
     }
@@ -104,7 +107,6 @@ define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps',
   
   PartLinkRep.onError = function() {
     console.error.apply(console, arguments);
-    alert(arguments[0]);
   }
   
   

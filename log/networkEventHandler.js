@@ -1,8 +1,10 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['log/LogBase', 'crx2app/rpc/ChromeDebuggerProxy', 'resources/Resources', 'resources/Resource', 'lib/q/q'], 
-function (   LogBase,               ChromeDebuggerProxy,             Resources,             Resource,          Q) {
+/*globals define */
+
+define(['log/LogBase', 'resources/Resources', 'resources/Resource', 'lib/q/q'], 
+function (   LogBase,             Resources,             Resource,          Q) {
 
   var networkEventHandler = LogBase.extend({
   
@@ -22,7 +24,7 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
     this.requests[requestId] = resource;
     // close over the handler here to narrow the interface to Resource
     // |this| will be bound to a Resource
-    var remote = this;
+    var remote = this.chromeDebuggerProxy;
     resource.fetchContent = function (fncOfContent, fncOfError) {
       if (this.requestId) {
         var responseBody = remote.Network.getResponseBody(this.requestId);
@@ -45,38 +47,8 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
 
     Network: {
       events: {
-        dataReceived: function(requestId, timestamp, dataLength, encodedDataLength){
-          var resource = networkEventHandler.getRequestById(requestId);
-          resource.progress = resource.progress || [];
-          resource.progress.push({timestamp: timestamp, dataLength: dataLength, encodedDataLength: encodedDataLength});
-        },
-        loadingFailed: function(requestId, timestamp, errorText, canceled){
-          var resource = networkEventHandler.getRequestById(requestId);
-          resource.timestamps.loadingFailed = timestamp;
-          resource.errorText = errorText;
-          resource.canceled = canceled;
-        },
-        loadingFinished: function(requestId, timestamp){
-          var resource = networkEventHandler.getRequestById(requestId);
-          resource.timestamps.loadingFinished = timestamp;
-        },
-        requestServedFromCache: function(requestId){
-          var resource = networkEventHandler.getRequestById(requestId);
-          resource.servedFromCache = true;
-        },
-        requestServedFromMemoryCache: function(requestId, loaderId, documentURL, timestamp, initiator, cachedResource, p_id){
-          var url = cachedResource.url;
-          var resource = networkEventHandler.getOrCreateResource(url);
-          resource.documentURL = documentURL;
-          resource.requestId = requestId;
-          resource.loaderId = loaderId;
-          resource.timestamps = {"fromMemoryCache": timestamp};
-          resource.initiator = initiator;
-          resource.resource = cachedResource;
-          networkEventHandler.setRequestById(requestId, resource);
-          networkEventHandler.store.set(p_id, resource);
-        },
-        requestWillBeSent: function(requestId, loaderId, documentURL, request, timestamp, initiator, stackTrace, redirectResponse, p_id){
+      
+        requestWillBeSent: function(requestId, frameId, loaderId, documentURL, request, timestamp, initiator, stackTrace, redirectResponse){
           var url = request.url;
           var resource = networkEventHandler.getOrCreateResource(url);
           resource.documentURL = documentURL;
@@ -88,13 +60,50 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
           resource.stackTrace = stackTrace;
           resource.redirectResponse = redirectResponse;
           networkEventHandler.setRequestById(requestId, resource);
-          networkEventHandler.store.set(p_id, resource);
+          this.post(resource);
         },
-        responseRecieved: function(requestId, timestamp, type, response){
+        
+        requestServedFromCache: function(requestId){
+          var resource = networkEventHandler.getRequestById(requestId);
+          resource.servedFromCache = true;
+        },
+        
+        responseRecieved: function(requestId, frameId, loaderId, timestamp, type, response){
           var resource = networkEventHandler.getRequestById(requestId);
           resource.timestamps.responseRecieved = timestamp;
           resource.type = type;
           resource.response = response;
+        },
+
+        dataReceived: function(requestId, timestamp, dataLength, encodedDataLength){
+          var resource = networkEventHandler.getRequestById(requestId);
+          resource.progress = resource.progress || [];
+          resource.progress.push({timestamp: timestamp, dataLength: dataLength, encodedDataLength: encodedDataLength});
+        },
+        
+        loadingFinished: function(requestId, timestamp){
+          var resource = networkEventHandler.getRequestById(requestId);
+          resource.timestamps.loadingFinished = timestamp;
+        },
+
+        loadingFailed: function(requestId, timestamp, errorText, canceled){
+          var resource = networkEventHandler.getRequestById(requestId);
+          resource.timestamps.loadingFailed = timestamp;
+          resource.errorText = errorText;
+          resource.canceled = canceled;
+        },
+        
+        requestServedFromMemoryCache: function(requestId, frameId, loaderId, documentURL, timestamp, initiator, cachedResource){
+          var url = cachedResource.url;
+          var resource = networkEventHandler.getOrCreateResource(url);
+          resource.documentURL = documentURL;
+          resource.requestId = requestId;
+          resource.loaderId = loaderId;
+          resource.timestamps = {"fromMemoryCache": timestamp};
+          resource.initiator = initiator;
+          resource.resource = cachedResource;
+          networkEventHandler.setRequestById(requestId, resource);
+          this.post(resource);
         }
       }
     },
@@ -131,6 +140,7 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
     //---------------------------------------------------------------------------------------------
   
     connect: function(chromeDebuggerProxy, viewport) {
+      this.chromeDebuggerProxy = chromeDebuggerProxy;
       chromeDebuggerProxy.registerHandlers(this);  
       LogBase.connect.apply(this, [this, viewport]);
     },
