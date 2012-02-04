@@ -196,7 +196,6 @@ define(['lib/part', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceurat
   compilerFeatureByTraceur.connect = function(editor){
     this.editorPart.editor = editor;
     editor.setContent("purpleDemo.js",1,1,1, "purple");
-    editor.registerPart(this.editorPart);
   }
   
   compilerFeatureByTraceur.disconnect = function(editor) {

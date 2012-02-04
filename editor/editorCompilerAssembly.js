@@ -4,8 +4,8 @@
 
 /*globals define*/
 
-define(['editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur'], 
-function(                     editor,                               compilerByTraceur) {
+define(['editor/editorDelegator', 'compiler/traceuratops/compileFeatureByTraceur'], 
+function(                editor,                               compilerByTraceur) {
 
   'use strict';
   
