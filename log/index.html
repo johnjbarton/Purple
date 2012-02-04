@@ -13,7 +13,7 @@ window.onload = function() {
 };
 </script>
 <script type="text/javascript" src="../lib/requirejs/require.js"></script>
-<script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
+
 <script>
 require({
   paths: {
@@ -23,7 +23,7 @@ require({
    'resources': '../resources',
    'browser': '../browser'
   }
-  }); 
+}); 
 
 require.onError = function(err) {
   console.error(err+"", {stack: err.stack.split('\n')});

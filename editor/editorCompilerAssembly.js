@@ -2,17 +2,17 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
+/*globals define*/
 
-define(['lib/part', 'editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur'], 
-function(PurplePart,                      editor,                               compilerByTraceur) {
+define(['editor/editorFeatureByOrion', 'compiler/traceuratops/compileFeatureByTraceur'], 
+function(                     editor,                               compilerByTraceur) {
 
   'use strict';
   
-  var editorCompilerAssembly = new PurplePart('editorCompilerAssembly'); 
+  var editorCompilerAssembly = {};
   
-  editorCompilerAssembly.initialize = function (thePurple) {
+  editorCompilerAssembly.initialize = function () {
       editor.initialize();
-      thePurple.registerPart(compilerByTraceur);
 
       this.compiler = compilerByTraceur;
       this.compiler.initialize();
@@ -25,17 +25,5 @@ function(PurplePart,                      editor,                               
       editor.destroy();
   };
   
-  editorCompilerAssembly.partAdded = function(part) {
-    if (part.getName() === 'compilerByTraceur') {
-      this.initialize();
-    }
-  };
-
-  editorCompilerAssembly.partRemoved = function(part) {
-    if (part.getName() === 'compilerByTraceur') {
-      this.destroy();
-    }
-  };
-
   return editorCompilerAssembly;
 });

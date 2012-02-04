@@ -22,7 +22,7 @@ function(    Assembly,       consoleEntryRep,               ObjRep,      reps) {
     this.globalClock = globalClock;
     this.scrollLock = false; // false means the viewport tracks the bottom of the log
     this.onPoll = this.poll.bind(this);
-    this.pollInterval = 100;
+    this.pollInterval = 500;
     this.optionPolling = true;
     reps.rehash();
   };
@@ -195,7 +195,12 @@ function(    Assembly,       consoleEntryRep,               ObjRep,      reps) {
   };
   
   EventLogViewport.poll = function(event) {
-    console.log("EventLogViewport poll", event);
+    if (window.debugLog) {
+      var now = new Date().getTime();
+      var delta = this.then - now;
+      this.then = now;
+      console.log("EventLogViewport poll "+delta, event);
+    }
     this.update();
   };
   

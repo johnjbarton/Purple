@@ -18,7 +18,6 @@ window.onload = function() {
     
 
         <script type="text/javascript" src="../lib/requirejs/require.js"></script>
-        <script type="text/javascript" src="../lib/requirejs/require-debug.js"></script>
 
         <script>
         require({
@@ -31,7 +30,7 @@ window.onload = function() {
         <script type="text/javascript" src="../compiler/traceur/trunk/src/traceur.js"></script>
         <script>
         window.addEventListener('load', function() {
-            require(['editor/editor', 'editor/editorCompilerAssembly'], function assemble(editor, editorCompilerAssembly) {
+            require(['editor/editorInterface', 'editor/editorCompilerAssembly'], function assemble(editor, editorCompilerAssembly) {
               console.log("editorCompilerAssembly loaded");
               var thePurple = window.purple;
               editorCompilerAssembly.initialize(thePurple);

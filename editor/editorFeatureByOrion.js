@@ -8,11 +8,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-/*global eclipse:true orion:true define document window*/
+/*global eclipse:true orion:true define document window require*/
 /*jslint devel:true*/
 
-define(['editor/orionAssembly', 'editor/annotationFactory', 'editor/revisionByOrion', '../lib/q/q', 'lib/part', 'lib/Assembly'], 
-function(                orion,         annotationFactory,          RevisionControl,            Q, PurplePart,       Assembly){
+// require is a fake dependency, see makeRequire in require.js
+
+define(['require', 'editor/orionAssembly', 'editor/annotationFactory', 'editor/revisionByOrion', '../lib/q/q', 'lib/part', 'lib/Assembly'], 
+function(require ,                  orion,         annotationFactory,          RevisionControl,            Q, PurplePart,       Assembly){
 
   // Syntax highlighting is triggered by an editor callback 'lineStyle' event
   function ErrorStyler(view) {
@@ -35,11 +37,14 @@ function(                orion,         annotationFactory,          RevisionCont
   
   // These stylesheets will be inserted into the iframe containing the editor.
   var stylesheets = [
-    "orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/textview.css", 
-    "orion.client/bundles/org.eclipse.orion.client.editor/web/orion/textview/rulers.css", 
-    "orion.client/bundles/org.eclipse.orion.client.editor/web/examples/textview/textstyler.css", 
-    "orion.client/bundles/org.eclipse.orion.client.editor/web/examples/editor/htmlStyles.css",
-    "../ui/purple.css"];
+    "orion/textview/textview.css", 
+    "orion/textview/rulers.css", 
+    "examples/textview/textstyler.css", 
+    "examples/editor/htmlStyles.css"];
+  // orion.client/bundles/org.eclipse.orion.client.editor/web/
+  stylesheets = stylesheets.map(function(sheet) {
+    return "orion.client/bundles/org.eclipse.orion.client.editor/web/"+sheet;
+  }).concat(["../ui/purple.css"]);
     
   var textViewFactory = function() {
     return new orion.textview.TextView({
@@ -51,10 +56,19 @@ function(                orion,         annotationFactory,          RevisionCont
 
   var contentAssistFactory = function(editor) {
     var contentAssist = new orion.editor.ContentAssist(editor, "contentassist");
-    contentAssist.addProvider(new orion.editor.CssContentAssistProvider(), "css", "\\.css$");
-    contentAssist.addProvider(new orion.editor.JavaScriptContentAssistProvider(), "js", "\\.js$");
+    var cssContentAssistProvider = new orion.editor.CssContentAssistProvider();
+    var jsContentAssistProvider = new orion.editor.JavaScriptContentAssistProvider();
+    contentAssist.addEventListener("show", function() {
+		if (/\.css$/.test(contentName)) {
+			contentAssist.setProviders([cssContentAssistProvider]);
+		} else if (/\.js$/.test(contentName)) {
+			contentAssist.setProviders([jsContentAssistProvider]);
+		}
+	});
     return contentAssist;
   };
+  
+  
   
   // Canned highlighters for js, java, and css. Grammar-based highlighter for html
   var syntaxHighlighter = {

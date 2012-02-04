@@ -16,7 +16,8 @@ define([
   "orion/textview/undoStack",
   "orion/editor/htmlGrammar",
   "orion/editor/contentAssist",
-  "orion/editor/webContentAssist",
+  "orion/editor/jsContentAssist",
+  "orion/editor/cssContentAssist",
   "orion/editor/editor",
   "orion/editor/editorFeatures"
 ], function(
@@ -32,7 +33,8 @@ define([
   orion_textview_undoStack,
   orion_editor_htmlGrammar,
   orion_editor_contentAssist,
-  orion_editor_webContentAssist,
+  orion_editor_jsContentAssist,
+  orion_editor_cssContentAssist,
   orion_editor_editor,
   orion_editor_editorFeatures
 ) {
@@ -55,8 +57,9 @@ define([
   orion.editor = orion.mergeMethods(
     orion_editor_editorFeatures,
     orion_editor_htmlGrammar,
-    orion_editor_contentAssist,
-    orion_editor_webContentAssist,
+    orion_editor_contentAssist,  
+    orion_editor_jsContentAssist,
+    orion_editor_cssContentAssist,
     orion_editor_editor
   );
 
