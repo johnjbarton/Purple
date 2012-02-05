@@ -6,26 +6,21 @@
 define(['editor/editorInterface', 'MetaObject/q/q', 'MetaObject/q-comm/q-comm'],
 function(editorInterface, Q, Q_COMM) {
 
-function buildPromisingCalls(iface, impl) {
+function buildPromisingCalls(iface, remote) {
   var stub = {};
   Object.keys(iface).forEach(function(method) {
+    // functions on stub operate on remote
     stub[method] =  function() {
       var args = Array.prototype.slice.call(arguments);       
-      return impl.invoke.apply(stub, [method].concat(args));
+      return remote.invoke.apply(remote, [method].concat(args));
     };
   });
   return stub;
 }
 
 function stubber(iframe, commands, eventHandler) {
-  var stub = Q.defer();
   var qStub = Q_COMM.Connection(iframe.contentWindow, eventHandler, {origin: window.location.origin});
-  //qStub.then(
-  //  function(qStub) {
-      stub.resolve(buildPromisingCalls(commands, qStub));
-  //  }
-  //);
-  return stub.promise; 
+  return buildPromisingCalls(commands, qStub); 
 }
 
 var editorStubber =  function(iframe, editorEventHandler) {
