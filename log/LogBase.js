@@ -3,8 +3,8 @@
 
 /*globals define console */
 
-define(['lib/MetaObject', 'log/SparseArray', 'lib/q/q'], 
-function (   MetaObject,       SparseArray,         Q) {
+define(['lib/MetaObject', 'log/SparseArray', 'MetaObject/q/q'], 
+function (   MetaObject,       SparseArray,                Q) {
   
 var LogBase = MetaObject.extend({
     

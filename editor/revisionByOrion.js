@@ -3,7 +3,7 @@
 
 /*global define XMLHttpRequest */
 
-define(['../lib/MetaObject','../lib/q/q'], function(MetaObject, Q) {
+define(['MetaObject/MetaObject','MetaObject/q/q'], function(MetaObject, Q) {
 
   var XHR = MetaObject.extend({
     initialize: function(method, url, async) {

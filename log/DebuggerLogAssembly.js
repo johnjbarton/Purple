@@ -3,7 +3,7 @@
 
 /*globals define */
 
-define(['log/javaScriptEventHandler', 'log/consoleEventHandler', 'log/networkEventHandler', 'resources/Resources', 'lib/q/q'], 
+define(['log/javaScriptEventHandler', 'log/consoleEventHandler', 'log/networkEventHandler', 'resources/Resources', 'MetaObject/q/q'], 
 function(            jsEventHandler,       consoleEventHandler,       networkEventHandler,             resources,         Q) {
 
   var DebuggerLogAssembly = {

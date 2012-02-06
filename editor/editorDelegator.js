@@ -3,8 +3,8 @@
 
 /*globals define window console*/
 
-define(['editor/OrionEditor', 'editor/annotationFactory'], 
-function(OrionEditor,          annotationFactory) {
+define(['editor/OrionEditor', 'editor/annotationFactory', 'lib/Assembly'], 
+function(OrionEditor,          annotationFactory,               Assembly) {
 
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
@@ -53,17 +53,20 @@ function(OrionEditor,          annotationFactory) {
 //    syntaxHighlighter.highlight(name, OrionEditor.getTextView());
   };
     
+    
+  Assembly.addListenerContainer(editorFeatureByOrion);
+  
   // name: a key given to setContent,
   // src: new buffer contents, 
   // startDamage: first pos of change (both old and new)
   // endDamage: last pos of change in *old* buffer 
   editorFeatureByOrion._sourceChange = function(name, src, startDamage, endDamage) {
-    return this.toSomeParts("onSourceChange", arguments);
+    return this.toEachListener("onSourceChange", arguments);
   };
   // name: a key given to setContent,
   // index: offset to the first char of a line just revealed.
   editorFeatureByOrion._lineRevealed = function(name, index) {
-    return this.toSomeParts("onLineRevealed", arguments);
+    return this.toEachListener("onLineRevealed", arguments);
   };
     
   // indicator: {token: string, tooltip: string, line: number, column: number 

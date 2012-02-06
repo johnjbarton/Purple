@@ -12,7 +12,7 @@ window.onload = function() {
   console.log("iframe load "+window.location.toString());
 };
 </script>
-<script type="text/javascript" src="../lib/requirejs/require.js"></script>
+<script type="text/javascript" src="../lib/MetaObject/requirejs/require.js"></script>
 
 <script>
 require({
@@ -21,7 +21,8 @@ require({
    'log': '../log',  
    'lib': '../lib',
    'resources': '../resources',
-   'browser': '../browser'
+   'browser': '../browser',
+   'MetaObject': 'lib/MetaObject'
   }
 }); 
 

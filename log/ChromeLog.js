@@ -5,7 +5,7 @@
 
 /*globals define*/
 
-define(['log/LogBase', 'lib/q/q'], function(LogBase, Q) {
+define(['log/LogBase', 'MetaObject/q/q'], function(LogBase, Q) {
   
   'use strict';
   

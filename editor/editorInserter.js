@@ -30,8 +30,8 @@ var editorStubber =  function(iframe, editorEventHandler) {
 var editorInserter = {
 
   'interface' : {
-    open: function(where, url, line, col) {
-        var editor = editorInserter.insertEditor(where);
+    open: function(parentElement, height, url, line, col) {
+        var editor = editorInserter.insertEditor(parentElement, height);
         editor.then(function(editor) {
           editor.open(url, line, col).then(function() {
             console.log("editor open returns");
@@ -40,19 +40,20 @@ var editorInserter = {
     }
   },
   
-  insertEditor: function (where) {
-      var iframe = this.insertIframe(where, '../editor/index.html');
+  insertEditor: function (parentElement, height) {
+      var iframe = this.insertIframe(parentElement, height, '../editor/index.html');
       return Q.when(iframe, function(iframe) {
         this.iframe = iframe;
         return editorStubber(this.iframe, {});
       });
   },
   
-  insertIframe: function(where, url) {
+  insertIframe: function(parentElement, height, editorURL) {
     var defer = Q.defer();
     var iframe = window.document.createElement('iframe');
-    iframe.setAttribute('src', url);
-    where.appendChild(iframe);
+    iframe.setAttribute('src', editorURL);
+    iframe.setAttribute('height', height);
+    parentElement.appendChild(iframe);
     iframe.addEventListener('load', function() {
       defer.resolve(iframe);
     }, false);
