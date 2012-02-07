@@ -13,7 +13,7 @@
 
 // almost the embeddededitor code
 
-define(['editor/orionAssembly', 'editor/annotationFactory', 'editor/revisionByOrion', 'MetaObject/q/q'], 
+define(['editor/orionAssembly', 'editor/annotationFactory', 'editor/revisionByOrion', 'q/q'], 
 function(               orion,         annotationFactory,          RevisionControl,            Q){
 
   // Syntax highlighting is triggered by an editor callback 'lineStyle' event
