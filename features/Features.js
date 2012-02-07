@@ -10,7 +10,7 @@
 define(['editor/editorInserter'], function(editor) {
 
 var Features = {
-  editor: editor['interface']
+  editor: editor.commands
 };
 
 return Features;
