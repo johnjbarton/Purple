@@ -3,28 +3,13 @@
 
 /*globals define window console*/
 
-define(['editor/editorInterface', 'MetaObject/q/q', 'MetaObject/q-comm/q-comm'],
-function(editorInterface, Q, Q_COMM) {
+define(['editor/editorInterface', 'MetaObject/q/q', 'q-comm/q-rpc'],
+function(       editorInterface,                Q,          Q_RPC) {
 
-function buildPromisingCalls(iface, remote) {
-  var stub = {};
-  Object.keys(iface).forEach(function(method) {
-    // functions on stub operate on remote
-    stub[method] =  function() {
-      var args = Array.prototype.slice.call(arguments);       
-      return remote.invoke.apply(remote, [method].concat(args));
-    };
-  });
-  return stub;
-}
 
-function stubber(iframe, commands, eventHandler) {
-  var qStub = Q_COMM.Connection(iframe.contentWindow, eventHandler, {origin: window.location.origin});
-  return buildPromisingCalls(commands, qStub); 
-}
 
-var editorStubber =  function(iframe, editorEventHandler) {
-  return stubber(iframe, editorInterface.commands, editorEventHandler);
+var editorStubber =  function(otherWindow, editorEventHandler) {
+  return Q_RPC.makeStub(otherWindow, editorInterface.commands, editorEventHandler);
 };
 
 var editorInserter = {
@@ -35,8 +20,9 @@ var editorInserter = {
         editor.then(function(editor) {
           editor.open(url, line, col).then(function() {
             console.log("editor open returns");
-          });
-        });
+            this.iframe.removeAttribute('style');
+          }.bind(this));
+        }.bind(this));
     }
   },
   
@@ -44,7 +30,7 @@ var editorInserter = {
       var iframe = this.insertIframe(parentElement, height, '../editor/index.html');
       return Q.when(iframe, function(iframe) {
         this.iframe = iframe;
-        return editorStubber(this.iframe, {});
+        return editorStubber(this.iframe.contentWindow, {});
       });
   },
   
@@ -53,6 +39,7 @@ var editorInserter = {
     var iframe = window.document.createElement('iframe');
     iframe.setAttribute('src', editorURL);
     iframe.setAttribute('height', height);
+    iframe.setAttribute('style', "display:none");
     parentElement.appendChild(iframe);
     iframe.addEventListener('load', function() {
       defer.resolve(iframe);

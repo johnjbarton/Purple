@@ -21,14 +21,16 @@ function initialize() {
         'lib': "../lib",
         'MetaObject': "../lib/MetaObject",
         'features': '../features',
-        'editor':'../editor'
+        'editor':'../editor',
+        'q-comm':'../lib/MetaObject/q-comm',
+        'q':'../lib/MetaObject/q'
       }
     }); 
 
-   require.onError = function(err) {
+  /* require.onError = function(err) {
      console.error(err+"", {stack: err.stack.split('\n')});
    };
-
+*/
    require(['crx2app/appEnd/connection', 'ChromeLogAssembly', 'DebuggerLogAssembly', 'crx2app/rpc/ChromeProxy', 'MetaObject/q/q', 'MetaObject/urlUtils'], 
    function (               connection,   ChromeLogAssembly,   DebuggerLogAssembly,               ChromeProxy,                Q,              urlUtils) {
    
