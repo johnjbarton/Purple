@@ -3,8 +3,8 @@
 
 /*globals define window console*/
 
-define(['editor/editorInterface', 'MetaObject/q/q', 'q-comm/q-rpc'],
-function(       editorInterface,                Q,          Q_RPC) {
+define(['editor/editorInterface', 'q/q', 'q-comm/q-rpc'],
+function(       editorInterface,     Q,          Q_RPC) {
 
 
 
@@ -14,7 +14,7 @@ var editorStubber =  function(otherWindow, editorEventHandler) {
 
 var editorInserter = {
 
-  'interface' : {
+  commands : {
     open: function(parentElement, height, url, line, col) {
         var editor = editorInserter.insertEditor(parentElement, height);
         editor.then(function(editor) {
@@ -26,6 +26,7 @@ var editorInserter = {
     }
   },
   
+  //-------------------------------------------
   insertEditor: function (parentElement, height) {
       var iframe = this.insertIframe(parentElement, height, '../editor/index.html');
       return Q.when(iframe, function(iframe) {

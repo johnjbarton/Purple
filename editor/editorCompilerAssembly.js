@@ -2,16 +2,25 @@
 // see Purple/license.txt for BSD license
 // johnjbarton@google.com
 
-/*globals define*/
+/*globals define console window*/
 
-define(['editor/editorDelegator', 'compiler/traceuratops/compileFeatureByTraceur'], 
-function(                editor,                               compilerByTraceur) {
+define(['editor/editorInterface', 'editor/editorDelegator',  'q-comm/q-rpc', 'compiler/traceuratops/compileFeatureByTraceur'], 
+function(       editorInterface,         editor,                     Q_RPC,                               compilerByTraceur) {
 
   'use strict';
   
-  var editorCompilerAssembly = {};
+  var editorCompilerAssembly = {
+    commands: editorInterface.events,
+    events: editorInterface.commands
+  };
+  
+  editorCompilerAssembly.events.open = function(url, line, column) {
+    console.log("editor open called with ", arguments);
+  };
   
   editorCompilerAssembly.initialize = function () {
+      this.remote = Q_RPC.makeStub(window.parent, this.commands, this.events);
+  
       editor.initialize();
 
       this.compiler = compilerByTraceur;

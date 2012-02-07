@@ -1,14 +1,6 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="../ui/part.css" />
-<script>
-/*globals console require window */
-window.purple = window.parent.purple;
-  console.log("iframe start "+window.location.toString());
-window.onload = function() {
-  console.log("iframe load "+window.location.toString());
-};
-</script>
 <!-- From Orion embeddededitor -->
     <meta name="copyright" content="Copyright (c) IBM Corporation and others 2010." >
     <meta http-equiv="Content-Language" content="en-us">
@@ -20,10 +12,13 @@ window.onload = function() {
         <script type="text/javascript" src="../lib/MetaObject/requirejs/require.js"></script>
 
         <script>
+        /*globals console require window */
         require({
           baseUrl: "..",
           paths : {
             orion: 'editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion',
+            'q': 'lib/MetaObject/q',
+            'q-comm': 'lib/MetaObject/q-comm',
             MetaObject: 'lib/MetaObject'
           }
         }); 
@@ -33,8 +28,7 @@ window.onload = function() {
         window.addEventListener('load', function() {
             require(['editor/editorInterface', 'editor/editorCompilerAssembly'], function assemble(editor, editorCompilerAssembly) {
               console.log("editorCompilerAssembly loaded");
-              var thePurple = window.purple;
-              editorCompilerAssembly.initialize(thePurple);
+              editorCompilerAssembly.initialize();
             });
         }, false);
 
