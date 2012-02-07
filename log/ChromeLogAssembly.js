@@ -3,7 +3,7 @@
 
 /*globals define console */
 
-define(['log/ChromeLog', 'log/EventLogViewport', 'resources/Resources', 'MetaObject/q/q'], 
+define(['log/ChromeLog', 'log/EventLogViewport', 'resources/Resources', 'q/q'], 
 function(    chromeLog,               viewport,             resources,                Q) {
 
   'use strict';

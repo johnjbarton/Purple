@@ -3,8 +3,8 @@
 
 /*globals define */
 
-define(['log/LogBase', 'resources/Resources', 'resources/Resource', 'MetaObject/q/q'], 
-function (   LogBase,             Resources,             Resource,                Q) {
+define(['log/LogBase', 'resources/Resources', 'resources/Resource', 'q/q'], 
+function (   LogBase,             Resources,             Resource,     Q) {
 
   var networkEventHandler = LogBase.extend({
   

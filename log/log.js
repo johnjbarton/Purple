@@ -18,12 +18,12 @@ function initialize() {
         "browser/remote": "../lib/crx2app/extension/rpc",
         'log': "../log",
         'resources': "../resources",
+        'q':'../lib/MetaObject/q',
         'lib': "../lib",
         'MetaObject': "../lib/MetaObject",
         'features': '../features',
         'editor':'../editor',
         'q-comm':'../lib/MetaObject/q-comm',
-        'q':'../lib/MetaObject/q'
       }
     }); 
 
@@ -31,8 +31,8 @@ function initialize() {
      console.error(err+"", {stack: err.stack.split('\n')});
    };
 */
-   require(['crx2app/appEnd/connection', 'ChromeLogAssembly', 'DebuggerLogAssembly', 'crx2app/rpc/ChromeProxy', 'MetaObject/q/q', 'MetaObject/urlUtils'], 
-   function (               connection,   ChromeLogAssembly,   DebuggerLogAssembly,               ChromeProxy,                Q,              urlUtils) {
+   require(['crx2app/appEnd/connection', 'ChromeLogAssembly', 'DebuggerLogAssembly', 'crx2app/rpc/ChromeProxy', 'q/q', 'MetaObject/urlUtils'], 
+   function (               connection,   ChromeLogAssembly,   DebuggerLogAssembly,               ChromeProxy,     Q,              urlUtils) {
    
      connection.attach(function onConnectedToChrome() {
 
