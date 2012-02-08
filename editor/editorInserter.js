@@ -20,7 +20,7 @@ var editorInserter = {
         editor.then(function(editor) {
           editor.open(url, line, col).then(function() {
             console.log("editor open returns");
-            this.iframe.removeAttribute('style');
+            this.iframe.classList.remove('hidden');
           }.bind(this));
         }.bind(this));
     }
@@ -28,22 +28,25 @@ var editorInserter = {
   
   //-------------------------------------------
   insertEditor: function (parentElement, height) {
-      var iframe = this.insertIframe(parentElement, height, '../editor/index.html');
+      var iframe = this.insertIframe(parentElement, height, '../editor/editor.html');
       return Q.when(iframe, function(iframe) {
         this.iframe = iframe;
         return editorStubber(this.iframe.contentWindow, {});
-      });
+      }.bind(this.commands));
   },
   
   insertIframe: function(parentElement, height, editorURL) {
     var defer = Q.defer();
     var iframe = window.document.createElement('iframe');
     iframe.setAttribute('src', editorURL);
-    iframe.setAttribute('height', height);
-    iframe.setAttribute('style', "display:none");
+    iframe.classList.add('hidden');
+    iframe.classList.add('bubbly');
     parentElement.appendChild(iframe);
     iframe.addEventListener('load', function() {
       defer.resolve(iframe);
+    }, false);
+    iframe.addEventListener('unload', function() {
+      debugger;
     }, false);
     return defer.promise;
   }
