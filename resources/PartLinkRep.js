@@ -106,7 +106,7 @@ function (                   domplate,                Resources,          Reps, 
         display = eltStyle.display;
         blockElt = blockElt.parentElement;
       }
-      opener.open(blockElt, resource.url, lineNumber, columnNumber);
+      opener.open(blockElt, 300, resource.url, lineNumber, columnNumber);
     } else {
       PartLinkRep.onError("No part with feature "+feature+" found");
     }

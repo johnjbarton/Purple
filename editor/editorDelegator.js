@@ -3,8 +3,8 @@
 
 /*globals define window console*/
 
-define(['editor/OrionEditor', 'editor/annotationFactory', 'lib/Assembly'], 
-function(OrionEditor,          annotationFactory,               Assembly) {
+define(['editor/OrionEditor', 'editor/annotationFactory', 'lib/Assembly', 'MetaObject/AJAX', 'q/q'], 
+function(OrionEditor,          annotationFactory,              Assembly,              AJAX,     Q) {
 
   //--------------------------------------------------------------------------------------------------------
   // Orion Editor API Implementation
@@ -30,9 +30,10 @@ function(OrionEditor,          annotationFactory,               Assembly) {
   // Errors reported but not used by the highlighter yet.
   editorFeatureByOrion._unclaimedIndicators = []; 
   
-  editorFeatureByOrion.open = function(source, lineNumber, columnNumber, endNumber) {
-    OrionEditor.sourceName = source.url;
-    source.fetchContent(
+  editorFeatureByOrion.open = function(url, lineNumber, columnNumber, endNumber) {
+    OrionEditor.sourceName = url;
+    var content = AJAX.promiseGET(url);
+    Q.when(content, 
       this.setContent.bind(this, OrionEditor.sourceName, lineNumber, columnNumber, endNumber), 
       function(msg) { 
         throw new Error(msg); 

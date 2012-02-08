@@ -16,6 +16,7 @@ function(       editorInterface,         editor,                     Q_RPC,     
   
   editorCompilerAssembly.events.open = function(url, line, column) {
     console.log("editor open called with ", arguments);
+    editor.open(url, line, column);
   };
   
   editorCompilerAssembly.initialize = function () {
