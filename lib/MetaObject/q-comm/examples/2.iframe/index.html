@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <script src="../../node_modules/q/q.js"></script>
+        <script src="../../../q/q.js"></script>
         <script src="uuid.js"></script>
         <script src="../../q-comm.js"></script>
     </head>
@@ -14,7 +14,7 @@
 
             var remote = Q_COMM.Connection(child, {
                 "hi": function (message) {
-                    console.log("index.html:", message);
+                    console.log("index.html: local ", message);
                     return "Hi";
                 }
             }, {
@@ -23,7 +23,7 @@
 
             remote.invoke("hi", "Hello, Child!")
             .then(function (message) {
-                console.log("index.html:", message);
+                console.log("index.html: invoke then ", message);
             })
             .end();
 

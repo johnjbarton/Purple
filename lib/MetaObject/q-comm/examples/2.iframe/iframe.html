@@ -1,16 +1,15 @@
 <!doctype html>
 <html>
     <head>
-        <script src="../../node_modules/q/q.js"></script>
+        <script src="../../../q/q.js"></script>
         <script src="uuid.js"></script>
         <script src="../../q-comm.js"></script>
     </head>
     <body>
         <script>
-
-            var remote = Q_COMM.Connection(window, {
+            var remote = Q_COMM.Connection(window.parent, {
                 "hi": function (message) {
-                    console.log("iframe.html:", message);
+                    console.log("iframe.html: local ", message);
                     return "Hi";
                 }
             }, {
@@ -19,10 +18,9 @@
 
             remote.invoke("hi", "Hello, Parent!")
             .then(function (response) {
-                console.log("iframe.html:", response);
+                console.log("iframe.html: invoke then ", response);
             })
             .end();
-
         </script>
     </body>
 </html>
