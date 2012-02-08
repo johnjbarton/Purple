@@ -5,7 +5,7 @@
 /*globals define console window*/
 
 define(['editor/editorInterface', 'editor/editorDelegator',  'q-comm/q-rpc', 'compiler/traceuratops/compileFeatureByTraceur'], 
-function(       editorInterface,         editor,                     Q_RPC,                               compilerByTraceur) {
+function(       editorInterface,                   editor,           Q_RPC,                               compilerByTraceur) {
 
   'use strict';
   

@@ -3,10 +3,10 @@
 
 /*globals define window console*/
 
-define(['editor/editorInterface', 'q/q', 'q-comm/q-rpc'],
-function(       editorInterface,     Q,          Q_RPC) {
+define(['require', 'editor/editorInterface', 'q/q', 'q-comm/q-rpc'],
+function(require,          editorInterface,     Q,          Q_RPC) {
 
-
+var editorIframeURL = require.toUrl('../editor/editor.html');
 
 var editorStubber =  function(otherWindow, editorEventHandler) {
   return Q_RPC.makeStub(otherWindow, editorInterface.commands, editorEventHandler);
@@ -28,7 +28,7 @@ var editorInserter = {
   
   //-------------------------------------------
   insertEditor: function (parentElement, height) {
-      var iframe = this.insertIframe(parentElement, height, '../editor/editor.html');
+      var iframe = this.insertIframe(parentElement, height, editorIframeURL);
       return Q.when(iframe, function(iframe) {
         this.iframe = iframe;
         return editorStubber(this.iframe.contentWindow, {});

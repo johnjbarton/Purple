@@ -4,7 +4,7 @@
 /*globals define*/
 
 define([
-  "../../lib/MetaObject.js",
+  "MetaObject/MetaObject",
   "orion/textview/eventTarget",
   "orion/textview/keyBinding",
   "orion/textview/annotations", 
