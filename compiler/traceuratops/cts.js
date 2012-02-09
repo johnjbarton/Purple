@@ -18,12 +18,27 @@
       }
     }); 
     
-    require(['editor/editorInserter', 'editor/editorCompilerAssembly'], function assemble(editorInserter, editorCompilerAssembly) {
-      console.log("editorCompilerAssembly loaded");
-      editorCompilerAssembly.initialize();
-      var parentElt = window.document.body;
-      var url = "./cts.js";
-      editorInserter.commands.open(parentElt, '500px', url);
+    function openEditor(editorInserter, url) {
+      var parentElt = window.document.getElementById('editor');
+      parentElt.setAttribute('height', '500px');
+      console.log('inserting editor');
+      editorInserter.commands.open(parentElt, url);
+    }
+    
+    function openOutput(editorInserter, url) {
+      var parentElt = window.document.getElementById('output');
+      parentElt.setAttribute('height', '500px');
+      console.log('inserting output');
+      editorInserter.commands.open(parentElt, url);
+    }
+    
+    require(['editor/editorInserter'], function assemble(editorInserter) {
+      var baseUrl = window.location.toString().split('/');
+      baseUrl.pop(); // remove filename
+      baseUrl = baseUrl.join('/');
+      openEditor(editorInserter, baseUrl+'/cts.js');
+      openOutput(editorInserter, baseUrl+'/cts.js');
+      
     });
 
 
