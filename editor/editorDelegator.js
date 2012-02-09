@@ -32,9 +32,12 @@ function(OrionEditor,          annotationFactory,              Assembly,        
   
   editorFeatureByOrion.open = function(url, lineNumber, columnNumber, endNumber) {
     OrionEditor.sourceName = url;
-    var content = AJAX.promiseGET(url);
-    Q.when(content, 
-      this.setContent.bind(this, OrionEditor.sourceName, lineNumber, columnNumber, endNumber), 
+    var promiseEvent = AJAX.promiseGET(url);
+    Q.when(promiseEvent,
+      function(event) {
+        var src = event.currentTarget.responseText;
+        this.setContent(OrionEditor.sourceName, lineNumber, columnNumber, endNumber, src);
+      }.bind(this),
       function(msg) { 
         throw new Error(msg); 
       }
