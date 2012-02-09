@@ -15,8 +15,8 @@ var editorStubber =  function(otherWindow, editorEventHandler) {
 var editorInserter = {
 
   commands : {
-    open: function(parentElement, height, url, line, col) {
-        var editor = editorInserter.insertEditor(parentElement, height);
+    open: function(parentElement, url, line, col) {
+        var editor = editorInserter.insertEditor(parentElement);
         editor.then(function(editor) {
           editor.open(url, line, col).then(function() {
             console.log("editor open returns");
@@ -27,15 +27,15 @@ var editorInserter = {
   },
   
   //-------------------------------------------
-  insertEditor: function (parentElement, height) {
-      var iframe = this.insertIframe(parentElement, height, editorIframeURL);
+  insertEditor: function (parentElement) {
+      var iframe = this.insertIframe(parentElement, editorIframeURL);
       return Q.when(iframe, function(iframe) {
         this.iframe = iframe;
         return editorStubber(this.iframe.contentWindow, {});
       }.bind(this.commands));
   },
   
-  insertIframe: function(parentElement, height, editorURL) {
+  insertIframe: function(parentElement, editorURL) {
     var defer = Q.defer();
     var iframe = window.document.createElement('iframe');
     iframe.setAttribute('src', editorURL);
