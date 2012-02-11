@@ -3,9 +3,10 @@
 // Copyright Google 2011.  johnjbarton@johnjbarton.com
 
 /*
- * Traceur to Editor Integration 
+ * Traceur Integration 
  */
 
+/*globals define traceur console*/
 
 define(['lib/part', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceuratops/ParseTreeLeafFinder'], function(PurplePart, ParseTreeStyler, ParseTreeLeafFinder) {
   'use strict';
@@ -178,79 +179,20 @@ define(['lib/part', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceurat
 	this.errorIndicators.push(indicator);
   }
   
-  function evaluate(res) {
-    var source = traceur.codegeneration.ProjectWriter.write(res);
-    console.log("Traceur generated code", source);
-    try {
-      return ('global', eval)(source);
-    } catch(ex) {
-      return ex;
-    }
-  }
-    
-  //------------------------------------------------------------------------------------
-  // Implement PurplePart
+  var compilerFeatureByTraceur = {};
   
-  var compilerFeatureByTraceur =  new PurplePart('compilerByTraceur'); 
-    
-  compilerFeatureByTraceur.connect = function(editor){
-    this.editorPart.editor = editor;
-    editor.setContent("purpleDemo.js",1,1,1, "purple");
-  }
-  
-  compilerFeatureByTraceur.disconnect = function(editor) {
-    if (this.editorPart.editor && editor === this.editorPart.editor) {
-        editor.unregisterPart(this.editorPart);
-        delete this.editorPart.editor;
-    }
-  };
-  
-  // -----------------------------------------------------------------------------------
-  // From editor
-  compilerFeatureByTraceur.editorPart = new PurplePart("compilerByTraceur");
-
-  compilerFeatureByTraceur.editorPart.onSourceChange = function(name, src, startDamage, endDamage) {
-    if (src) {
-      var res = compilerFeatureByTraceur.compile(name, src);
-      if (res) {
-        var value = evaluate(res);
-        compilerFeatureByTraceur.editorPart.editor.showValue(value, 1, 1);
-      } else {
-        var indicators = compilerFeatureByTraceur.reporter.errorIndicators;
-        var summary;
-        indicators.forEach(function summarizeErrors(indicator) {
-          if (!summary)  {
-            summary = indicator;
-          } else {
-            if (summary.line === indicator.line) {
-	          if (indicator.join) {
-    	        summary.token += indicator.token;
-        	  } // else first one wins
-        	} else {
-        	  compilerFeatureByTraceur.editorPart.editor.reportError(summary);
-        	}
-          }
-        });
-        this.editor.reportError(summary);
-      } 
-    }
-    // else ignore empty buffers
-  };
-  
-  compilerFeatureByTraceur.editorPart.onLineRevealed = function(name, beginLine, endLine, tokenStyles) {
+  compilerFeatureByTraceur.getTokenRangesByLines = function(name, beginLine, endLine) {
     var tokenRanges = [];
-    if (compilerFeatureByTraceur.compiler) {
-       var file = compilerFeatureByTraceur.compiler.project_.getFile(name)
-       var tree = compilerFeatureByTraceur.compiler.project_.getParseTree(file);
-       var path = ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
-       if (path && path.length) {
-         var treeAtIndex = path.pop();
-         var styler = new ParseTreeStyler(treeAtIndex);
-         var tokenRanges = styler.getTokenRangesAround(beginLine, endLine);
-         this.editor.convertTokenTypes(tokenRanges, tokenStyles);
-       }
+    var file = compilerFeatureByTraceur.compiler.project_.getFile(name);
+    var tree = compilerFeatureByTraceur.compiler.project_.getParseTree(file);
+    var path = ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
+    if (path && path.length) {
+      var treeAtIndex = path.pop();
+      var styler = new ParseTreeStyler(treeAtIndex);
+      tokenRanges = styler.getTokenRangesAround(beginLine, endLine);
     }
-  }
+    return tokenRanges;
+  };
   
   //--------------------------------------------------------------------------------------
   compilerFeatureByTraceur.compile = function(name, src) {
@@ -270,10 +212,10 @@ define(['lib/part', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceurat
     if (compilerFeatureByTraceur.compiler.hadError_()) {
       return null;
     }
-    return compilerFeatureByTraceur.compiler.results_;
+    var res = compilerFeatureByTraceur.compiler.results_;
+    var source = traceur.codegeneration.ProjectWriter.write(res);
+    return source;
   };
-
-  compilerFeatureByTraceur.implementsFeature('compiler');
 
   return compilerFeatureByTraceur;
 });

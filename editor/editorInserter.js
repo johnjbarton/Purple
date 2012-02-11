@@ -15,13 +15,15 @@ var editorStubber =  function(otherWindow, editorEventHandler) {
 var editorInserter = {
 
   commands : {
+    // promises a editor/editorInterface
     open: function(parentElement, url, line, col) {
         var editor = editorInserter.insertEditor(parentElement);
-        editor.then(function(editor) {
-          editor.open(url, line, col).then(function() {
-            console.log("editor open returns");
-            this.iframe.classList.remove('hidden');
-          }.bind(this));
+        return editor.when(
+          function(editor) {
+            return editor.open(url, line, col).then(function() {
+              console.log("editor open returns");
+              this.iframe.classList.remove('hidden');
+            }.bind(this));
         }.bind(this));
     }
   },
@@ -31,7 +33,7 @@ var editorInserter = {
       var iframe = this.insertIframe(parentElement, editorIframeURL);
       return Q.when(iframe, function(iframe) {
         this.iframe = iframe;
-        return editorStubber(this.iframe.contentWindow, {});
+        return editorStubber(this.iframe, {});
       }.bind(this.commands));
   },
   
@@ -46,7 +48,7 @@ var editorInserter = {
       defer.resolve(iframe);
     }, false);
     iframe.addEventListener('unload', function() {
-      debugger;
+      console.error("iframe unload and we don't know what to do..close Q_COMM");
     }, false);
     return defer.promise;
   }
