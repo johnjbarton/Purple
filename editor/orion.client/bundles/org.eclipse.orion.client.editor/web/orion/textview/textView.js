@@ -5157,6 +5157,8 @@ define("orion/textview/textView", ['orion/textview/textModel', 'orion/textview/k
 			this._setDOMFullSelection(startNode, startOffset, startLineEnd, endNode, endOffset, endLineEnd);
 			if (isPad) { return; }
 
+            if (!startLineNode || !startLineOffset) { return; }  // avoid DOMException below
+
 			var range;
 			if (window.getSelection) {
 				//W3C
