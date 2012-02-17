@@ -6,7 +6,7 @@
 // A namespace and registry for services
 // By changing which implementation file is bound to the dependency, 
 // we load different implemenations of the same interface. 
-debugger;
+
 define(['editor/editorInserter'], function(editor) {
 
 var Features = {
