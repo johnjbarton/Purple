@@ -44,7 +44,7 @@ function(require,                  orion,         annotationFactory,          Re
   // orion.client/bundles/org.eclipse.orion.client.editor/web/
   stylesheets = stylesheets.map(function(sheet) {
     return require.toUrl("orion/"+"../"+sheet);
-  }).concat([require.toUrl("ui/purple.css")]);
+  }).concat([require.toUrl("editor/../ui/purple.css")]);
     
   var textViewFactory = function() {
     return new orion.textview.TextView({

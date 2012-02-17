@@ -183,14 +183,16 @@ define(['lib/part', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceurat
   
   compilerFeatureByTraceur.getTokenRangesByLines = function(name, beginLine, endLine) {
     var tokenRanges = [];
-    var file = compilerFeatureByTraceur.compiler.project_.getFile(name);
-    var tree = compilerFeatureByTraceur.compiler.project_.getParseTree(file);
-    var path = ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
-    if (path && path.length) {
-      var treeAtIndex = path.pop();
-      var styler = new ParseTreeStyler(treeAtIndex);
-      tokenRanges = styler.getTokenRangesAround(beginLine, endLine);
-    }
+    if (compilerFeatureByTraceur.compiler) {
+      var file = compilerFeatureByTraceur.compiler.project_.getFile(name);
+      var tree = compilerFeatureByTraceur.compiler.project_.getParseTree(file);
+      var path = ParseTreeLeafFinder.getParseTreePathByIndex(tree, beginLine);
+      if (path && path.length) {
+        var treeAtIndex = path.pop();
+        var styler = new ParseTreeStyler(treeAtIndex);
+        tokenRanges = styler.getTokenRangesAround(beginLine, endLine);
+      }
+    } // else not compiled
     return tokenRanges;
   };
   

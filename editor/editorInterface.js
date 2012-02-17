@@ -7,6 +7,7 @@ define([],
 function () {
   
   var editorInterface = {
+    
     commands: { // from IDE to editor
       open: function(url, lineNumber, columnNumber) {}
     },

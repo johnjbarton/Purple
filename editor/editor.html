@@ -14,21 +14,27 @@
         <script>
         /*globals console require window */
         require({
-          baseUrl: "..",
+          // baseUrl: "..",
           paths : {
-            orion: 'editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion',
+            orion: 'orion.client/bundles/org.eclipse.orion.client.editor/web/orion',
             'q': '../../q',
             'q-comm': '../../q-comm',
-            MetaObject: 'lib/MetaObject'
+            MetaObject: '../lib/MetaObject',
+            'editor': '../editor',
+            'compiler': '../compiler',
+            'lib': '../lib',
           }
         }); 
         </script>
         <script type="text/javascript" src="../compiler/traceur/trunk/src/traceur.js"></script>
         <script>
         window.addEventListener('load', function() {
-            require(['editor/editorInterface', 'editor/editorCompilerAssembly'], function assemble(editor, editorCompilerAssembly) {
+            require(['editor/editorInterface', 'editor/editorCompilerAssembly'], function assemble(editorInterface, editorCompilerAssembly) {
               console.log("editorCompilerAssembly loaded");
               editorCompilerAssembly.initialize();
+              var event = window.document.createEvent('CustomEvent');
+              event.initCustomEvent('purpleEditorReady', true, false, editorCompilerAssembly);
+              window.dispatchEvent(event);
             });
         }, false);
 

@@ -36,7 +36,8 @@ function(OrionEditor,          annotationFactory,              Assembly,        
     return Q.when(promiseEvent,
       function(event) {
         var src = event.currentTarget.responseText;
-        this.setContent(OrionEditor.sourceName, lineNumber, columnNumber, endNumber, src);
+        // don't give line numbers to avoid triggering onGotoLine
+        this.setContent(OrionEditor.sourceName, undefined, undefined, undefined, src);
         return this;
       }.bind(this),
       function(msg) { 
@@ -124,7 +125,7 @@ function(OrionEditor,          annotationFactory,              Assembly,        
   editorFeatureByOrion._onLineStyle = function(event) {
       //e.ranges = this._getStyles(e.lineText, e.lineStart);
       // Pass source range to compiler, get back things that we need to build styles
-      console.log("_onLineStyle called", event);
+      //console.log("_onLineStyle called", event);
       // The goofy API here is because I want the interaction to be async eventually and for the compiler to only
       // know about events and the editor API.
       this.tokenStyles = [];

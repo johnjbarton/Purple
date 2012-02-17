@@ -4,49 +4,48 @@
 
 /*globals define console window*/
 
-define(['editor/editorInterface', 'editor/editorDelegator',  'q-comm/q-rpc', 'compiler/traceuratops/compileFeatureByTraceur'], 
-function(       editorInterface,                   editor,           Q_RPC,                               compilerByTraceur) {
+define(['editor/editorInterface', 'editor/editorDelegator', 'compiler/traceuratops/compileFeatureByTraceur'], 
+function(       editorInterface,                   editor,                               compilerByTraceur) {
 
-  'use strict';
+  // Web Inspector bug 'use strict';
   
   var editorCompilerAssembly = {
     commands: editorInterface.events,
     events: editorInterface.commands
   };
   
-  editorCompilerAssembly.events.open = function(url, line, column) {
+  editorCompilerAssembly.events.open = function(url, line, column, fncOfEditor) {
     console.log("editor open called with ", arguments);
     var opened = editor.open(url, line, column);
-    opened.then(function(openedEditor) {
-      return this;
-    }).end();
+    opened.then(fncOfEditor).end();
+  };
+  
+  editorCompilerAssembly.events.show = function(name, src, lineNumber, columnNumber, endNumber) {
+    console.log("editor show called with ", arguments);
+    editor.setContent(name, lineNumber, columnNumber, endNumber, src);
   };
   
   editorCompilerAssembly.initialize = function () {
-      this.remote = Q_RPC.makeStub(window, this.commands, this.events);
   
       this.editor = editor;
       editor.initialize();
 
       this.compiler = compilerByTraceur;
+      
+      this.editor.addListener(function(method, args) {
+        this[method].apply(this, args);
+      }.bind(this));
   };
-  
-  editorCompilerAssembly.destroy = function() {
-      this.compiler.disconnect(editor);
-      this.compiler.destroy();
-      editor.destroy();
+ 
+  editorCompilerAssembly.saveFocus = function() {
+    this.activeElement = window.document.activeElement;
   };
-  
-  editorCompilerAssembly.connect = function(editor){
-    this.editorPart.editor = editor;
-    editor.setContent("purpleDemo.js",1,1,1, "purple");
-  };
-  
-  editorCompilerAssembly.disconnect = function(editor) {
-    if (this.editorPart.editor && editor === this.editorPart.editor) {
-        editor.unregisterPart(this.editorPart);
-        delete this.editorPart.editor;
+
+  editorCompilerAssembly.restoreFocus = function() {
+    if(this.activeElement) {
+      this.activeElement.focus();
     }
+    editor.getTextView().focus();
   };
   
   // -----------------------------------------------------------------------------------
@@ -57,7 +56,8 @@ function(       editorInterface,                   editor,           Q_RPC,     
       var compiled = this.compiler.compile(name, src);
       if (compiled) {
         var value = eval(compiled);
-        this.editor.showValue(value, 1, 1);
+        this.editor.showValue(value);
+        // allow the caller to use the result
         return compiled;
       } else {
         var indicators = this.compiler.reporter.errorIndicators;

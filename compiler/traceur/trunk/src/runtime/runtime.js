@@ -50,7 +50,6 @@ traceur.runtime = (function() {
   try {add('HTMLAudioElement', HTMLAudioElement, function() {return document.createElement('audio');});}catch (e) {}
   try {add('HTMLBRElement', HTMLBRElement, function() {return document.createElement('br');});}catch (e) {}
   try {add('HTMLBaseElement', HTMLBaseElement, function() {return document.createElement('base');});}catch (e) {}
-  try {add('HTMLBlockquoteElement', HTMLBlockquoteElement, function() {return document.createElement('blockquote');});}catch (e) {}
   try {add('HTMLBodyElement', HTMLBodyElement, function() {return document.createElement('body');});}catch (e) {}
   try {add('HTMLButtonElement', HTMLButtonElement, function() {return document.createElement('button');});}catch (e) {}
   try {add('HTMLCanvasElement', HTMLCanvasElement, function() {return document.createElement('canvas');});}catch (e) {}
