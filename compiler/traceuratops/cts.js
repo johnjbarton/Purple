@@ -13,6 +13,7 @@
         'orion': '../../editor/orion.client/bundles/org.eclipse.orion.client.editor/web/orion',
         'compiler': "../../compiler",
         'ui':"../../ui",
+        'LongMueller': '../../LongMueller',
       }
     }); 
     

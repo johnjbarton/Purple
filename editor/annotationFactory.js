@@ -43,6 +43,7 @@ var AnnotationFactory = MetaObject.mergeMethods(
       var annotation = this.getOffsetsByLine(indicator.line - 1, indicator.column);
       annotation.html = "<a style='line-height:17px;' class='purpleAnnotation' title='" + escapedReason + "' alt='" + escapedReason + "'>"+indicator.token+"</a>";
       annotation.overviewStyle = {style: {"backgroundColor": "lightcoral", "border": "1px solid red"}};
+      annotation.type = 'orion.annotation.error';
       
 	  return annotation;
     },

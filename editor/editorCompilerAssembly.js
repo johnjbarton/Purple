@@ -45,7 +45,7 @@ function(       editorInterface,                   editor,                      
     if(this.activeElement) {
       this.activeElement.focus();
     }
-    editor.getTextView().focus();
+    editor.setFocus();
   };
   
   // -----------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ function(       editorInterface,                   editor,                      
               this.editor.reportError(summary);
             }
           }
-        });
+        }.bind(this));
         this.editor.reportError(summary);
       } 
     }

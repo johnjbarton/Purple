@@ -59,6 +59,9 @@ function(OrionEditor,          annotationFactory,              Assembly,        
 //    syntaxHighlighter.highlight(name, OrionEditor.getTextView());
   };
     
+  editorFeatureByOrion.setFocus = function() {
+     OrionEditor.getTextView().focus();
+  };
     
   Assembly.addListenerContainer(editorFeatureByOrion);
   
