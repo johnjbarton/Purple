@@ -4,7 +4,8 @@
 /*globals getChromeExtensionPipe window console Q require document */
 
 function failConnection(err) {
-    console.err("Error "+err, err);
+    console.error("Error "+err, err);
+    alert(err);
 }
 
 window.debugChromeDebuggerRemote = false;
