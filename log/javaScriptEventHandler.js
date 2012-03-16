@@ -15,7 +15,6 @@ function (   LogBase,               ChromeDebuggerProxy,             Resources, 
       } else if ( ! JavaScriptResource.isPrototypeOf(resource) ) {
         // we have a network resource which we just discovered is a JavaScriptResource
         var tmp = JavaScriptResource.new(url, isContentScript);
-        resource = tmp.mergeMethods(resource);
         Resources.replace(url, resource, p_id);
       }
       return resource;

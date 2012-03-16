@@ -71,6 +71,7 @@ function initialize() {
        // when we are attached to the given page, show the log
        Q.when(debuggerProxy, function(debuggerProxy) {
          console.log("debuggerProxy ready");
+         debuggerProxy.Page.reload();   // reload always for debugging Purple TODO
          DebuggerLogAssembly.showAll();
        }, failConnection).end();
      

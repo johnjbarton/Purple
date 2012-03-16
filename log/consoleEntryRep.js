@@ -138,7 +138,7 @@ function (                domplate,             PartLinkRep,             Resourc
         var stack = this.getFrames(message);
         return function(event) {
           var elt = event.currentTarget;
-          var stackElt = callStackRep.tag.insertAfter({frames: stack}, elt.parentElement);
+          var stackElt = callStackRep.tag.insertAfter({frames: stack.reverse()}, elt.parentElement);
           return stackElt;
         }
       },

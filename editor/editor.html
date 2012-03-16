@@ -22,7 +22,7 @@
             MetaObject: '../lib/MetaObject',
             'editor': '../editor',
             'compiler': '../compiler',
-            'lib': '../lib',
+            'lib': '../lib'
           }
         }); 
         </script>
@@ -32,8 +32,13 @@
             require(['editor/editorInterface', 'editor/editorCompilerAssembly'], function assemble(editorInterface, editorCompilerAssembly) {
               console.log("editorCompilerAssembly loaded");
               editorCompilerAssembly.initialize();
+              // TODO service interface system  like orion or web intents
+              // We can't control when the require.js event completes, 
+              // so we can't use 'load' to signal our container that we are ready.
               var event = window.document.createEvent('CustomEvent');
-              event.initCustomEvent('purpleEditorReady', true, false, editorCompilerAssembly);
+              window.editorInterface =  editorCompilerAssembly;
+              console.log("editor.html sending ready event "+window.location.toString());
+              event.initCustomEvent('purpleEditorReady', true, false);
               window.dispatchEvent(event);
             });
         }, false);
