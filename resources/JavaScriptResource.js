@@ -1,11 +1,18 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
+/*globals define*/
+
 define(['../lib/domplate/lib/domplate', '../resources/Resource', '../resources/JavaScriptResourceRep'], function (domplate, Resource, JavaScriptResourceRep) {
   
   var JavaScriptResource = Resource.extend({
   
-    initialize: function (url, isContentScript) {
+    initialize: function (url, isContentScript, asVanillaResource) {
+      if (asVanillaResource) {
+        Object.keys(asVanillaResource).forEach(function(prop) {
+          this[prop] = asVanillaResource[prop];
+        }.bind(this));
+      }
       this.url = url;
       this.isContentScript = isContentScript;
       this.scripts = {};
