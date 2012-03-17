@@ -12,19 +12,16 @@
  * looking.  As a side effect of the visit we create a stack of the 
  * trees that enclose the mark, nesting to the right.
  */
-define([], function() {
+
+/*globals define*/ 
+ 
+define([], 
+function() {
   'use strict';
 
-  var ParseTreeType = traceur.syntax.trees.ParseTreeType;
   var ParseTreeVisitor = traceur.syntax.ParseTreeVisitor;
   var ParseTreeWriter = traceur.codegeneration.ParseTreeWriter;
-  var TokenType = traceur.syntax.TokenType;
-  var NewExpression = traceur.syntax.trees.NewExpression;
   var getTreeNameForType = traceur.syntax.trees.getTreeNameForType;
-
-  /*
-  
-  */
 
   /**
    *  a parse tree

@@ -18,9 +18,6 @@ function (   LogBase,             Resources,             Resource,     Q) {
     },
     
   setRequestById: function(requestId, resource) {
-    if (this.requests.hasOwnProperty(requestId)) {
-      throw new Error("duplicate requestId, "+requestId+" something is wrong ");
-    }
     this.requests[requestId] = resource;
     // close over the handler here to narrow the interface to Resource
     // |this| will be bound to a Resource

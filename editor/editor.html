@@ -29,14 +29,14 @@
         <script type="text/javascript" src="../compiler/traceur/trunk/src/traceur.js"></script>
         <script>
         window.addEventListener('load', function() {
-            require(['editor/editorInterface', 'editor/editorCompilerAssembly'], function assemble(editorInterface, editorCompilerAssembly) {
+            require(['editor/EditorInterface', 'editor/editorCompilerAssembly'], function assemble(EditorInterface, editorCompilerAssembly) {
               console.log("editorCompilerAssembly loaded");
               editorCompilerAssembly.initialize();
               // TODO service interface system  like orion or web intents
               // We can't control when the require.js event completes, 
               // so we can't use 'load' to signal our container that we are ready.
               var event = window.document.createEvent('CustomEvent');
-              window.editorInterface =  editorCompilerAssembly;
+              window.EditorInterface =  editorCompilerAssembly;
               console.log("editor.html sending ready event "+window.location.toString());
               event.initCustomEvent('purpleEditorReady', true, false);
               window.dispatchEvent(event);

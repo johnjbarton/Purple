@@ -25,6 +25,10 @@ function initialize() {
         'features': '../features',
         'editor':'../editor',
         'q-comm':'../lib/MetaObject/q-comm',
+        'compiler':'../compiler',
+        'orion': '../../../orion.client/bundles/org.eclipse.orion.client.editor/web/orion',
+         text: '../../../MetaObject/requirejs/text',
+         i18n: '../../../MetaObject/requirejs/i18n'
       }
     }); 
 

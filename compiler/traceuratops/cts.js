@@ -17,8 +17,8 @@
       }
     }); 
     
-    require(['editor/editorInserter', 'editor/editorInterface'], 
-    function assemble(editorInserter,         editorInterface) {
+    require(['editor/editorInserter', 'editor/EditorInterface'], 
+    function assemble(editorInserter,         EditorInterface) {
     
       function insert(parentID, fncOfIframe) {
         var parentElt = window.document.getElementById(parentID);

@@ -49,9 +49,8 @@ define([
     orion_textview_textModel,
     orion_textview_projectionTextModel,
     orion_textview_textView, 
-    orion_textview_tooltip,
-    orion_textview_rulers,
-    orion_textview_undoStack
+    orion_textview_undoStack,
+    orion_textview_rulers
   );
   
   orion.editor = orion.mergeMethods(

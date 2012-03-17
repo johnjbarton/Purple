@@ -13,8 +13,8 @@
 
 // almost the embeddededitor code
 
-define(['require', 'editor/orionAssembly', 'editor/annotationFactory', 'editor/revisionByOrion',       'q/q'], 
-function(require,                  orion,         annotationFactory,          RevisionControl,            Q){
+define(['require', 'editor/orionAssembly', 'editor/annotationFactory', 'editor/revisionByOrion'], 
+function(require,                  orion,         annotationFactory,           RevisionControl){
 
   // Syntax highlighting is triggered by an editor callback 'lineStyle' event
   function ErrorStyler(view) {
@@ -33,8 +33,6 @@ function(require,                  orion,         annotationFactory,          Re
     }
   };
 
-  var editorDomNode = document.getElementById("editor");
-  
   // These stylesheets will be inserted into the iframe containing the editor.
   var stylesheets = [
     "orion/textview/textview.css", 
@@ -46,14 +44,6 @@ function(require,                  orion,         annotationFactory,          Re
     return require.toUrl("orion/"+"../"+sheet);
   }).concat([require.toUrl("editor/../ui/purple.css")]);
     
-  var textViewFactory = function() {
-    return new orion.textview.TextView({
-      parent: editorDomNode,
-      stylesheet: stylesheets,
-      tabSize: 2
-    });
-  };
-
   var contentAssistFactory = function(editor) {
     var contentAssist = new orion.editor.ContentAssist(editor, "contentassist");
     var cssContentAssistProvider = new orion.editor.CssContentAssistProvider();
@@ -69,46 +59,11 @@ function(require,                  orion,         annotationFactory,          Re
   };
   
   
-  
-  // Canned highlighters for js, java, and css. Grammar-based highlighter for html
-  var syntaxHighlighter = {
-    stylers: {}, 
-    
-    highlight: function(fileName, textView) {
-      if (fileName) {
-        var splits = fileName.split(".");
-        var extension = splits.pop().toLowerCase();
-        if (splits.length > 0) {
-          switch(extension) {
-            case "js":
-              this.stylers[extension] = new ErrorStyler(textView);
-              break;
-            case "java":
-              //this.stylers[extension] = new examples.textview.TextStyler(textView, "java");
-              break;
-            case "css":
-              //this.stylers[extension] = new examples.textview.TextStyler(textView, "css");
-              break;
-            case "html":
-              this.stylers[extension] = new orion.editor.TextMateStyler(textView, orion.editor.HtmlGrammar.grammar);
-              break;
-          }
-        }
-        return this.stylers[extension];
-      }
-    }
-  };
-  
   function save(editor) {
     var url = editor.sourceName;
     var src = editor.getContents();
-    var saveFinished = RevisionControl.save(url, src);
+    RevisionControl.save(url, src);
     editor.setInput(null, null, null, true);
-    Q.when(saveFinished, function(saveFinished) {
-      console.log(url + ' save results ', saveFinished);
-    }, function(error) {
-      console.error(error);
-    });
   }
   
   var keyBindingFactory = function(editor, keyModeStack, undoStack, contentAssist) {
@@ -138,19 +93,32 @@ function(require,                  orion,         annotationFactory,          Re
     }
   };
   
-  var editor = new orion.editor.Editor({
-    textViewFactory: textViewFactory,
-    undoStackFactory: new orion.editor.UndoFactory(),
-    annotationFactory: annotationFactory,
-    lineNumberRulerFactory: new orion.editor.LineNumberRulerFactory(),
-    contentAssistFactory: contentAssistFactory,
-    keyBindingFactory: keyBindingFactory, 
-    statusReporter: statusReporter,
-    domNode: editorDomNode
-  });
-    
-  editor.installTextView();
+  function OrionEditor(editorElement) {
+    var textViewFactory = function() {
+      return new orion.textview.TextView({
+        parent: editorElement,
+        stylesheet: stylesheets,
+        tabSize: 2
+      });
+    };
 
-  return editor;
+    var config = {
+      textViewFactory: textViewFactory,
+      undoStackFactory: new orion.editor.UndoFactory(),
+      annotationFactory: annotationFactory,
+      lineNumberRulerFactory: new orion.editor.LineNumberRulerFactory(),
+      contentAssistFactory: contentAssistFactory,
+      keyBindingFactory: keyBindingFactory, 
+      statusReporter: statusReporter,
+      domNode: editorElement
+    };
+    
+    orion.editor.Editor.call(this, config);
+    this.installTextView();
+  }
+
+  OrionEditor.prototype = orion.editor.Editor.prototype;
+
+  return OrionEditor;
 
 });

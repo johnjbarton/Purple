@@ -3,8 +3,8 @@
 
 /*globals define window */
 
-define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps', '../lib/Rep', 'features/Features'], 
-function (                   domplate,                Resources,          Reps,          Rep,            Features) {
+define(['../lib/domplate/lib/domplate', '../resources/Resources', '../lib/reps', '../lib/Rep', 'editor/editorInserter'], 
+function (                   domplate,                Resources,          Reps,          Rep,          editorInserter) {
   
   var thePurple = window.purple;
   
@@ -88,7 +88,7 @@ function (                   domplate,                Resources,          Reps, 
     var lineNumber = rep.getLineNumber(repObject); // the line comes from eg the error message
     var columnNumber = rep.getColumnNumber(repObject); // the line comes from eg the error message
     try {
-      rep.openPartWith(destinationFeature, target, resource, lineNumber, columnNumber);
+      rep.openPartWith(target, resource, lineNumber, columnNumber);
     } catch(exc) {
       PartLinkRep.onError(exc);
     }
@@ -96,20 +96,15 @@ function (                   domplate,                Resources,          Reps, 
     event.preventDefault();
   };
     
-  PartLinkRep.openPartWith = function(feature, elt,  resource, lineNumber, columnNumber) {
-    var opener = Features[feature];      
-    if (opener) {
-      var blockElt = elt;
-      var display;
-      while(blockElt && display !== 'block') {
-        var eltStyle = blockElt.currentStyle || window.getComputedStyle(blockElt, "");
-        display = eltStyle.display;
-        blockElt = blockElt.parentElement;
-      }
-      opener.open(blockElt, 300, resource.url, lineNumber, columnNumber);
-    } else {
-      PartLinkRep.onError("No part with feature "+feature+" found");
+  PartLinkRep.openPartWith = function(elt,  resource, lineNumber, columnNumber) {
+    var blockElt = elt;
+    var display;
+    while(blockElt && display !== 'block') {
+      var eltStyle = blockElt.currentStyle || window.getComputedStyle(blockElt, "");
+      display = eltStyle.display;
+      blockElt = blockElt.parentElement;
     }
+    editorInserter.open(blockElt, 300, resource.url, lineNumber, columnNumber);
   }
   
   PartLinkRep.onError = function() {

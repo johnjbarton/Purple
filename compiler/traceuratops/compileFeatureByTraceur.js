@@ -8,7 +8,8 @@
 
 /*globals define traceur console*/
 
-define(['lib/part', 'compiler/traceuratops/ParseTreeStyler', 'compiler/traceuratops/ParseTreeLeafFinder'], function(PurplePart, ParseTreeStyler, ParseTreeLeafFinder) {
+define(['compiler/traceuratops/ParseTreeStyler', 'compiler/traceuratops/ParseTreeLeafFinder'], 
+function(                      ParseTreeStyler,                         ParseTreeLeafFinder) {
   'use strict';
   
   //---------------------------------------------------------------------------------------
