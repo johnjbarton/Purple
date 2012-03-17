@@ -3,25 +3,23 @@
 
 /*globals define window console*/
 
-define(['require', 'editor/EditorInterface','q/q'],
-function(require,          EditorInterface,    Q) {
+define(['require', 'editor/EditorInterface'],
+function(require,          EditorInterface) {
 
 'use strict';
 
+var editorContainerHTML =
+  "<div class='editorContainer' height='300px' width='100%'>" +
+  "  <div class='editor' id='editor'>" +
+  "  </div>" +
+  "  <div class='contentAssist' id='contentAssist'>" +
+  "  </div>";
+
 var editorInserter = {
 
-    open: function(parentElement, heightPxs, url, line, col) {
-      var editorDiv = parentElement.ownerDocument.createElement('div');
-      editorDiv.setAttribute('id', 'editor');
-      editorDiv.setAttribute('height', heightPxs+'px');
-      
-      var contentAssist = parentElement.ownerDocument.createElement('div');
-      contentAssist.setAttribute('id', 'contentAssist');
-      contentAssist.setAttribute('class', 'contentAssist');
-      
-      parentElement.appendChild(editorDiv);
-      parentElement.appendChild(contentAssist);
-      var editor = new EditorInterface(editorDiv);
+    open: function(parentElement, heightPxs, url, line, col) {      
+      parentElement.innerHTML = editorContainerHTML;
+      var editor = new EditorInterface(parentElement.firstChild);
       console.log('editor ready, opening '+url);
       editor.open(url, line, col);
   }
