@@ -1,17 +1,19 @@
 // See Purple/license.txt for Google BSD license
 // Copyright 2011 Google, Inc. johnjbarton@johnjbarton.com
 
-define(['lib/domplate/lib/domplate', 'resources/PartLinkRep', 'resources/Resources', 'lib/reps',  'lib/Rep', 'lib/string'], 
-function (                domplate,             PartLinkRep,             Resources,       Reps,        Rep,          Str) {
+/*globals define window console*/
+
+define(['lib/domplate/lib/domplate', 'resources/PartLinkRep', 'resources/Resources', 'lib/reps',  'lib/Rep', 'lib/string', 'editor/EditorInterface'], 
+function (                domplate,             PartLinkRep,             Resources,       Reps,        Rep,          Str,          EditorInterface) {
   
-  with(domplate.tags) {
+  var dp = domplate.tags;
   
     // a twisty that adds elements on click
     // {action: function (event) { return disclosedElement; } }
     var LazyDisclosureRep = domplate.domplate({
-      tag: SPAN({'onclick':'$action|setToggleMore'},
-             IMG({'class':'closedLazy', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
-             IMG({'class':'openedLazy', 'src':"../ui/icons/from-firebug/twistyOpen.png"})
+      tag: dp.SPAN({'onclick':'$action|setToggleMore'},
+             dp.IMG({'class':'closedLazy', 'src':"../ui/icons/from-firebug/twistyClosed.png"}),
+             dp.IMG({'class':'openedLazy', 'src':"../ui/icons/from-firebug/twistyOpen.png"})
            ),
 
       // called when the domplate is expanded
@@ -28,19 +30,19 @@ function (                domplate,             PartLinkRep,             Resourc
           } else {
             elt.resolved.classList.add('lazyClosed');
           }
-        }
-      },
+        };
+      }
     });
   
     var stackFrameRep =  domplate.domplate(
       PartLinkRep, 
       {
         tag:  // the property |tag| is special, see domplate isTag()
-              TR({'class':'callStackFrame noSource', }, 
-                TD({'class':'functionName'}, '$object|getFunctionName'), // only one of the next two should be shown
-                TD({'class':'sourceCodeJS', 'id':'$object|getPromiseId'}, ""),
-                TD({'title':'$object|getTooltipText'},
-                   TAG(PartLinkRep.tag, {object:'$object'})
+              dp.TR({'class':'callStackFrame noSource'}, 
+                dp.TD({'class':'functionName'}, '$object|getFunctionName'), // only one of the next two should be shown
+                dp.TD({'class':'sourceCodeJS', 'id':'$object|getPromiseId'}, ""),
+                dp.TD({'title':'$object|getTooltipText'},
+                   dp.TAG(PartLinkRep.tag, {object:'$object'})
                 )
               ),
 
@@ -67,7 +69,7 @@ function (                domplate,             PartLinkRep,             Resourc
 
         updateFrameUI: function(object, id, content) {
           // yay we got the content
-          var elt = document.getElementById(id);
+          var elt = window.document.getElementById(id);
           var line = this.getLineNumber(object);
           var src = content.body.split('\n');  // TODO window/unix bah
           elt.innerHTML = Str.escapeForSourceLine(src[line - 1]);
@@ -85,36 +87,110 @@ function (                domplate,             PartLinkRep,             Resourc
         name: "stackFrameRep",
         
         getRequiredPropertyNames: function() {
-          return ['url', 'functionName']
+          return ['url', 'functionName'];
         }
       }
     );
     Reps.registerPart(stackFrameRep);
     
     var callStackRep = domplate.domplate({
-      tag: TABLE({'class':'callStack'},
-             TBODY(
-               FOR('frame', '$frames',
-                 TAG(stackFrameRep.tag, {object: '$frame'})
+      tag: dp.TABLE({'class':'callStack'},
+             dp.TBODY(
+               dp.FOR('frame', '$frames',
+                 dp.TAG(stackFrameRep.tag, {object: '$frame'})
                )
              )
-           ),
+           )
     });
+
+    var editingFrameRep =  domplate.domplate(
+      PartLinkRep, 
+      {
+        tag:  
+          dp.TR({'class':'editingFrame noSource'}, 
+            dp.TD({'class':'editorContainer', 'id':'$object|getPromiseId'}, 
+              dp.DIV({'class': 'editor', 'id': 'editor'}, ''
+                // filled in by editor
+              )
+            ) 
+          ),
+
+        getUniqueId: function() {
+          this.timesCalled = (this.timesCalled || 0) + 1;
+          return "sf_"+this.timesCalled;
+        },
+        
+        getPromiseId: function(object) {
+          var resource = this.getResource(object);
+          var id = this.getUniqueId();
+          window.setTimeout(function() {
+            var elt = window.document.getElementById(id);
+            var url = resource.url;
+            var line = this.getLineNumber(object);
+            var editor = new EditorInterface(elt.firstElementChild);
+            console.log('editor ready, opening '+url);
+            editor.open(url, line);
+          }.bind(this));
+          return id;
+        },
+
+        updateFrameUI: function(object, id, content) {
+          // yay we got the content
+          var elt = window.document.getElementById(id);
+          var line = this.getLineNumber(object);
+          var src = content.body.split('\n');  // TODO window/unix bah
+          elt.innerHTML = Str.escapeForSourceLine(src[line - 1]);
+        }, 
+        
+        reportFail: function() {
+          console.log("stackFrameRep.getSourceLine FAILED", arguments);
+        },
+
+        getTooltipText: function(object) {
+          var line = this.getLineNumber(object);
+          return this.getURL(object)+(line ? ('@'+line) : "");
+        },
+      
+        name: "editingFrameRep",
+        
+        getRequiredPropertyNames: function() {
+          return ['url', 'functionName'];
+        }
+      }
+    );
+    Reps.registerPart(editingFrameRep);
+
+    var editingStackRep = domplate.domplate({
+      tag: 
+        dp.TABLE({'class':'editingStack'},
+          dp.TBODY(
+            dp.FOR('frame', '$frames|newestFrames',
+              dp.TAG(editingFrameRep.tag, {object: '$frame'})
+            )
+          )
+        ),
+      newestFrames: function(frames) {
+        return frames.slice(-3);
+      }
+         
+    });
+
 
     //  http://code.google.com/chrome/devtools/docs/protocol/0.1/console.html#type-ConsoleMessage
 
     var consoleEntryRep = domplate.domplate(
       Rep,
       {
-      tag: DIV({'class': 'console-$object.message.level'},
-        SPAN({'class': 'linkedText'},
-          TAG(LazyDisclosureRep.tag, {action: '$object.message|expandStack'}),
-          SPAN('$object.message.text'),
-          SPAN({'title':'$object|getTooltipText', 'class': 'messageLink'},
-            TAG(PartLinkRep.tag, {object:'$object.message'})
+      tag: dp.DIV({'class': 'console-$object.message.level'},
+        dp.SPAN({'class': 'linkedText'},
+          dp.TAG(LazyDisclosureRep.tag, {action: '$object.message|expandStack'}),
+          dp.SPAN('$object.message.text'),
+          dp.SPAN({'title':'$object|getTooltipText', 'class': 'messageLink'},
+            dp.TAG(PartLinkRep.tag, {object:'$object.message'})
           )
         )
       ),
+      
       getURL: function(object) {
         if (object.url) {
           return object.url;
@@ -131,16 +207,18 @@ function (                domplate,             PartLinkRep,             Resourc
         console.log("getURL fails for %o", object);
         return "(no URL)";
       },
+      
       getTooltipText: function(object) {
         return this.getURL(object);
       },
+      
       expandStack: function(message) {
         var stack = this.getFrames(message);
         return function(event) {
           var elt = event.currentTarget;
-          var stackElt = callStackRep.tag.insertAfter({frames: stack.reverse()}, elt.parentElement);
+          var stackElt = editingStackRep.tag.insertAfter({frames: stack.reverse()}, elt.parentElement);
           return stackElt;
-        }
+        };
       },
       
       toggleMore: function(event) {
@@ -160,25 +238,26 @@ function (                domplate,             PartLinkRep,             Resourc
       name: 'consoleEntryRep',
       getRequiredPropertyNames: function() {
         return ['message'];
-      },
+      }
     });
     
     consoleEntryRep.messagesClearedEntryRep = domplate.domplate({
-        tag: DIV({'class':'consoleCleared'}, "Console Cleared")
+        tag: dp.DIV({'class':'consoleCleared'}, "Console Cleared")
       });
     
     consoleEntryRep.InternalExceptionTag = domplate.domplate(
       consoleEntryRep,
       {
-      tag: DIV({'class': 'console-error internalError hasMore', 'onclick': '$toggleMore'}, '$object.message',
-        TABLE({'class':'callStack'},
-          TBODY (
-            FOR('frame', '$object|getFrames',
-              TAG(stackFrameRep.tag, {object: '$frame'})
+      tag: 
+        dp.DIV({'class': 'console-error internalError hasMore', 'onclick': '$toggleMore'}, '$object.message',
+          dp.TABLE({'class':'callStack'},
+            dp.TBODY (
+              dp.FOR('frame', '$object|getFrames',
+                dp.TAG(stackFrameRep.tag, {object: '$frame'})
+              )
             )
           )
-        )
-      ),
+        ),
       getFrames: function(message) {
         var stack = message.stack;
         // The internal errors has a funky string stack
@@ -205,9 +284,8 @@ function (                domplate,             PartLinkRep,             Resourc
           }
         }
         return frames;
-      },
+      }
     });
-  }
   
   Reps.registerPart(consoleEntryRep);
   
