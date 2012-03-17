@@ -107,8 +107,8 @@ function (                domplate,             PartLinkRep,             Resourc
       PartLinkRep, 
       {
         tag:  
-          dp.TR({'class':'editingFrame noSource'}, 
-            dp.TD({'class':'editorContainer', 'id':'$object|getPromiseId'}, 
+          dp.TR({'class':'editorRow noSource'}, 
+            dp.TD({'class':'editorCell', 'id':'$object|getPromiseId'}, 
               dp.DIV({'class': 'editor', 'id': 'editor'}, ''
                 // filled in by editor
               )

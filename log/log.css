@@ -10,6 +10,7 @@ html, body, iframe {
 }
 body {
   font-family:Verdana,Geneva,sans-serif;
+  font-size: small;
 }
 .hide {
   display: none;

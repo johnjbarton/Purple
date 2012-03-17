@@ -44,6 +44,14 @@ function(require,                  orion,         annotationFactory,           R
     return require.toUrl("orion/"+"../"+sheet);
   }).concat([require.toUrl("editor/../ui/purple.css")]);
     
+  stylesheets.forEach(function loadCSS(sheetURL) {
+    var elt = document.createElement('link');
+    elt.setAttribute('rel', 'stylesheet');
+    elt.setAttribute('type', 'text/css');
+    elt.setAttribute('href', sheetURL);
+    document.head.appendChild(elt);
+  });
+    
   var contentAssistFactory = function(editor) {
     var contentAssist = new orion.editor.ContentAssist(editor, "contentassist");
     var cssContentAssistProvider = new orion.editor.CssContentAssistProvider();
@@ -97,7 +105,6 @@ function(require,                  orion,         annotationFactory,           R
     var textViewFactory = function() {
       return new orion.textview.TextView({
         parent: editorElement,
-        stylesheet: stylesheets,
         tabSize: 2
       });
     };
