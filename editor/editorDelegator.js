@@ -12,6 +12,12 @@ function(       OrionEditor,          annotationFactory,       Assembly,        
   function EditorDelegator(element) {
     this.orionEditor = new OrionEditor(element);
     Assembly.addListenerContainer(this);
+
+    var view = this.orionEditor.getTextView();
+    this._onModelChanged = this._onModelChanged.bind(this);
+    view.addEventListener("ModelChanged", this._onModelChanged, "no data");
+    this._onLineStyle = this._onLineStyle.bind(this);
+    view.addEventListener("LineStyle", this._onLineStyle);
   }
     
   // index by compiler.api.TokenTypes, output Orion class
@@ -36,8 +42,7 @@ function(       OrionEditor,          annotationFactory,       Assembly,        
       url,
       function(event) {
         var src = event.currentTarget.responseText;
-        // don't give line numbers to avoid triggering onGotoLine
-        this.setContent(this.orionEditor.sourceName, undefined, undefined, undefined, src);
+        this.setContent(this.orionEditor.sourceName, lineNumber, columnNumber, endNumber, src);
         return this;
       }.bind(this),
       function(msg) { 
@@ -108,13 +113,6 @@ function(       OrionEditor,          annotationFactory,       Assembly,        
   };
 
   //---------------------------------------------------------------------------------------------
-  EditorDelegator.prototype.initialize = function() {
-    var view = this.orionEditor.getTextView();
-    this._onModelChanged = this._onModelChanged.bind(this);
-    view.addEventListener("ModelChanged", this._onModelChanged, "no data");
-    this._onLineStyle = this._onLineStyle.bind(this);
-    view.addEventListener("LineStyle", this._onLineStyle);
-  };
     
   EditorDelegator.prototype.destroy = function() {
     this.orionEditor.getTextView().removeEventListener("ModelChanged", this, this._onModelChanged, "no data");

@@ -126,10 +126,13 @@ function (                domplate,             PartLinkRep,             Resourc
           window.setTimeout(function() {
             var elt = window.document.getElementById(id);
             var url = resource.url;
-            var line = this.getLineNumber(object);
+            var bottomLine = this.getLineNumber(object);
             var editor = new EditorInterface(elt.firstElementChild);
-            console.log('editor ready, opening '+url);
+            var line = bottomLine - 4; // position the frame line at the bottom
+            var col = this.getColumnNumber(object);
+            console.log('editor ready, opening '+url + '@' +bottomLine + '.' +col);
             editor.open(url, line);
+            this.highlightRegion(elt, line, 1, col);
           }.bind(this));
           return id;
         },
@@ -141,6 +144,10 @@ function (                domplate,             PartLinkRep,             Resourc
           var src = content.body.split('\n');  // TODO window/unix bah
           elt.innerHTML = Str.escapeForSourceLine(src[line - 1]);
         }, 
+        
+        highlightRegion: function(element, line, startCol, endCol) {
+          var rulerLines = element.querySelectorAll('rulerLines');
+        },
         
         reportFail: function() {
           console.log("stackFrameRep.getSourceLine FAILED", arguments);
@@ -170,7 +177,7 @@ function (                domplate,             PartLinkRep,             Resourc
           )
         ),
       newestFrames: function(frames) {
-        return frames.slice(-3);
+        return frames.slice(0,3);
       }
          
     });
@@ -216,7 +223,7 @@ function (                domplate,             PartLinkRep,             Resourc
         var stack = this.getFrames(message);
         return function(event) {
           var elt = event.currentTarget;
-          var stackElt = editingStackRep.tag.insertAfter({frames: stack.reverse()}, elt.parentElement);
+          var stackElt = editingStackRep.tag.insertAfter({frames: stack}, elt.parentElement);
           return stackElt;
         };
       },

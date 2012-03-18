@@ -8,25 +8,26 @@
 }
 .editingStack {
   width: 100%;
-  height: 100px;
   font-size: small;
 }
+
 .editorRow {
   width: 100%;
+  border-bottom: 2px solid gray;
 }
 
 .editorCell {
-  height: 300px;
+  height: 90px;
   width: 100%;
 }
 
 .editor {
-  height: 100%;
+  height: 90px;  /* 5*15px */
   width: 100%;
   font-size: small;
 }
 
 /* The Orion embedded editor uses a table, and the UA styles have to be cleared */
 table {
-  font-size: small;
+ /* font-size: small; */
 }
