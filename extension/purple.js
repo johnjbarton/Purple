@@ -41,12 +41,13 @@ chrome.devtools.panels.create('Purple', 'img/Purple32x32.png', 'purplePanel.html
           }
         }
       });
+      return editor;
   }
 
   function createEditorElement(doc) {
     var elt = doc.createElement('div');
     elt.classList.add('purple-editor');
-    doc.appendChild(elt);
+    doc.body.appendChild(elt);
     return elt;
   }
 
