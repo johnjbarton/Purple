@@ -1,0 +1,25 @@
+{
+  "name": "Purple",
+  "description": "QueryPoint Debugging for Devtools",
+  "version": "0.1",
+    // Assigns the name 'jccbokjldoioccfdnecgpcceconojjho',
+  // see http://code.google.com/chrome/extensions/manifest.html#key
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDO/y4dKINWRuekcn+RhUHpHNM/MlP6WntZwCtUwAQ+EYr/3zVGBd4NUcMbfRsqjM4aiDx0cINIVDI+shk1ppsUrwm9/qvjIV2lbijKyCKDWGlZi06uRnu72uE7FbHFHsvHylAZNF0AYKKyAdmkJy+A1oHJnEFhUiTda83jCaCB1QIDAQAB",
+ "content_security_policy": "script-src 'self' chrome-extension://fkhgelnmojgnpahkeemhnbjndeeocehc ; object-src 'self'",
+  "icons": {
+    "16": "img/Purple16x16.png",
+    "24": "img/Purple24x24.png",
+    "48": "img/Purple48x48.jpg",
+    "128": "img/Purple128x128.png"
+  },
+  "devtools_page": "purple.html",
+  "permissions": [
+    "tabs",
+    "http://*/",
+    "https://*/"
+  ],
+  "web_accessible_resources": [
+    "*"
+  ],
+  "manifest_version": 2
+}
