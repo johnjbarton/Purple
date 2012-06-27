@@ -25,39 +25,14 @@ chrome.devtools.panels.create('Purple', 'img/Purple32x32.png', 'purplePanel.html
 
   var resource_cache = {};
 
-  function createEditor(inElement, withContent, ofMIMEType) {
-      // TODO type
-     var editor = CodeMirror(inElement, {
-        value: withContent,
-        mode:  (ofMIMEType === 'script' ? 'javascript' : 'css'),
-        lineNumbers: true,
-        lineWrapping: true,
-        onGutterClick: function(cm, line) {
-          var info = cm.lineInfo(line);
-          if (info.markerText) {
-            cm.clearMarker(line);
-          } else {
-            cm.setMarker(line, "<span style=\"color: #0AF; font-weight: bold;\">%N%</span>");
-          }
-        }
-      });
-      return editor;
-  }
-
-  function createEditorElement(doc) {
-    var elt = doc.createElement('div');
-    elt.classList.add('purple-editor');
-    doc.body.appendChild(elt);
-    return elt;
-  }
 
   // load resource code into the editor
   function load(url, content, type, line) {
     if (panel_window) {
-      var editor = createEditor(createEditorElement(panel_window.document), content, type);
-      editor.setCursor({line:line||0, ch:0});
+      var editor = panel_window.purple.createEditor(url, content, type);
+      editor.goToLine(line || 1, 1);
     } else {
-      buffer = Array.prototype.slice.apply(null, arguments);
+      buffer = Array.prototype.slice.apply(arguments);
       console.log('buffering load', buffer);
     }
   }

@@ -19,6 +19,9 @@
     "https://*/"
   ],
   "web_accessible_resources": [
+    "purple.html",
+    "img/Purple32x32.png",
+    "purplePanel.html",
     "*"
   ],
   "manifest_version": 2
